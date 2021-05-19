@@ -11,15 +11,10 @@ catch
 
 %{ 
 TODO:
-    % Add Baro on/off logic
-    % 
+    % Figure out velocity behavior
 %}
 
 %% Constants
-
-% Sim version for MC
-% syms rho g0 u0 Theta0
-% consts = [rho g0 S m u0 Theta0];
 
 % non-sim version for MATLAB
 rho = 1.225; % kg/m^3
@@ -39,10 +34,9 @@ n_measurements = size(flightData.Time,1);
 syms t
 
 % States
-syms N E D u v w phi theta psi real
-xs = transpose([N E D u v w phi theta psi]);
+syms N E D u v w q1 q2 q3 q4  real
+xs = transpose([N E D u v w q1 q2 q3 q4]);
 ns = length(xs);
-angleEls = 7:9;
 
 xp = transpose([]);
 np = length(xp);
@@ -57,9 +51,13 @@ cntrl = transpose([X Y Z p q r]);
 
 % Dynamics
 
-I_C_B = (R_z(psi)*R_y(theta)*R_x(phi));
+I_C_B = [q1^2-q2^2-q3^2+q4^2, 2*(q1*q2 + q3*q4), 2*(q1*q3 - q2*q4);...
+         2*(q2*q1-q3*q4), -q1^2 + q2^2 - q3^2 + q4^2,2*(q1*q4 + q2*q3);...
+         2*(q3*q1+q2*q4),2*(q2*q3 -q1*q4),-q1^2 - q2^2 + q3^2 + q4^2]';
+     
+qVec = [q1 q2 q3 q4]';
 
-matlabFunction(I_C_B,'Vars',{phi,theta,psi},'File','I_C_B_Fcn');
+matlabFunction(I_C_B,'Vars',{qVec},'File','I_C_B_Fcn');
 
 
 fs = [
@@ -70,7 +68,7 @@ fs = [
     0;0;0;...
     
     % Angles
-    0;0;0 ...
+    0;0;0;0 ...
     ];
 
 fs = fs + [
@@ -81,9 +79,7 @@ fs = fs + [
             ([X;Y;Z;] - I_C_B'*[0;0;-9.8]);...
 
             % Angles
-            p + q*sin(phi)*tan(theta) + r*cos(phi)*tan(theta);...   % phidot
-            q*cos(phi) + -r*sin(phi);...                            % thetadot
-            q*sin(phi)*sec(theta) + r*cos(phi)*sec(theta);          % psidot
+            1/2*qXi([q1,q2,q3,q4]')*[p,q,r]';
             ];
 
 fp = zeros(np,1);
@@ -136,23 +132,30 @@ Q_Fcn = matlabFunction(Q,'Vars',dT,'File','Q_Fcn');
 % ---- Measurement Noise ---- %
 
 R = diag([sigmaN.N,sigmaN.E,sigmaN.D,...
-          sigmaN.Speed,...
-          sigmaN.Mag.x, sigmaN.Mag.y,sigmaN.Mag.z,...
-%           sigmaN.Heading,...
-          ].^2);       
+    sigmaN.Speed,...
+    [sigmaN.Mag.x, sigmaN.Mag.y,sigmaN.Mag.z],...
+    10*sigmaN.Heading...
+    ].^2);
+
+
  
 R_Fcn = matlabFunction(R,'Vars',dT,'File','R_Fcn');
 
 %% Sensor Measurement
 
-[bias,magVec0] = makeBias("magTuning_NorthLevel_old.txt");
+[bias,magVec0] = makeBias("magTuning_NorthLevelnew.txt");
+[bias] = makeMagBias(bias);
+
 v_I = I_C_B*[u+u0;v;w];
 matlabFunction(atan2(v_I(2),v_I(1)),'Vars',{x,cntrl},'File','heading_Fcn');
 
+magVec = I_C_B'*(magVec0-[bias.Mag.x;bias.Mag.y;bias.Mag.z]);
+matlabFunction(magVec,'Vars',{x,cntrl},'File','magVec_Fcn');
+
 h = [N;E;D;...
      norm([u+u0;v;w]);...
-     I_C_B'*magVec0;...
-%      psi;...
+     magVec;...
+     atan2(v_I(2),v_I(1));...
      ];
  
  % Full measurement
@@ -186,33 +189,29 @@ Z_input = [ % Acc
 
  Z =[r_NED;...
      flightData.Speed';...
-     flightData.Mag.x';...
+     ([flightData.Mag.x';...
      flightData.Mag.y';...
-     flightData.Mag.z';...
-%      flightData.Heading'...
+     flightData.Mag.z']...
+     -[bias.Mag.x;bias.Mag.y;bias.Mag.z+37.87]);...
+     setAngle2Range(flightData.Heading')...
      ];
 
 end
 
-%% Simulation Data
+simOn = 0;
 
-dT = 0;
-
-% Q = Q_Fcn(dT);
-% Z_input = 0 + diag(sqrt(Q)).*randn(3,n_measurements);
-% 
-% R = R_Fcn(dT);
-% Z = magVec0 + diag(sqrt(R)).*randn(3,n_measurements);
 
 %% Initial Conditions
+
+dT = 0;
 
 clear xhat1u xhat1p P1u P1p
 
 % xs = transpose([N E D u v w phi theta psi]);
 
 xs0 = [0;0;0;...
-       0;0;0;...
-       [0;0;180]*d2r];
+       10;0;0;...
+       Euler2Quat([0;0;270]*d2r)];
   
 xp0 = [];
    
@@ -220,16 +219,34 @@ x0 = [xs0;xp0];
 
 Ps0 = diag([0;0;0;...
             5;5;5;...
-            [20;20;20]*d2r].^2);
+            Euler2Quat([20;20;20]*d2r)].^2);
 Pp0 = diag([]);
 P0 = diag([diag(Ps0);diag(Pp0)]);
+
+
+
+%% Simulation Data
+if simOn
+cntrl  = [0;0;0;0;0;0];
+[tTrue,xTrue] = ode45(@f_cntrl_Fcn,[0:.001:10],[x0;cntrl]);
+xTrue =xTrue';
+
+n_measurements = length(tTrue);
+
+clear Z Z_input
+for i=1:n_measurements
+    Z(:,i) = h_Fcn(xTrue(1:10,i),xTrue(11:16,i));
+    Z_input(:,i) = cntrl;
+end
+
+end
+%% Initial Conditions
 
 % Instantiate Vars
 xhat1p = nan(n,n_measurements); P1p=nan(n,n,n_measurements);
 xhat1u = nan(n,n_measurements); P1u=nan(n,n,n_measurements);
 
 xhat1u(:,1)=x0;P1u(:,:,1)=P0;
-
 
 %% Estimator
 
@@ -242,11 +259,17 @@ for k=1:(n_measurements-1)
         disp(num2str(100*k/n_measurements));
     end
     
-    delt = (flightData.Time(k+1)-flightData.Time(k));
+    if simOn
+        delt = 0.001;
+    else
+        delt = (flightData.Time(k+1)-flightData.Time(k));
+    end
     
     % Predict State
     xhat1p(:,k+1)=predict_stateparam_IN(xhat1u(:,k),Z_input(:,k),delt);
-%     xhat1p(angleEls,k+1) = setAngle2Range(xhat1p(angleEls,k+1));
+    
+    % Normalize
+    xhat1p(7:10,k+1)=xhat1p(7:10,k+1)/norm(xhat1p(7:10,k+1));
 
     % Predict Covariance
     [F] = getF_stateparam(xhat1u(:,k),Z_input(:,k),delt);
@@ -260,50 +283,91 @@ for k=1:(n_measurements-1)
    
     % Update
     xhat1u(:,k+1) = xhat1p(:,k+1) + K *(Z(:,k+1) - h_Fcn(xhat1p(:,k+1),Z_input(:,k+1)));
-%     xhat1u(angleEls,k+1) = setAngle2Range(xhat1u(angleEls,k+1));
     P1u(1:n,1:n,k+1) = (eye(n)-K*H)*P1p(1:n,1:n,k+1)*(eye(n)-K*H)' + K*R*K';
+    
+    % Normalize
+    xhat1u(7:10,k+1)=xhat1u(7:10,k+1)/norm(xhat1u(7:10,k+1));
+    
+%     [ex,ey,ez] = Quat2base(xhat1u(7:10,k+1));
+    
     
 end
 toc
 
-% Kalman Smoother
-xhat1s(:,n_measurements)=xhat1u(:,k+1);P1s(1:n,1:n,n_measurements)=P1u(1:n,1:n,k+1);
-for k=(n_measurements-1):-1:1
-    [F] = getF_stateparam(xhat1u(:,k+1),Z_input(:,k+1),delt);
-    Ks = P1u(1:n,1:n,k)*F'/(P1p(1:n,1:n,k+1));
-    xhat1s(:,k)=xhat1u(:,k)+Ks*(xhat1s(:,k+1)-xhat1p(:,k+1));
-    P1s(1:n,1:n,k)=P1u(1:n,1:n,k)-Ks*(P1p(1:n,1:n,k+1)-P1s(1:n,1:n,k+1));
+if simOn
+    
+    plotStates(tTrue,xhat1u,1:3,{'N','E','D'},xTrue,{'Sim','True'})
+    
+    figure
+    plotStates(tTrue,xhat1u,4:6,{'u','v','w'},xTrue,{'Sim','True'})
+    
+    Euler1u = Quat2Euler(xhat1u(7:10,:));
+    Euler1s = Quat2Euler(xTrue(7:10,:));
+    
+    figure
+    plotStates(tTrue,Euler1u/d2r,1:3,{'\phi','\theta','\psi'},Euler1s/d2r,{'Sim','True'})
+    
+    
+    
+else
+    
+    % Kalman Smoother
+    xhat1s(:,n_measurements)=xhat1u(:,k+1);P1s(1:n,1:n,n_measurements)=P1u(1:n,1:n,k+1);
+    for k=(n_measurements-1):-1:1
+        [F] = getF_stateparam(xhat1u(:,k+1),Z_input(:,k+1),delt);
+        Ks = P1u(1:n,1:n,k)*F'/(P1p(1:n,1:n,k+1));
+        xhat1s(:,k)=xhat1u(:,k)+Ks*(xhat1s(:,k+1)-xhat1p(:,k+1));
+        P1s(1:n,1:n,k)=P1u(1:n,1:n,k)-Ks*(P1p(1:n,1:n,k+1)-P1s(1:n,1:n,k+1));
+        
+        % Normalize
+        xhat1s(7:10,k+1)=xhat1s(7:10,k+1)/norm(xhat1s(7:10,k+1));
+    end
+    
+    xhat1s(:,1:4)=xhat1u(:,1:4);    % Janky Fix
+    
+    plotStates(flightData.Time,xhat1u,1:3,{'N','E','D'})
+    
+    figure
+    plotStates(flightData.Time,xhat1u+[0;0;0;u0;0;0;0;0;0;0],4:6,{'u+u0','v','w'})
+    
+    Euler1u = Quat2Euler(xhat1u(7:10,:));
+    Euler1s = Quat2Euler(xhat1s(7:10,:));
+    
+    figure
+    plotStates(flightData.Time,Euler1u/d2r,1:3,{'\phi','\theta','\psi'},Euler1s/d2r,{'Forward','Backward'});
+    
+    h_save = NaN(1,length(flightData.Time));
+    for i=1:length(flightData.Time)
+        h_save(1,i) = heading_Fcn(xhat1u(:,i),zeros(6,1));
+    end
+    
+    figure
+    plot(flightData.Time,h_save(1,:));
+    hold on
+    plot(flightData.Time,setAngle2Range(flightData.Heading'));
+    legend('h','z')
+    grid on
+    ylabel('\psi [rad]')
+    xlabel('Time [s]')
+    
+    [ex,ey,ez] = Quat2base(xhat1u(7:10,:));
+    
+    h_save = NaN(3,length(flightData.Time));
+    for i=1:length(flightData.Time)
+        h_temp = magVec_Fcn(xhat1u(:,i),zeros(6,1));
+        h_save(:,i) = h_temp(1:3);
+    end
+    
+    
+    figure
+    plotStates(flightData.Time,h_save,1:3,{'X','Y','Z'},[flightData.Mag.x';flightData.Mag.y';flightData.Mag.z']-[bias.Mag.x;bias.Mag.y;bias.Mag.z+37.87],{'h','z'});
+    
+    
+    
+    
 end
 
-xhat1s(:,1:4)=xhat1u(:,1:4);    % Janky Fix
 
-[xhat1u(7:9,:)] = setAngle2Range(xhat1u(7:9,:));
-[xhat1s(7:9,:)] = setAngle2Range(xhat1s(7:9,:));
-
-
-plotStates(flightData.Time,xhat1u,1:3,{'N','E','D'},xhat1s,{'Forward','Backward'})
-
-figure
-plotStates(flightData.Time,xhat1u,4:6,{'u','v','w'},xhat1s,{'Forward','Backward'})
-
-figure
-plotStates(flightData.Time,xhat1u/d2r,7:9,{'\phi','\theta','\psi'},xhat1s/d2r,{'Forward','Backward'})
-
-figure
-plotStates(flightData.Time,xhat1u/d2r,9,{'\psi'},[0;0;0;0;0;0;0;0;1]*flightData.Heading'/d2r,{'Est','Heading Meas'})
-
-
-
-for i=1:length(flightData.Time)
-    h_save(1,i) = heading_Fcn(xhat1u(:,i),zeros(6,1));
-end
-
-figure
-plot(flightData.Time,h_save(1,:));
-hold on
-plot(flightData.Time,setAngle2Range(flightData.Heading'));
-legend('h','z')
-grid on
 
 
 

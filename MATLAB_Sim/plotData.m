@@ -1,5 +1,5 @@
 startIdx = 1;
-[flightData] = loadFlightData("DataFiles/ParamEstFlight2.txt",startIdx);
+[flightData] = loadFlightData("DataFiles/DATALOG.txt",startIdx);
 
 %% Position
 
@@ -15,19 +15,19 @@ for i=1:size(r_ECEF,2)
 end
 
 figure
-plot3(r_NED(2,:),r_NED(1,:),-r_NED(3,:));
+plot3(r_NED(1,:),r_NED(2,:),r_NED(3,:));
 axis equal
-xlabel('E'); ylabel('N'); zlabel('D');
+xlabel('N'); ylabel('E'); zlabel('D');
 
 % Pressure
-figure
-alt_all = pressure2alt(flightData.Pressure);
-alt = alt_all((~isnan(alt_all)));
-alt0 = alt(1);
-alt = alt-alt0;
-plot(flightData.Time(~isnan(alt_all)),-alt);
-hold on
-plot(flightData.Time,r_NED(3,:));
+% figure
+% alt_all = pressure2alt(flightData.Pressure);
+% alt = alt_all((~isnan(alt_all)));
+% alt0 = alt(1);
+% alt = alt-alt0;
+% plot(flightData.Time(~isnan(alt_all)),-alt);
+% hold on
+% plot(flightData.Time,r_NED(3,:));
 
 %% Inputs
 figure
@@ -81,6 +81,10 @@ ylabel('Mag Y ')
 subplot(3,2,6)
 plot(flightData.Time,flightData.Mag.z);
 ylabel('Mag Z ')
+
+subplot(1,2,1)
+plot(flightData.Time,vecnorm([flightData.Mag.x';flightData.Mag.y';flightData.Mag.z'],2));
+
 
 figure
 % Speed

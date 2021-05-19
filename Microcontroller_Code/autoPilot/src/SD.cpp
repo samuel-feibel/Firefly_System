@@ -85,8 +85,8 @@ bool setupSD() {
   myFile.print("Pressure (hPa), ");
   myFile.print("Reciever Throttle Val (0-180), "); myFile.print("Reciever Aileron Servo (deg), "); myFile.print("Reciever Elevator Servo (deg), "); myFile.print("Reciever Rudder Servo (deg), ");
   myFile.print("Auto Mode (deg), "); myFile.print("Aux Mode");
+  myFile.print("N, "); myFile.print("E, "); myFile.print("D, "); myFile.print("u, "); myFile.print("v, "); myFile.print("w, "); myFile.print("q1, "); myFile.print("q2, "); myFile.print("q3, "); myFile.print("q4, ");
   myFile.print("Servo Throttle Val (0-180), "); myFile.print("Servo Aileron Servo (deg), "); myFile.print("Servo Elevator Servo (deg), "); myFile.print("Servo Rudder Servo (deg), ");
-  myFile.print("N, "); myFile.print("E, "); myFile.print("D, "); myFile.print("u, "); myFile.print("v, "); myFile.print("w, "); myFile.print("q0, "); myFile.print("q1, "); myFile.print("q2, "); myFile.print("q3, ");
 
   // close file
   myFile.println("");
@@ -164,6 +164,8 @@ void writeData(double *state, double *servoInput, double *receiverInput, bool *a
     myFile.print(*autoMode);
     myFile.print(", ");
     myFile.print(*auxMode);
+    myFile.print(", ");
+
 
      // -- States --- //
     myFile.print(state[0]);

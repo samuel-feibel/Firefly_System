@@ -7,6 +7,7 @@
 #include <SparkFun_Ublox_Arduino_Library.h>
 #include <SD.h>
 #include <avr/wdt.h>
+#include <math.h>
 
 #include <RCTIMING_H.h>
 #include <SERVOS_H.h>
@@ -15,6 +16,7 @@
 #include <SD_H.h>
 #include <HELPFULFUNCTIONS_H.h>
 #include <STABILIZE_H.h>
+#include <test.h>
 
 // --- Constants --- //
 #define pi 2.0 * asin(1.0)
@@ -99,10 +101,16 @@ void loop()
     }
 
     // Debug Prints
+    // Serial.println(volume(3.0,3.0,3.0));
+    // double magX = getIMUmagX();
+    // double magY = getIMUmagY();
+    // double magZ = getIMUmagZ();
+    // Serial.println(sqrt(magX*magX+magY*magY+magZ*magZ));
     // Serial.println(getGPSYear());
     // printGPS();
     // printIMU();
     // Serial.println(receiverInput[1] );
+    Serial.println(getGPSSIV());
 
   }
 }

@@ -10,7 +10,7 @@ for i=1:length(els)
         end
     end
     ylabel(ylabels{i});
-    
+    grid on
 end
 
 xlabel('Time')
