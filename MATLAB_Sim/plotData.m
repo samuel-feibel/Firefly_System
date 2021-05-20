@@ -70,6 +70,7 @@ subplot(3,2,6)
 plot(flightData.Time,flightData.Gyr.z*r2d);
 ylabel('Gyr Z [deg/s]')
 
+
 % Mag
 figure
 subplot(3,2,2)

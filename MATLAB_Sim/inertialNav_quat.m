@@ -25,7 +25,7 @@ u0 = 0;
 startIdx = 1;        % This is specific to each set of flight data
 
 addpath('DataFiles');
-[flightData] = loadFlightData("DataFiles/paramEstFlight2.TXT",startIdx);
+[flightData] = loadFlightData("DataFiles/compassTuning_XY.TXT",startIdx);
 
 n_measurements = size(flightData.Time,1);
 
@@ -134,7 +134,7 @@ Q_Fcn = matlabFunction(Q,'Vars',dT,'File','Q_Fcn');
 R = diag([sigmaN.N,sigmaN.E,sigmaN.D,...
     sigmaN.Speed,...
     [sigmaN.Mag.x, sigmaN.Mag.y,sigmaN.Mag.z],...
-    10*sigmaN.Heading...
+%     10*sigmaN.Heading...
     ].^2);
 
 
@@ -144,7 +144,7 @@ R_Fcn = matlabFunction(R,'Vars',dT,'File','R_Fcn');
 %% Sensor Measurement
 
 [bias,magVec0] = makeBias("magTuning_NorthLevelnew.txt");
-[bias] = makeMagBias(bias);
+[bias,magVec0] = makeMagBias(bias);
 
 v_I = I_C_B*[u+u0;v;w];
 matlabFunction(atan2(v_I(2),v_I(1)),'Vars',{x,cntrl},'File','heading_Fcn');
@@ -155,7 +155,7 @@ matlabFunction(magVec,'Vars',{x,cntrl},'File','magVec_Fcn');
 h = [N;E;D;...
      norm([u+u0;v;w]);...
      magVec;...
-     atan2(v_I(2),v_I(1));...
+%      atan2(v_I(2),v_I(1));...
      ];
  
  % Full measurement
@@ -192,8 +192,8 @@ Z_input = [ % Acc
      ([flightData.Mag.x';...
      flightData.Mag.y';...
      flightData.Mag.z']...
-     -[bias.Mag.x;bias.Mag.y;bias.Mag.z+37.87]);...
-     setAngle2Range(flightData.Heading')...
+     -[bias.Mag.x;bias.Mag.y;bias.Mag.z]);...
+%      setAngle2Range(flightData.Heading')...
      ];
 
 end
@@ -210,8 +210,8 @@ clear xhat1u xhat1p P1u P1p
 % xs = transpose([N E D u v w phi theta psi]);
 
 xs0 = [0;0;0;...
-       10;0;0;...
-       Euler2Quat([0;0;270]*d2r)];
+       0;0;0;...
+       Euler2Quat([0;0;0]*d2r)];
   
 xp0 = [];
    
@@ -288,7 +288,7 @@ for k=1:(n_measurements-1)
     % Normalize
     xhat1u(7:10,k+1)=xhat1u(7:10,k+1)/norm(xhat1u(7:10,k+1));
     
-%     [ex,ey,ez] = Quat2base(xhat1u(7:10,k+1));
+    [ex,ey,ez] = Quat2base(xhat1u(7:10,k+1));
     
     
 end
@@ -360,7 +360,7 @@ else
     
     
     figure
-    plotStates(flightData.Time,h_save,1:3,{'X','Y','Z'},[flightData.Mag.x';flightData.Mag.y';flightData.Mag.z']-[bias.Mag.x;bias.Mag.y;bias.Mag.z+37.87],{'h','z'});
+    plotStates(flightData.Time,h_save,1:3,{'X','Y','Z'},[flightData.Mag.x';flightData.Mag.y';flightData.Mag.z']-[bias.Mag.x;bias.Mag.y;bias.Mag.z],{'h','z'});
     
     
     
@@ -369,7 +369,7 @@ end
 
 
 
-
+% +37.87
 
 
 
