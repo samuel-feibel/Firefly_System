@@ -138,7 +138,7 @@ Q_Fcn = matlabFunction(Q,'Vars',dT,'File','Q_Fcn');
 R = diag([sigmaN.N,sigmaN.E,sigmaN.D,...
           sigmaN.Speed,...
           sigmaN.Mag.x, sigmaN.Mag.y,sigmaN.Mag.z,...
-%           sigmaN.Heading,...
+          sigmaN.Heading,...
           ].^2);       
  
 R_Fcn = matlabFunction(R,'Vars',dT,'File','R_Fcn');
@@ -152,7 +152,7 @@ matlabFunction(atan2(v_I(2),v_I(1)),'Vars',{x,cntrl},'File','heading_Fcn');
 h = [N;E;D;...
      norm([u+u0;v;w]);...
      I_C_B'*magVec0;...
-%      psi;...
+     psi;...
      ];
  
  % Full measurement
@@ -189,7 +189,7 @@ Z_input = [ % Acc
      flightData.Mag.x';...
      flightData.Mag.y';...
      flightData.Mag.z';...
-%      flightData.Heading'...
+     flightData.Heading'...
      ];
 
 end
@@ -246,7 +246,6 @@ for k=1:(n_measurements-1)
     
     % Predict State
     xhat1p(:,k+1)=predict_stateparam_IN(xhat1u(:,k),Z_input(:,k),delt);
-%     xhat1p(angleEls,k+1) = setAngle2Range(xhat1p(angleEls,k+1));
 
     % Predict Covariance
     [F] = getF_stateparam(xhat1u(:,k),Z_input(:,k),delt);
@@ -260,7 +259,6 @@ for k=1:(n_measurements-1)
    
     % Update
     xhat1u(:,k+1) = xhat1p(:,k+1) + K *(Z(:,k+1) - h_Fcn(xhat1p(:,k+1),Z_input(:,k+1)));
-%     xhat1u(angleEls,k+1) = setAngle2Range(xhat1u(angleEls,k+1));
     P1u(1:n,1:n,k+1) = (eye(n)-K*H)*P1p(1:n,1:n,k+1)*(eye(n)-K*H)' + K*R*K';
     
 end
@@ -305,6 +303,14 @@ plot(flightData.Time,setAngle2Range(flightData.Heading'));
 legend('h','z')
 grid on
 
+
+figure
+plot(flightData.Time,xhat1u(3,:));
+hold on
+idc = logical(~isnan(flightData.Pressure));
+alt0 = pressure2alt(flightData.Pressure(idc(1)));
+alt = pressure2alt(flightData.Pressure(idc));
+plot(flightData.Time(idc),-(alt-alt0));
 
 
 

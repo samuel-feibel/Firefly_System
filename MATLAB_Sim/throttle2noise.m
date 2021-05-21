@@ -32,35 +32,35 @@ for j = 1:length(fileNames)
     figure(1)
     subplot(3,3,1); hold on;
     plot(sigma(j).ThrottleVal,sigma(j).Gyr.x);
-    ylabel('Gyr X');
+    ylabel('Gyr X 1\sigma [dps]'); xlabel('Throttle')
     subplot(3,3,4); hold on;
     plot(sigma(j).ThrottleVal,sigma(j).Gyr.y);
-    ylabel('Gyr Y');
+    ylabel('Gyr Y 1\sigma [dps]'); xlabel('Throttle')
     subplot(3,3,7); hold on;
     plot(sigma(j).ThrottleVal,sigma(j).Gyr.z);
-    ylabel('Gyr Z');
+    ylabel('Gyr Z 1\sigma [dps]'); xlabel('Throttle')
     
     % Mag
     subplot(3,3,2); hold on;
     plot(sigma(j).ThrottleVal,sigma(j).Mag.x);
-    ylabel('Mag X');
+    ylabel('Mag X 1\sigma [uT]'); xlabel('Throttle')
     subplot(3,3,5); hold on;
     plot(sigma(j).ThrottleVal,sigma(j).Mag.y);
-    ylabel('Mag Y');
+    ylabel('Mag Y 1\sigma [uT]'); xlabel('Throttle')
     subplot(3,3,8); hold on;
     plot(sigma(j).ThrottleVal,sigma(j).Mag.z);
-    ylabel('Mag Z');
+    ylabel('Mag Z 1\sigma [uT]'); xlabel('Throttle')
     
     % Accel
     subplot(3,3,3); hold on;
     plot(sigma(j).ThrottleVal,sigma(j).Acc.x);
-    ylabel('Acc X');
+    ylabel('Acc X 1\sigma [m/s^2]'); xlabel('Throttle')
     subplot(3,3,6); hold on;
     plot(sigma(j).ThrottleVal,sigma(j).Acc.y);
-    ylabel('Acc Y');
+    ylabel('Acc Y 1\sigma [m/s^2]'); xlabel('Throttle')
     subplot(3,3,9); hold on;
     plot(sigma(j).ThrottleVal,sigma(j).Acc.z);
-    ylabel('Acc Z');
+    ylabel('Acc Z 1\sigma [m/s^2]'); xlabel('Throttle')
    
     
 end

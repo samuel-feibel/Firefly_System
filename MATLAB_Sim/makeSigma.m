@@ -58,5 +58,8 @@ sigma.D = 4;            % m     (THIS IS A GUESS)
 sigma.Speed = 0.05;     % m/s
 sigma.Heading = 0.3*pi/180;     % rad
 
+% Pulled from Site: https://www.adafruit.com/product/4494
+sigma.alt = 0.02;
+
 end
 

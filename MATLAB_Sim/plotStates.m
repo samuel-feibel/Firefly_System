@@ -13,4 +13,4 @@ for i=1:length(els)
     grid on
 end
 
-xlabel('Time')
+xlabel('Time [s]')
