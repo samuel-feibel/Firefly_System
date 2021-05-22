@@ -2,13 +2,20 @@
 % Estimate Parameters with batch least squares methods using the states
 % pulled from the Inertial Navigation System
 
-clearvars -except xhat1s flightData
+clearvars -except xhat1u flightData
 
-u0 = 15;
+u0 = 10;
 
 %% Find xdot state values
 
-xdot = diff(xhat1s,1,2);
+
+xhat(1:6,:) = xhat1u(1:6,:);
+
+% Change from Quat to Euler off the bat
+Euler = Quat2Euler(xhat1u(7:10,:));
+xhat = [xhat;Euler];
+
+xdot = diff(xhat,1,2);
 xdot(:,end+1) = xdot(:,end);
 tdiff1 = diff(flightData.Time)';
 tdiff1(end+1) = tdiff1(end);
@@ -26,11 +33,11 @@ delThetadot = xdot(8,:);
 delPsidot = xdot(9,:);
 
 % States
-delU = xhat1s(4,:);
-delV = xhat1s(5,:);
-delW = xhat1s(6,:);
-delPhi = xhat1s(7,:);
-delTheta = xhat1s(8,:);
+delU = xhat(4,:);
+delV = xhat(5,:);
+delW = xhat(6,:);
+delPhi = xhat(7,:);
+delTheta = xhat(8,:);
 
 delP = nan(1,size(xdot,2));
 delQ = nan(1,size(xdot,2));
@@ -53,10 +60,10 @@ delRdot = diff(delR,1,2); delRdot(:,end+1) = delRdot(:,end); delRdot=delRdot./td
 
 
 % Controls
-delElevator = flightData.Elevator' - 90; %THESE ARE
-delThrottle = flightData.Throttle' - 50; % GUESSES
-delAileron = flightData.Aileron' - 90; %THESE ARE
-delRudder = flightData.Rudder' - 90; % GUESSES
+delElevator = -(flightData.Elevator' - 90); 
+delThrottle = -(flightData.Throttle' - 80); 
+delAileron = -(flightData.Aileron' - 94);
+delRudder = -(flightData.Rudder' - 90); 
 
 
 %% Find Parameter Estimates for each Row

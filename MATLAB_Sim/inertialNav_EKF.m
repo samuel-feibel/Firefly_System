@@ -405,7 +405,10 @@ else
     plotStates(flightData.Time,h_save,1:3,{'X','Y','Z'},[flightData.Mag.x';flightData.Mag.y';flightData.Mag.z']-[bias.Mag.x;bias.Mag.y;bias.Mag.z+37.87],{'h','z'});
     
     
-
+    figure
+    plotStates(flightData.Time,xhat1u+[0;0;0;u0;0;0;0;0;0;0],4,{'u  [m/s]'})
+    hold on
+    plot(flightData.Time,mean(xhat1u(4,1:1893))*ones(length(flightData.Time)));
     
     
     
