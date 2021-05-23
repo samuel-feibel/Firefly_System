@@ -76,6 +76,9 @@ ParamVec = y*X'/(X*X');
 
 Xu = ParamVec(1); Xw = ParamVec(2); Xde = ParamVec(3); XdT = ParamVec(4);
 
+res = y-ParamVec*X;
+delUdot_res = res - 9.8*delTheta;
+
 % delWdot Stuff
 y = delWdot - u0*delQ;
 X = [delU;delW;delElevator;delThrottle];
@@ -83,6 +86,9 @@ X = [delU;delW;delElevator;delThrottle];
 ParamVec = y*X'/(X*X');
 
 Zu = ParamVec(1); Zw = ParamVec(2); Zde = ParamVec(3); ZdT = ParamVec(4);
+
+res = y-ParamVec*X;
+delWdot_res = res + u0*delQ;
 
 % delQdot Stuff
 y = delQdot;
@@ -92,6 +98,9 @@ ParamVec = y*X'/(X*X');
 
 MuComb = ParamVec(1); MwComb = ParamVec(2); MqComb = ParamVec(3); MdeComb = ParamVec(4); MdTComb = ParamVec(5);
 
+res = y-ParamVec*X;
+delQdot_res = res;
+
 % delVdot Stuff
 y = delVdot - 9.8*delPhi;
 X = [delV;delP;delR;delRudder];
@@ -99,6 +108,9 @@ X = [delV;delP;delR;delRudder];
 ParamVec = y*X'/(X*X');
 
 Yv = ParamVec(1); Yp = ParamVec(2); Yr = u0 + ParamVec(3); Ydr = ParamVec(4);
+
+res = y-ParamVec*X;
+delVdot_res = res + 9.8*delPhi;
 
 % delPdot Stuff
 y = delPdot;
@@ -108,6 +120,9 @@ ParamVec = y*X'/(X*X');
 
 Lv = ParamVec(1); Lp = ParamVec(2); Lr = ParamVec(3); Lda = ParamVec(4); Ldr = ParamVec(5);
 
+res = y-ParamVec*X;
+delPdot_res = res;
+
 % delRdot Stuff
 y = delRdot;
 X = [delV;delP;delR;delAileron;delRudder];
@@ -115,6 +130,9 @@ X = [delV;delP;delR;delAileron;delRudder];
 ParamVec = y*X'/(X*X');
 
 Nv = ParamVec(1); Np = ParamVec(2); Nr = ParamVec(3); Nda = ParamVec(4); Ndr = ParamVec(5);
+
+res = y-ParamVec*X;
+delRdot_res = res;
 
 %% Combine for output
 
@@ -125,9 +143,15 @@ ParamVec0 = [Xu Xw Zu Zw MuComb MwComb MqComb ...
 
 
 % save('ParamVec0','ParamVec0');
-save('ParamVec0_individual','Xu', 'Xw', 'Zu', 'Zw', 'MuComb', 'MwComb', 'MqComb', ...
-             'Xde', 'XdT', 'Zde', 'ZdT', 'MdeComb', 'MdTComb', 'ZdT', ...
-             'Yv', 'Yp', 'Yr', 'Lv', 'Lp', 'Lr', 'Nv', 'Np', 'Nr',...
-             'Ydr', 'Lda', 'Ldr', 'Nda', 'Ndr','u0');
+% save('ParamVec0_individual','Xu', 'Xw', 'Zu', 'Zw', 'MuComb', 'MwComb', 'MqComb', ...
+%              'Xde', 'XdT', 'Zde', 'ZdT', 'MdeComb', 'MdTComb', 'ZdT', ...
+%              'Yv', 'Yp', 'Yr', 'Lv', 'Lp', 'Lr', 'Nv', 'Np', 'Nr',...
+%              'Ydr', 'Lda', 'Ldr', 'Nda', 'Ndr','u0');
+
+save('ResidualVec_indiviual','delUdot_res','delWdot_res','delQdot_res','delVdot_res','delPdot_res','delRdot_res');
+ResidualVec = [delUdot_res;delVdot_res;delWdot_res;delPdot_res;delQdot_res;delRdot_res];
+save('ResidualVec');
+
+
 
 

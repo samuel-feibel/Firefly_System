@@ -1,5 +1,5 @@
 startIdx = 1;
-[flightData] = loadFlightData("DataFiles/paramEstFlight2.txt",startIdx);
+[flightData] = loadFlightData("DataFiles/DATALOG.txt",startIdx);
 
 %% Position
 
