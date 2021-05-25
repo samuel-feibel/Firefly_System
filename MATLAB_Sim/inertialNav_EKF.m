@@ -367,16 +367,23 @@ else
     
     xhat1s(:,1:4)=xhat1u(:,1:4);    % Janky Fix
     
-    plotStates(flightData.Time,xhat1u,1:3,{'N [m]','E [m]','D [m]'})
+%     plot3(xhat1u(2,:),xhat1u(1,:),-xhat1u(3,:))
+%     axis equal
+%     xlabel('E');ylabel('N');zlabel('D');
+
+    
+    plotStateCov(flightData.Time,xhat1u,1:3,{'N [m]','E [m]','D [m]'},P1u);
+    
     
     figure
     plotStates(flightData.Time,xhat1u+[0;0;0;u0;0;0;0;0;0;0],4:6,{'u  [m/s]','v [m/s]','w [m/s]'})
     
     Euler1u = Quat2Euler(xhat1u(7:10,:));
+    EulerP1 = Quat2Euler(squeeze(P1u(7:10,7:10,:)));
     Euler1s = Quat2Euler(xhat1s(7:10,:));
     
     figure
-    plotStates(flightData.Time,Euler1u/d2r,1:3,{'\phi [deg]','\theta [deg]','\psi [deg]'});
+    plotStateCov(flightData.Time,Euler1u/d2r,1:3,{'\phi [deg]','\theta [deg]','\psi [deg]'},EulerP1/d2r);
     
     h_save = NaN(1,length(flightData.Time));
     for i=1:length(flightData.Time)
@@ -409,6 +416,7 @@ else
     plotStates(flightData.Time,xhat1u+[0;0;0;u0;0;0;0;0;0;0],4,{'u  [m/s]'})
     hold on
     plot(flightData.Time,mean(xhat1u(4,1:1893))*ones(length(flightData.Time)));
+    
     
     
     

@@ -62,8 +62,10 @@ iso = [1 1 1 0]';
 u = noiseMeanVec.*iso+1*noiseMeanStd.*iso.*randn(4,length(t));
 % u = [(noiseMeanVec+noiseMeanStd)*ones(1,length(badDelt/.01)),zeros(4,length(t)-length(badDelt/.01))];
 
-[y_OL,tOut_OL,x_OL] = lsim(sys_simOL,u,t,x0);
-x_OL=x_OL'; y_OL=y_OL';
+% [y_OL,tOut_OL,x_OL] = lsim(sys_simOL,u,t,x0);
+
+[tOut_OL,x_OL,~] = lsim_sam(A_roll,B_roll,zeros(2,4),u,t,x0);
+x_OL=x_OL';
 
 % Closed Loop
 Q = 100*diag([1 1/100 1/100 10]);
@@ -79,8 +81,10 @@ sys_CL = ss(A_star,eye(4),C,D);
 
 % u = zeros(4,length(t));
 
-[y_CL,tOut_CL,x_CL] = lsim(sys_CL,u,t,x0);
-x_CL=x_CL'; y_CL=y_CL';
+% [y_CL,tOut_CL,x_CL] = lsim(sys_CL,u,t,x0);
+[tOut_CL,x_CL,uOut_CL] = lsim_sam(A_roll,B_roll,K,u,t,x0);
+
+x_CL=x_CL';
 
 figure
 subplot(5,1,1)
@@ -112,8 +116,7 @@ plot(tOut_OL,x_OL(4,:))
 ylabel('\Delta \phi [rad]');
 grid on
 
-u_CL = -K*x_CL;
-u_CL_speed = diff(u_CL)./repmat(diff(tOut_CL),2,1);
+u_CL = uOut_CL;
 
 subplot(5,1,5)
 plot(tOut_CL,u_CL(1,:))
@@ -125,9 +128,6 @@ legend('Aileron','Rudder')
 grid on
 xlabel('Time [s]')
 
-idcsOver = logical(abs(u_CL_speed(2,:))>60/.14);
-totTimeOver = sum(tOut_CL(circshift(idcsOver,1))-tOut_CL(idcsOver));
-disp(totTimeOver)
 
 
 lambda = eig(A_roll);
@@ -168,11 +168,12 @@ x0 = (noiseMeanVec+noiseMeanStd)*badDelt;
 x0 = x0.*[0 0 0 0]';
 
 iso = [1 0 0 0]';
-% u = noiseMeanVec.*iso+0.1*noiseMeanStd.*iso.*randn(4,length(t));
-u = [(noiseMeanVec+noiseMeanStd)*ones(1,length(badDelt/.01)),zeros(4,length(t)-length(badDelt/.01))];
+u = noiseMeanVec.*iso+0.1*noiseMeanStd.*iso.*randn(4,length(t));
+% u = [(noiseMeanVec+noiseMeanStd)*ones(1,length(badDelt/.01)),zeros(4,length(t)-length(badDelt/.01))];
 
-[y_OL,tOut_OL,x_OL] = lsim(sys_simOL,u,t,x0);
-x_OL=x_OL'; y_OL=y_OL';
+% [y_OL,tOut_OL,x_OL] = lsim(sys_simOL,u,t,x0);
+[tOut_OL,x_OL] = lsim_sam(A_pitch,B_pitch,zeros(2,4),u,t,x0);
+x_OL=x_OL';
 
 % Closed Loop
 Q = 500*diag([1 1/100 1 10]);
@@ -188,8 +189,9 @@ sys_CL = ss(A_star,eye(4),C,D);
 
 % u = zeros(4,length(t));
 
-[y_CL,tOut_CL,x_CL] = lsim(sys_CL,u,t,x0);
-x_CL=x_CL'; y_CL=y_CL';
+% [y_CL,tOut_CL,x_CL] = lsim(sys_CL,u,t,x0);
+[tOut_CL,x_CL] = lsim_sam(A_pitch,B_pitch,K,u,t,x0);
+x_CL=x_CL';
 
 figure
 subplot(5,1,1)
@@ -222,7 +224,6 @@ ylabel('\Delta \theta [rad]');
 grid on
 
 u_CL = -K*x_CL;
-u_CL_speed = diff(u_CL)./repmat(diff(tOut_CL),2,1);
 
 subplot(5,1,5)
 plot(tOut_CL,u_CL(1,:))
@@ -234,9 +235,6 @@ legend('Throttle','Elevator')
 grid on
 xlabel('Time [s]')
 
-idcsOver = logical(abs(u_CL_speed(2,:))>60/.14);
-totTimeOver = sum(tOut_CL(circshift(idcsOver,1))-tOut_CL(idcsOver));
-disp(totTimeOver)
 
 
 lambda = eig(A_pitch);
