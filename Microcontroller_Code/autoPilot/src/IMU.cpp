@@ -162,11 +162,6 @@ static void printScaledAGMT(ICM_20948_AGMT_t agmt)
 void setup_IMU()
 {
 
-  SERIAL_PORT.begin(115200);
-  while (!SERIAL_PORT)
-  {
-  };
-
 #ifdef USE_SPI
   SPI_PORT.begin();
 #else

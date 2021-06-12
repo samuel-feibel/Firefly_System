@@ -54,7 +54,7 @@ sigma.Acc.z = p(2) + p(1)*dT;
 % Pulled from DataSheet: https://media.digikey.com/pdf/Data%20Sheets/Sparkfun%20PDFs/GPS-15210_Web.pdf
 sigma.N = sqrt(2)*2.5;  % m
 sigma.E = sqrt(2)*2.5;  % m
-sigma.D = 4;            % m     (THIS IS A GUESS)
+sigma.D = 10;            % m     (THIS IS A GUESS)
 sigma.Speed = 0.05;     % m/s
 sigma.Heading = 0.3*pi/180;     % rad
 

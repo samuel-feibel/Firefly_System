@@ -1,5 +1,5 @@
 %% Inertial Nav + GPS
-% Finds attitude and position from sensors only, no model
+% This is out of date code
 
 close all;
 rng(12);
@@ -28,9 +28,9 @@ u0 = 0;
 
 %% Load and Parse Flight Data
 startIdx = 1;        % This is specific to each set of flight data
-
+startIdx = 1778;
 addpath('DataFiles');
-[flightData] = loadFlightData("DataFiles/paramEstFlight2.TXT",startIdx);
+[flightData] = loadFlightData("DataFiles/paramEstFlight1.TXT",startIdx);
 
 n_measurements = size(flightData.Time,1);
 
@@ -114,7 +114,7 @@ F_jac_Fcn = matlabFunction(F,'Vars',{x,cntrl},'File','F_jac_Fcn');
 % ---- Process Noise ---- %
 
 % States
-Qs = diag([sigmaN.Acc.x,sigmaN.Acc.y,sigmaN.Acc.z,...
+Qs = diag([sigmaN.Acc.x,sigmaN.Acc.y,3*sigmaN.Acc.z,...
            sigmaN.Gyr.x,sigmaN.Gyr.y,sigmaN.Gyr.z].^2);
 
 Gs = zeros(ns,size(Qs,1)); 
@@ -135,17 +135,17 @@ Q_Fcn = matlabFunction(Q,'Vars',dT,'File','Q_Fcn');
 
 % ---- Measurement Noise ---- %
 
-R = diag([sigmaN.N,sigmaN.E,sigmaN.D,...
+R = diag([sigmaN.N,sigmaN.E,10*sigmaN.D,...
           sigmaN.Speed,...
           sigmaN.Mag.x, sigmaN.Mag.y,sigmaN.Mag.z,...
           sigmaN.Heading,...
           ].^2);       
- 
+
 R_Fcn = matlabFunction(R,'Vars',dT,'File','R_Fcn');
 
 %% Sensor Measurement
 
-[bias,magVec0] = makeBias("magTuning_NorthLevel_old.txt");
+[bias,magVec0] = makeBias("magTuning_NorthLevel.txt");
 v_I = I_C_B*[u+u0;v;w];
 matlabFunction(atan2(v_I(2),v_I(1)),'Vars',{x,cntrl},'File','heading_Fcn');
 
@@ -218,7 +218,7 @@ xp0 = [];
    
 x0 = [xs0;xp0];
 
-Ps0 = diag([0;0;0;...
+Ps0 = diag([0;0;10;...
             5;5;5;...
             [20;20;20]*d2r].^2);
 Pp0 = diag([]);
@@ -279,7 +279,7 @@ xhat1s(:,1:4)=xhat1u(:,1:4);    % Janky Fix
 [xhat1s(7:9,:)] = setAngle2Range(xhat1s(7:9,:));
 
 
-plotStates(flightData.Time,xhat1u,1:3,{'N','E','D'},xhat1s,{'Forward','Backward'})
+plotStateCov(flightData.Time,xhat1u,1:3,{'N','E','D'},P1u)
 
 figure
 plotStates(flightData.Time,xhat1u,4:6,{'u','v','w'},xhat1s,{'Forward','Backward'})
@@ -304,13 +304,13 @@ legend('h','z')
 grid on
 
 
-figure
-plot(flightData.Time,xhat1u(3,:));
-hold on
-idc = logical(~isnan(flightData.Pressure));
-alt0 = pressure2alt(flightData.Pressure(idc(1)));
-alt = pressure2alt(flightData.Pressure(idc));
-plot(flightData.Time(idc),-(alt-alt0));
+% figure
+% plot(flightData.Time,xhat1u(3,:));
+% hold on
+% idc = logical(~isnan(flightData.Pressure));
+% alt0 = pressure2alt(flightData.Pressure(idc(1)));
+% alt = pressure2alt(flightData.Pressure(idc));
+% plot(flightData.Time(idc),-(alt-alt0));
 
 
 

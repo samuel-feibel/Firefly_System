@@ -1,5 +1,6 @@
 %% Inertial Nav + GPS
 % Finds attitude and position from sensors only, no model
+% This is the most recent working model
 
 close all;
 rng(12);
@@ -9,10 +10,6 @@ try r_NED;
     
 catch
 
-%{ 
-TODO:
-    % Figure out velocity behavior
-%}
 
 %% Constants
 

@@ -1,0 +1,48 @@
+# CompilerName=clang
+# Mode=optim
+ninja_required_version = 1.3
+
+# Basic folders
+root = .
+builddir = $root/build/maci64
+matlabdir = /Applications/MATLAB_R2020a.app
+startdir = /Users/samuelfeibel/Documents/Projects/Firefly System/MATLAB_Sim
+
+# Toolchain information
+cc = /usr/bin/xcrun -sdk macosx10.14 clang
+cxx = /usr/bin/xcrun -sdk macosx10.14 clang++
+linker = /usr/bin/xcrun -sdk macosx10.14 clang
+linkerxx = /usr/bin/xcrun -sdk macosx10.14 clang++
+
+cflags =  -fno-common -arch x86_64 -mmacosx-version-min=10.9 -fexceptions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk -DMATLAB_MEX_FILE  -O2 -fwrapv -DNDEBUG -fvisibility=hidden -std=c99 -I "$root" -I "$startdir" -I "$root/interface" -I "$matlabdir/extern/include" -I "." -DMODEL=LatLonAlt2ECEF_Fcn_mex -DMW_NEEDS_VERSION_H -c 
+
+cxxflags =  -fno-common -arch x86_64 -mmacosx-version-min=10.9 -fexceptions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk -fobjc-arc -std=c++11 -stdlib=libc++ -DMATLAB_MEX_FILE  -O2 -fwrapv -DNDEBUG -fvisibility=hidden -std=c++11 -I "$root" -I "$startdir" -I "$root/interface" -I "$matlabdir/extern/include" -I "." -DMODEL=LatLonAlt2ECEF_Fcn_mex -DMW_NEEDS_VERSION_H -c 
+
+ldflags =  -Wl,-twolevel_namespace -undefined error -arch x86_64 -mmacosx-version-min=10.9 -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk -framework Cocoa -bundle  -stdlib=libc++ -L"$matlabdir/bin/maci64" -lmx -lmex -lmat -L"$matlabdir/extern/bin/maci64" -lMatlabDataArray -lMatlabEngine  -Wl,-rpath,@loader_path -o LatLonAlt2ECEF_Fcn_mex.mexmaci64 -lemlrt -lcovrt -lut -lmwmathutil 
+
+# Build Rules
+rule cc
+    command = $cc $cflags $in -o $out
+
+rule cxx
+    command = $cxx $cxxflags $in -o $out
+
+rule link
+    command = $linker $in $ldflags
+
+rule linkxx
+    command = $linkerxx $in $ldflags
+
+# Build
+build $builddir/rt_nonfinite.o : cxx $root/rt_nonfinite.cpp
+build $builddir/LatLonAlt2ECEF_Fcn_data.o : cxx $root/LatLonAlt2ECEF_Fcn_data.cpp
+build $builddir/LatLonAlt2ECEF_Fcn_initialize.o : cxx $root/LatLonAlt2ECEF_Fcn_initialize.cpp
+build $builddir/LatLonAlt2ECEF_Fcn_terminate.o : cxx $root/LatLonAlt2ECEF_Fcn_terminate.cpp
+build $builddir/LatLonAlt2ECEF_Fcn.o : cxx $root/LatLonAlt2ECEF_Fcn.cpp
+build $builddir/_coder_LatLonAlt2ECEF_Fcn_api.o : cxx $root/interface/_coder_LatLonAlt2ECEF_Fcn_api.cpp
+build $builddir/_coder_LatLonAlt2ECEF_Fcn_mex.o : cxx $root/interface/_coder_LatLonAlt2ECEF_Fcn_mex.cpp
+build $builddir/_coder_LatLonAlt2ECEF_Fcn_info.o : cxx $root/interface/_coder_LatLonAlt2ECEF_Fcn_info.cpp
+build $builddir/cpp_mexapi_version.o : cxx $matlabdir/extern/version/cpp_mexapi_version.cpp
+
+# Link
+build $root/LatLonAlt2ECEF_Fcn_mex.mexmaci64 : linkxx $builddir/rt_nonfinite.o $builddir/LatLonAlt2ECEF_Fcn_data.o $builddir/LatLonAlt2ECEF_Fcn_initialize.o $builddir/LatLonAlt2ECEF_Fcn_terminate.o $builddir/LatLonAlt2ECEF_Fcn.o $builddir/_coder_LatLonAlt2ECEF_Fcn_api.o $builddir/_coder_LatLonAlt2ECEF_Fcn_mex.o $builddir/_coder_LatLonAlt2ECEF_Fcn_info.o $builddir/cpp_mexapi_version.o 

@@ -17,6 +17,8 @@
 #include <HELPFULFUNCTIONS_H.h>
 #include <STABILIZE_H.h>
 #include <test.h>
+#include <mcadd.h>
+#include <estimateState.h>
 
 // --- Constants --- //
 #define pi 2.0 * asin(1.0)
@@ -40,6 +42,7 @@ void setup()
   card_detected = setupSD();
   setup_IMU();
   pinMode(LED_BUILTIN, OUTPUT);
+  setupR0ECEF();
 
   // Last
   wdt_enable(WDTO_60MS); // This needs to be last
@@ -70,6 +73,7 @@ void loop()
     updateIMU();
 
     // Update State Estimate
+    estimateState(&state[0]);
 
     // Mode Logic
     if (autoMode)
@@ -110,7 +114,16 @@ void loop()
     // printGPS();
     // printIMU();
     // Serial.println(receiverInput[1] );
-    Serial.println(getGPSSIV());
-
+    // Serial.println(getGPSSIV());
+    // Serial.println(autoMode);
+    // Serial.println(mcadd(1,1));
+    // double Lat = getGPSLatitude();
+    // double Lon = getGPSLongitude();
+    // double Alt = getGPSAltitude();
+    // Serial.print(Lat);
+    // Serial.print(" ");
+    // Serial.print(Lon);
+    // Serial.print(" ");
+    // Serial.println(Alt);
   }
 }
