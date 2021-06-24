@@ -3,6 +3,7 @@
 #include <estimateState.h>
 #include <IMU_H.h>
 #include <GPS_H.h>
+#include <barometer.h>
 #include <math.h>
 
 double r0_ECEF[3];
@@ -90,23 +91,10 @@ static void getMeasurementVector(double *Z, double *Z_input)
   Z[7] = Heading;
 
   // Altitude
-  // pressure = getPressure();
-  // double delAlt = (pressure-p0)*dhdp;
-  // Z[8] = -delAlt;
+  double pressure = getPressure();
+  double delAlt = (pressure - p0) * dhdp;
+  Z[8] = -delAlt;
 
-  // DEBUG
-  // double r_ECEF[3];
-  // LatLonAlt2ECEF_Fcn(Lat, Lon, Alt, &r_ECEF[0]);
-  // // Serial.print(r_ECEF[0]);
-  // // Serial.print(" ");
-  // // Serial.print(r_ECEF[1]);
-  // // Serial.print(" ");
-  // // Serial.println(r_ECEF[2]);
-  // Serial.print(r_NED[0]);
-  // Serial.print(" ");
-  // Serial.print(r_NED[1]);
-  // Serial.print(" ");
-  // Serial.println(r_NED[2]);
 }
 
 // Helper funciton to convert LLA to ECEF
@@ -177,10 +165,11 @@ static void TECEF2NED_Fcn(double r_ECEF[3], double *NED_C_ECEF)
 void setupR0ECEF()
 {
   bool initialized = false;
-  Serial.print("Setting up r0_ECEF...");
+  Serial.print("Setting up r0_ECEF... THE JANKY WAY");
   // while (!initialized)
   while (0) // this is jank delete it
   {
+    updateGPS();
     int SIV = getGPSSIV();
 
     if (SIV > 2)
@@ -203,24 +192,34 @@ void setupR0ECEF()
   double Alt = getGPSAltitude() * 1E-3;
   LatLonAlt2ECEF_Fcn(Lat, Lon, Alt, &r0_ECEF[0]);
   TECEF2NED_Fcn(r0_ECEF, &NED_C_ECEF[0]);
-  // Serial.print(Lat);
-  // Serial.print(" ");
-  // Serial.print(Lon);
-  // Serial.print(" ");
-  // Serial.println(Alt);
-  // Serial.print(r0_ECEF[0]);
-  // Serial.print(" ");
-  // Serial.print(r0_ECEF[1]);
-  // Serial.print(" ");
-  // Serial.println(r0_ECEF[2]);
 }
 
-void setupP0ECEF()
+void setupP0()
 {
-  //double pressure = getPressure();
-  // dhdp = (-1*1E4/1.2)*1013.25/pressure;
-  // alt0 = (-1*1E4/1.2)*log(pressure/1013.25);
-  // p0 = pressure;
+  bool initialized = false;
+  double pressure;
+  Serial.print("Setting up p0...");
+  while (!initialized)
+  {
+    updateBarometer();
+    pressure = getPressure();
+
+    if (pressure != -1)
+    {
+      initialized = 1;
+      Serial.println(" Success!");
+    }
+    else
+    {
+      delay(50);
+    }
+  }
+
+  dhdp = (-1.0 / 1.2E-4) * 1.0 / pressure;
+  alt0 = (-1.0 / 1.2E-4) * log(pressure / 1013.25);
+  p0 = pressure;
+  Serial.print("p0: "); Serial.println(p0);
+  Serial.print("dhdp: "); Serial.println(dhdp);
 }
 
 // --- estimateState --- //
@@ -229,11 +228,19 @@ void estimateState(double *state)
   // Get Measurement vector
   static double Z[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
   static double Z_input[6] = {0, 0, 0, 0, 0, 0};
-
   getMeasurementVector(&Z[0], &Z_input[0]);
-  // Serial.println(state[1]);
+
+  Serial.println("Measurement Vector:");
+  for (int k = 0; k < sizeof(Z) / sizeof(Z[0]); k++)
+  {
+    Serial.println(Z[k]);
+  }
+
+
 
   // Run EKF
+
+  // Prediction Step
 
   // Return Updated State
 }

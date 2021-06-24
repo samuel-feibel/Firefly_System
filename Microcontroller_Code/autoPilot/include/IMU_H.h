@@ -11,6 +11,13 @@ void updateIMU();
 void printIMU();
 
 // Get Relevant Values
+float getRawIMUgyrX();
+float getRawIMUgyrY();
+float getRawIMUgyrZ();
+float getRawIMUmagX();
+float getRawIMUmagY();
+float getRawIMUmagZ();
+
 float getIMUaccX();
 float getIMUaccY();
 float getIMUaccZ();

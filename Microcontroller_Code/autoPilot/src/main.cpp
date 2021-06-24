@@ -13,6 +13,7 @@
 #include <SERVOS_H.h>
 #include <GPS_H.h>
 #include <IMU_H.h>
+#include <barometer.h>
 #include <SD_H.h>
 #include <HELPFULFUNCTIONS_H.h>
 #include <STABILIZE_H.h>
@@ -41,17 +42,21 @@ void setup()
   updateGPS();
   card_detected = setupSD();
   setup_IMU();
+  setup_Barometer();
   pinMode(LED_BUILTIN, OUTPUT);
   setupR0ECEF();
+  setupP0();
 
   // Last
-  wdt_enable(WDTO_60MS); // This needs to be last
+  // wdt_enable(WDTO_60MS); // This needs to be last
 }
 
 void loop()
 {
 
-  if ((millis() - prevLoopTime) > 39)
+  // if ((millis() - prevLoopTime) > 39)
+  if ((millis() - prevLoopTime) > 999)
+
   {
     // Serial.print("Time: ");
     // Serial.println((millis() - prevLoopTime));
@@ -71,6 +76,7 @@ void loop()
     // Update Sensors
     updateGPS();
     updateIMU();
+    updateBarometer();
 
     // Update State Estimate
     estimateState(&state[0]);

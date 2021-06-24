@@ -5,7 +5,7 @@ void LatLonAlt2NED_Fcn(double Lat, double Lon, double Alt, double r0_ECEF, doubl
 
 void setAngle2Range(double *angle);
 
-void setupP0ECEF();
+void setupP0();
 
 void getMeasurementVector(double *Z, double *Z_input);
 

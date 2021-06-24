@@ -19,6 +19,16 @@ ICM_20948_SPI myICM; // If using SPI create an ICM_20948_SPI object
 ICM_20948_I2C myICM; // Otherwise create an ICM_20948_I2C object
 #endif
 
+// --- Biases --- //
+#define BIAS_GYR_X -0.1325 // deg/s
+#define BIAS_GYR_Y -1.5720 // deg/s
+#define BIAS_GYR_Z -0.3581 // deg/s
+
+#define BIAS_MAG_X 15.8147 // uT
+#define BIAS_MAG_Y -23.0732 // uT
+#define BIAS_MAG_Z 16.3668 // uT
+
+
 // Below here are some helper functions to print the data nicely!
 static void printPaddedInt16b(int16_t val)
 {
@@ -250,11 +260,38 @@ void printIMU()
   Serial.println();
 }
 
+// Report Raw Values 
+float getRawIMUgyrX()
+{
+  return myICM.gyrX();
+}
+float getRawIMUgyrY()
+{
+  return myICM.gyrY();
+}
+float getRawIMUgyrZ()
+{
+  return myICM.gyrZ();
+}
+float getRawIMUmagX()
+{
+  return myICM.magX();
+}
+float getRawIMUmagY()
+{
+  return myICM.magY();
+}
+float getRawIMUmagZ()
+
+{
+  return myICM.magZ();
+}
+
+// Report non-biased Values
 float getIMUaccX()
 {
   return myICM.accX();
 }
-
 float getIMUaccY()
 {
   return myICM.accY();
@@ -263,31 +300,31 @@ float getIMUaccZ()
 {
   return myICM.accZ();
 }
-float getIMUgyrX()
+float getIMUgyrX() // (deg/s)
 {
-  return myICM.gyrX();
+  return myICM.gyrX() - BIAS_GYR_X;
 }
-float getIMUgyrY()
+float getIMUgyrY() // (deg/s)
 {
-  return myICM.gyrY();
+  return myICM.gyrY() - BIAS_GYR_Y;
 }
-float getIMUgyrZ()
+float getIMUgyrZ() // (deg/s)
 {
-  return myICM.gyrZ();
+  return myICM.gyrZ() - BIAS_GYR_Z;
 }
-float getIMUmagX()
+float getIMUmagX() // uT
 {
-  return myICM.magX();
+  return myICM.magX() - BIAS_MAG_X;
 }
-float getIMUmagY()
+float getIMUmagY() // uT
 {
-  return myICM.magY();
+  return myICM.magY() - BIAS_MAG_Y;
 }
-float getIMUmagZ()
+float getIMUmagZ() // uT
 {
-  return myICM.magZ();
+  return myICM.magZ() - BIAS_MAG_Z;
 }
-float getIMUtemp()
+float getIMUtemp() // C
 {
   return myICM.temp();
 }
