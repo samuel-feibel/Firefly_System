@@ -16,13 +16,17 @@
 % 
 % matlabFunction(r0_ECEF,'Vars',{Lat,Lon,Alt},'File','LatLonAlt2ECEF_Fcn');
 
-clear all;
+% clear all;
+% 
+% r0_ECEF = sym('r0_ECEF',[3,1],{'real'} );
+% 
+% NED_C_ECEF = TECEF2NED(r0_ECEF);
+% 
+% matlabFunction(NED_C_ECEF,'Vars',{r0_ECEF},'File','TECEF2NED_Fcn');
 
-r0_ECEF = sym('r0_ECEF',[3,1],{'real'} );
+[F]=getF_stateparam(Xk,cntrl,delt)
 
-NED_C_ECEF = TECEF2NED(r0_ECEF);
+% 
+% 
+% disp(1)
 
-matlabFunction(NED_C_ECEF,'Vars',{r0_ECEF},'File','TECEF2NED_Fcn');
-
-
-disp(1)

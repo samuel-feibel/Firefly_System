@@ -85,7 +85,7 @@ f = [fs;fp];
 
 
 % Continuous time diff eq of motion
-f_Fcn = matlabFunction(f,'Vars',{t,[x;cntrl]},'File','f_Fcn');
+f_Fcn = matlabFunction(f,'Vars',{t,x,cntrl},'File','f_Fcn');
 
 % for ode45
 

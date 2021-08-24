@@ -8,6 +8,7 @@
 #include <SD.h>
 #include <avr/wdt.h>
 #include <math.h>
+#include <BasicLinearAlgebra.h>
 
 #include <RCTIMING_H.h>
 #include <SERVOS_H.h>
@@ -20,6 +21,7 @@
 #include <test.h>
 #include <mcadd.h>
 #include <estimateState.h>
+
 
 // --- Constants --- //
 #define pi 2.0 * asin(1.0)
@@ -54,17 +56,16 @@ void setup()
 void loop()
 {
 
-  // if ((millis() - prevLoopTime) > 39)
-  if ((millis() - prevLoopTime) > 999)
-
-  {
+  if (millis() - prevLoopTime > 999){
+    double delt = (millis() - prevLoopTime)/1000.0;
+    
     // Serial.print("Time: ");
-    // Serial.println((millis() - prevLoopTime));
+    // Serial.println(delt);
     prevLoopTime = millis();
     wdt_reset();
 
     // State Vector Initialize
-    static double state[10] = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
+    static double xhat[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
 
     // Read Reciever
     static double receiverInput[4] = {0, 0, 0, 0};
@@ -79,13 +80,14 @@ void loop()
     updateBarometer();
 
     // Update State Estimate
-    estimateState(&state[0]);
+    estimateState(&xhat[0], delt);
+    
 
     // Mode Logic
     if (autoMode)
     {
       digitalWrite(LED_BUILTIN, HIGH);
-      stabilize(&receiverInput[0], &servoInput[0], &state[0]);
+      stabilize(&receiverInput[0], &servoInput[0], &xhat[0]);
     }
     else
     {
@@ -107,7 +109,7 @@ void loop()
 
     if (card_detected && auxMode == 2)
     {
-      writeData(&state[0], &servoInput[0], &receiverInput[0], &autoMode, &auxMode);
+      writeData(&xhat[0], &servoInput[0], &receiverInput[0], &autoMode, &auxMode);
     }
 
     // Debug Prints
