@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <SERVOS_H.h>
+#include <servos.h>
 
 // https://arduino.stackexchange.com/questions/18183/read-rc-receiver-channels-using-interrupt-instead-of-pulsein
 

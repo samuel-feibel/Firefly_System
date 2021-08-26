@@ -10,21 +10,19 @@
 #include <math.h>
 #include <BasicLinearAlgebra.h>
 
-#include <RCTIMING_H.h>
-#include <SERVOS_H.h>
-#include <GPS_H.h>
-#include <IMU_H.h>
+#include <rcTiming.h>
+#include <servos.h>
+#include <GPS.h>
+#include <IMU.h>
 #include <barometer.h>
-#include <SD_H.h>
-#include <HELPFULFUNCTIONS_H.h>
-#include <STABILIZE_H.h>
+#include <SDs.h>
+#include <utils.h>
+#include <stabilize.h>
 #include <test.h>
-#include <mcadd.h>
 #include <estimateState.h>
 
 
 // --- Constants --- //
-#define pi 2.0 * asin(1.0)
 
 // --- Settings --- //
 

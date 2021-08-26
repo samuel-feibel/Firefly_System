@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <Servo.h>
-#include <RCTIMING_H.h>
+#include <rcTiming.h>
 
 // --- Servo Limits --- //
 #define THROTTLE_MIN 0

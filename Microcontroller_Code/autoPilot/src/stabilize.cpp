@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <SERVOS_H.h>
+#include <servos.h>
 
 //  --- Stabilize --- //
 void stabilize(double *receiverInput, double *servoInput, double *state)

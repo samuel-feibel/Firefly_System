@@ -1,14 +1,11 @@
 #include <Arduino.h>
 
 #include <estimateState.h>
-#include <IMU_H.h>
-#include <GPS_H.h>
+#include <IMU.h>
+#include <GPS.h>
 #include <barometer.h>
 #include <math.h>
-#include <BasicLinearAlgebra.h>
-#include <DEBUGTOOLS.h>
-
-using namespace BLA;
+#include <utils.h>
 
 double r0_ECEF[3];
 double NED_C_ECEF[9];

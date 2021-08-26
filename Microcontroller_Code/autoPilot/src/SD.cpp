@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include <SD.h>
 #include <Wire.h>                           //Needed for I2C to GPS
-#include <GPS_H.h>
-#include <IMU_H.h>
+#include <GPS.h>
+#include <IMU.h>
 
 File myFile;
 
