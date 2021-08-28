@@ -1,27 +1,24 @@
 #include <Arduino.h>
-
-#include <estimateState.h>
-#include <IMU.h>
-#include <GPS.h>
-#include <barometer.h>
 #include <math.h>
 #include <utils.h>
+#include <estimateState.h>
 
-double r0_ECEF[3];
-double NED_C_ECEF[9];
-double dhdp;
-double alt0;
-double p0;
+stateEstimator::stateEstimator(wrapGPS &_myWrapGPS, wrapIMU &_myWrapIMU, wrapBarometer &_mywrapBarometer) : myWrapGPS(_myWrapGPS), myWrapIMU(_myWrapIMU), myWrapBarometer(_mywrapBarometer) {}
+
+void stateEstimator::debug()
+{
+  Serial.println(r0_ECEF[0]);
+}
 
 // THIS MAY OR MAY NOT BE NONSENSE. REMAINS TO BE SEEN
-static void LatLonAlt2NED_Fcn(double Lat, double Lon, double Alt, double r0_ECEF[3], double NED_C_ECEF[9], double *r_NED)
+void stateEstimator::LatLonAlt2NED_Fcn(float Lat, float Lon, float Alt, float r0_ECEF[3], float NED_C_ECEF[9], float *r_NED)
 {
-  double t4;
-  double t7;
-  double t9;
-  double t17;
-  double t15;
-  double t22;
+  float t4;
+  float t7;
+  float t9;
+  float t17;
+  float t15;
+  float t22;
 
   // LATLONALT2NED_FCN
   //     R_NED = LATLONALT2NED_FCN(LAT,LON,ALT,r0_ECEF,NED_C_ECEF)
@@ -43,9 +40,9 @@ static void LatLonAlt2NED_Fcn(double Lat, double Lon, double Alt, double r0_ECEF
   r_NED[2] = (-NED_C_ECEF[2] * t22 - NED_C_ECEF[5] * t4) - NED_C_ECEF[8] * t17;
 }
 
-static void setAngle2Range(double *angle)
+void stateEstimator::setAngle2Range(float *angle)
 {
-  
+
   if (*angle > M_PI)
   {
     *angle = *angle - 2.0 * M_PI;
@@ -53,60 +50,59 @@ static void setAngle2Range(double *angle)
 }
 
 // Generate Measurement Vector at a point in time
-static void getMeasurementVector(double *Z, double *Z_input)
+void stateEstimator::getMeasurementVector(float *Z, float *Z_input)
 {
   // --- Z_inputs --- //
 
   // Acceleration
-  Z_input[0] = getIMUaccX() * 1E-3 * 9.81;
-  Z_input[1] = getIMUaccY() * 1E-3 * 9.81 * -1;
-  Z_input[2] = getIMUaccZ() * 1E-3 * 9.81 * -1;
+  Z_input[0] = myWrapIMU.getaccX() * 1E-3 * 9.81;
+  Z_input[1] = myWrapIMU.getaccY() * 1E-3 * 9.81 * -1;
+  Z_input[2] = myWrapIMU.getaccZ() * 1E-3 * 9.81 * -1;
 
   // Gyro
-  Z_input[4] = getIMUgyrX() * M_PI / 180;
-  Z_input[5] = getIMUgyrY() * M_PI / 180 * -1;
-  Z_input[6] = getIMUgyrZ() * M_PI / 180 * -1;
+  Z_input[4] = myWrapIMU.getgyrX() * M_PI / 180;
+  Z_input[5] = myWrapIMU.getgyrY() * M_PI / 180 * -1;
+  Z_input[6] = myWrapIMU.getgyrZ() * M_PI / 180 * -1;
 
   // --- Z --- //
 
   // GPS Position
-  double Lat = getGPSLatitude() * 1E-7;
-  double Lon = getGPSLongitude() * 1E-7;
-  double Alt = getGPSAltitude() * 1E-3;
-  double r_NED[3];
+  float Lat = myWrapGPS.getLatitude() * 1E-7;
+  float Lon = myWrapGPS.getLongitude() * 1E-7;
+  float Alt = myWrapGPS.getAltitude() * 1E-3;
+  float r_NED[3];
   LatLonAlt2NED_Fcn(Lat, Lon, Alt, r0_ECEF, NED_C_ECEF, &r_NED[0]);
   Z[0] = r_NED[0];
   Z[1] = r_NED[1];
   Z[2] = r_NED[2];
 
   // GPS Speed
-  Z[3] = getGPSGroundSpeed();
+  Z[3] = myWrapGPS.getGroundSpeed();
 
   // Magnetometer
-  Z[4] = getIMUmagX();
-  Z[5] = getIMUmagY();
-  Z[6] = getIMUmagZ();
+  Z[4] = myWrapIMU.getmagX();
+  Z[5] = myWrapIMU.getmagY();
+  Z[6] = myWrapIMU.getmagZ();
 
   // Heading
-  double Heading = getGPSHeading() * 1E-5 * M_PI / 180;
+  float Heading = myWrapGPS.getHeading() * 1E-5 * M_PI / 180;
   setAngle2Range(&Heading);
   Z[7] = Heading;
 
   // Altitude
-  double pressure = getPressure();
-  double delAlt = (pressure - p0) * dhdp;
+  float pressure = myWrapBarometer.getPressure();
+  float delAlt = (pressure - p0) * dhdp;
   Z[8] = -delAlt;
-
 }
 
 // Helper funciton to convert LLA to ECEF
-static void LatLonAlt2ECEF_Fcn(double Lat, double Lon, double Alt, double *r_ECEF)
+void stateEstimator::LatLonAlt2ECEF_Fcn(float Lat, float Lon, float Alt, float *r_ECEF)
 {
-  double t2;
-  double t3;
-  double t4;
-  double t5;
-  double t11;
+  float t2;
+  float t3;
+  float t4;
+  float t5;
+  float t11;
 
   // LATLONALT2ECEF_FCN
   //     R0_ECEF = LATLONALT2ECEF_FCN(LAT,LON,ALT)
@@ -127,13 +123,13 @@ static void LatLonAlt2ECEF_Fcn(double Lat, double Lon, double Alt, double *r_ECE
 }
 
 // Helper function to generate transformation matrix from ECEF to NED
-static void TECEF2NED_Fcn(double r_ECEF[3], double *NED_C_ECEF)
+void stateEstimator::TECEF2NED_Fcn(float r_ECEF[3], float *NED_C_ECEF)
 {
-  double a;
-  double t15;
-  double b_a;
-  double t13;
-  double t12;
+  float a;
+  float t15;
+  float b_a;
+  float t13;
+  float t12;
 
   // TECEF2NED_FCN
   //     NED_C_ECEF = TECEF2NED_FCN(r_ECEF)
@@ -164,22 +160,22 @@ static void TECEF2NED_Fcn(double r_ECEF[3], double *NED_C_ECEF)
 }
 
 // Continuous Dynamics Function
-static void f_Fcn(double *xhatk_u, double *uk, double *fdot)
+void stateEstimator::f_Fcn(float *xhatk_u, float *uk, float *fdot)
 {
-  double t2;
-  double t3;
-  double t4;
-  double t5;
-  double t6;
-  double t7_tmp;
-  double t7;
-  double t8_tmp;
-  double t8;
-  double t9_tmp;
-  double t9;
-  double t10_tmp;
-  double t10;
-  double t11;
+  float t2;
+  float t3;
+  float t4;
+  float t5;
+  float t6;
+  float t7_tmp;
+  float t7;
+  float t8_tmp;
+  float t8;
+  float t9_tmp;
+  float t9;
+  float t10_tmp;
+  float t10;
+  float t11;
 
   // F_FCN
   //     F = F_FCN(T,xhatk_u,uk)
@@ -200,43 +196,44 @@ static void f_Fcn(double *xhatk_u, double *uk, double *fdot)
   t10 = t10_tmp * 2.0;
   t11 = xhatk_u[8] * xhatk_u[9] * 2.0;
   fdot[0] = (xhatk_u[3] * (((t2 + t5) + -t3) + -t4) + xhatk_u[5] * (t7 + t10)) + xhatk_u[4] *
-    (t6 - t11);
+                                                                                     (t6 - t11);
   fdot[1] = (-xhatk_u[4] * (((t2 + t4) + -t3) + -t5) + xhatk_u[3] * (t6 + t11)) - xhatk_u[5] *
-    (t8 - t9);
+                                                                                      (t8 - t9);
   fdot[2] = (-xhatk_u[5] * (((t2 + t3) + -t4) + -t5) + xhatk_u[4] * (t8 + t9)) + xhatk_u[3] *
-    (t7 - t10);
+                                                                                     (t7 - t10);
   fdot[3] = (uk[0] + t7_tmp * 19.6) - t10_tmp * 19.6;
   fdot[4] = (uk[1] + t8_tmp * 19.6) + t9_tmp * 19.6;
   fdot[5] = (((uk[2] - t2 * 9.8) - t3 * 9.8) + t4 * 9.8) + t5 * 9.8;
   fdot[6] = (uk[3] * xhatk_u[9] / 2.0 - uk[4] * xhatk_u[8] / 2.0) + xhatk_u[7] * uk[5] / 2.0;
   fdot[7] = (uk[3] * xhatk_u[8] / 2.0 + uk[4] * xhatk_u[9] / 2.0) - xhatk_u[6] * uk[5] / 2.0;
   fdot[8] = (uk[3] * xhatk_u[7] * -0.5 + uk[4] * xhatk_u[6] / 2.0) + xhatk_u[9] * uk[5] /
-    2.0;
+                                                                         2.0;
   fdot[9] = (uk[3] * xhatk_u[6] * -0.5 - uk[4] * xhatk_u[7] / 2.0) - xhatk_u[8] * uk[5] /
-    2.0;
+                                                                         2.0;
 }
 
 // Predict State
-static void predictState(double delt, double *xhatk_u, double *uk, double *xhatkp1_p) {
-  double fdot[10];
+void stateEstimator::predictState(float delt, float *xhatk_u, float *uk, float *xhatkp1_p)
+{
+  float fdot[10];
   f_Fcn(&xhatk_u[0], &uk[0], &fdot[0]);
 
-  for (int i = 0; i<10; i++){
+  for (int i = 0; i < 10; i++)
+  {
     xhatkp1_p[i] = xhatk_u[i] + delt * fdot[i];
   }
-
 }
 
 // Sets up R0ECEF and NED_C_ECEF using the first GPS measurement
-void setupR0ECEF()
+void stateEstimator::setupR0ECEF()
 {
   bool initialized = false;
   Serial.print("Setting up r0_ECEF ... ");
   while (!initialized)
   // while (0) // this is jank delete it
   {
-    updateGPS();
-    int SIV = getGPSSIV();
+    myWrapGPS.update();
+    int SIV = myWrapGPS.getSIV();
 
     if (SIV > 2)
     {
@@ -253,22 +250,22 @@ void setupR0ECEF()
     }
   }
 
-  double Lat = getGPSLatitude() * 1E-7;
-  double Lon = getGPSLongitude() * 1E-7;
-  double Alt = getGPSAltitude() * 1E-3;
+  float Lat = myWrapGPS.getLatitude() * 1E-7;
+  float Lon = myWrapGPS.getLongitude() * 1E-7;
+  float Alt = myWrapGPS.getAltitude() * 1E-3;
   LatLonAlt2ECEF_Fcn(Lat, Lon, Alt, &r0_ECEF[0]);
   TECEF2NED_Fcn(r0_ECEF, &NED_C_ECEF[0]);
 }
 
-void setupP0()
+void stateEstimator::setupP0()
 {
   bool initialized = false;
-  double pressure;
+  float pressure;
   Serial.print("Setting up p0...");
   while (!initialized)
   {
-    updateBarometer();
-    pressure = getPressure();
+    myWrapBarometer.update();
+    pressure = myWrapBarometer.getPressure();
 
     if (pressure != -1)
     {
@@ -287,38 +284,34 @@ void setupP0()
 }
 
 // --- estimateState --- //
-void estimateState(double *xhatk_u, double delt)
+void stateEstimator::step(float *xhatk_u, float delt)
 {
-  
+
   // Get Measurement vector
-  static double Z[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-  static double Z_input[6] = {0, 0, 0, 0, 0, 0};
+  static float Z[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+  static float Z_input[6] = {0, 0, 0, 0, 0, 0};
   getMeasurementVector(&Z[0], &Z_input[0]);
 
   // Serial.println("Measurement Vector:");
   // printArray(&Z[0],9);
 
   // Predict State
-  double xhatkp1_p[10];
-  predictState(delt,&xhatk_u[0],&Z_input[0], &xhatkp1_p[0]);
+  float xhatkp1_p[10];
+  predictState(delt, &xhatk_u[0], &Z_input[0], &xhatkp1_p[0]);
 
   // Normalize Quaternion
-  double quatMag = sqrt(xhatkp1_p[6]*xhatkp1_p[6]+xhatkp1_p[7]*xhatkp1_p[7]+xhatkp1_p[8]*xhatkp1_p[8]+xhatkp1_p[9]*xhatkp1_p[9]);
-  for (int i=0; i<4; i++){
-    xhatkp1_p[i+6] = xhatkp1_p[i+6]/quatMag;
+  float quatMag = sqrt(xhatkp1_p[6] * xhatkp1_p[6] + xhatkp1_p[7] * xhatkp1_p[7] + xhatkp1_p[8] * xhatkp1_p[8] + xhatkp1_p[9] * xhatkp1_p[9]);
+  for (int i = 0; i < 4; i++)
+  {
+    xhatkp1_p[i + 6] = xhatkp1_p[i + 6] / quatMag;
   }
 
   // Predict Covariance
 
-
   Serial.println("xhatkp1_p Vector:");
-  printArray(&xhatkp1_p[0],10);
-
-
-
+  printArray(&xhatkp1_p[0], 10);
 
   // Run EKF
-
 
   // Return Updated State
 }

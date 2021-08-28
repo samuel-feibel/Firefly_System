@@ -56,7 +56,6 @@ ISR(PCINT2_vect)
     {
       writeServosPWM(&rcTimes[0]);
       // Serial.println(millis()-lastTime);
-
     }
   }
 }
@@ -84,4 +83,3 @@ void getRCSignalPWM(unsigned long *rcT)
   sei(); // reenable interrupts
   //return rcT;
 }
-

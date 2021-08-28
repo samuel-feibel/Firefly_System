@@ -11,7 +11,7 @@
 #define MCADD_H
 
 // Function Declarations
-double mcadd(double u, double v);
+float mcadd(float u, float v);
 
 #endif
 

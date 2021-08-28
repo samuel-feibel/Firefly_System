@@ -1,8 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-void copy(double *a, double *b, int b_size);
+void copy(float *a, float *b, int b_size);
 
-void printArray(double *arr,int m);
+void printArray(float *arr,int m);
 
 #endif

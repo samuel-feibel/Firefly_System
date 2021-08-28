@@ -1,7 +1,5 @@
 #include <Arduino.h>
-#include "ICM_20948.h" // Click here to get the library: http://librarymanager/All#SparkFun_ICM_20948_IMU
-
-//#define USE_SPI       // Uncomment this to use SPI
+#include "IMU.h" // Click here to get the library: http://librarymanager/All#SparkFun_ICM_20948_IMU
 
 #define SERIAL_PORT Serial
 
@@ -13,24 +11,13 @@
 // On the SparkFun 9DoF IMU breakout the default is 1, and when
 // the ADR jumper is closed the value becomes 0
 
-#ifdef USE_SPI
-ICM_20948_SPI myICM; // If using SPI create an ICM_20948_SPI object
-#else
-ICM_20948_I2C myICM; // Otherwise create an ICM_20948_I2C object
-#endif
-
-// --- Biases --- //
-#define BIAS_GYR_X -0.1325 // deg/s
-#define BIAS_GYR_Y -1.5720 // deg/s
-#define BIAS_GYR_Z -0.3581 // deg/s
-
-#define BIAS_MAG_X 15.8147 // uT
-#define BIAS_MAG_Y -23.0732 // uT
-#define BIAS_MAG_Z 16.3668 // uT
-
+wrapIMU::wrapIMU()
+{
+  ICM_20948_I2C myICM; // create  ICM_20948_I2C object
+}
 
 // Below here are some helper functions to print the data nicely!
-static void printPaddedInt16b(int16_t val)
+void wrapIMU::printPaddedInt16b(int16_t val)
 {
   if (val > 0)
   {
@@ -75,7 +62,7 @@ static void printPaddedInt16b(int16_t val)
   SERIAL_PORT.print(abs(val));
 }
 
-static void printRawAGMT(ICM_20948_AGMT_t agmt)
+void wrapIMU::printRawAGMT(ICM_20948_AGMT_t agmt)
 {
   SERIAL_PORT.print("RAW. Acc [ ");
   printPaddedInt16b(agmt.acc.axes.x);
@@ -101,7 +88,7 @@ static void printRawAGMT(ICM_20948_AGMT_t agmt)
   SERIAL_PORT.println();
 }
 
-static void printFormattedFloat(float val, uint8_t leading, uint8_t decimals)
+void wrapIMU::printFormattedFloat(float val, uint8_t leading, uint8_t decimals)
 {
   float aval = abs(val);
   if (val < 0)
@@ -142,7 +129,7 @@ static void printFormattedFloat(float val, uint8_t leading, uint8_t decimals)
   }
 }
 
-static void printScaledAGMT(ICM_20948_AGMT_t agmt)
+void wrapIMU::printScaledAGMT(ICM_20948_AGMT_t agmt)
 {
   SERIAL_PORT.print("Scaled. Acc (mg) [ ");
   printFormattedFloat(myICM.accX(), 5, 2);
@@ -169,7 +156,7 @@ static void printScaledAGMT(ICM_20948_AGMT_t agmt)
 }
 
 // Here are the main functions
-void setup_IMU()
+void wrapIMU::setup()
 {
 
 #ifdef USE_SPI
@@ -222,7 +209,7 @@ void setup_IMU()
   }
 }
 
-void updateIMU()
+void wrapIMU::update()
 {
 
   if (myICM.dataReady())
@@ -235,7 +222,7 @@ void updateIMU()
   }
 }
 
-void printIMU()
+void wrapIMU::print()
 {
   printFormattedFloat(myICM.accX(), 5, 2);
   Serial.print(", ");
@@ -260,71 +247,71 @@ void printIMU()
   Serial.println();
 }
 
-// Report Raw Values 
-float getRawIMUgyrX()
+// Report Raw Values
+float wrapIMU::getRawgyrX()
 {
   return myICM.gyrX();
 }
-float getRawIMUgyrY()
+float wrapIMU::getRawgyrY()
 {
   return myICM.gyrY();
 }
-float getRawIMUgyrZ()
+float wrapIMU::getRawgyrZ()
 {
   return myICM.gyrZ();
 }
-float getRawIMUmagX()
+float wrapIMU::getRawmagX()
 {
   return myICM.magX();
 }
-float getRawIMUmagY()
+float wrapIMU::getRawmagY()
 {
   return myICM.magY();
 }
-float getRawIMUmagZ()
+float wrapIMU::getRawmagZ()
 
 {
   return myICM.magZ();
 }
 
 // Report non-biased Values
-float getIMUaccX()
+float wrapIMU::getaccX()
 {
   return myICM.accX();
 }
-float getIMUaccY()
+float wrapIMU::getaccY()
 {
   return myICM.accY();
 }
-float getIMUaccZ()
+float wrapIMU::getaccZ()
 {
   return myICM.accZ();
 }
-float getIMUgyrX() // (deg/s)
+float wrapIMU::getgyrX() // (deg/s)
 {
   return myICM.gyrX() - BIAS_GYR_X;
 }
-float getIMUgyrY() // (deg/s)
+float wrapIMU::getgyrY() // (deg/s)
 {
   return myICM.gyrY() - BIAS_GYR_Y;
 }
-float getIMUgyrZ() // (deg/s)
+float wrapIMU::getgyrZ() // (deg/s)
 {
   return myICM.gyrZ() - BIAS_GYR_Z;
 }
-float getIMUmagX() // uT
+float wrapIMU::getmagX() // uT
 {
   return myICM.magX() - BIAS_MAG_X;
 }
-float getIMUmagY() // uT
+float wrapIMU::getmagY() // uT
 {
   return myICM.magY() - BIAS_MAG_Y;
 }
-float getIMUmagZ() // uT
+float wrapIMU::getmagZ() // uT
 {
   return myICM.magZ() - BIAS_MAG_Z;
 }
-float getIMUtemp() // C
+float wrapIMU::gettemp() // C
 {
   return myICM.temp();
 }

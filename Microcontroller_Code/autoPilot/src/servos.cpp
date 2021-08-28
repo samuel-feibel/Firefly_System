@@ -34,9 +34,9 @@ Servo rudderServo;
 Servo elevatorServo;
 Servo aileronServo;
 
-static double pwm_map(volatile unsigned long pwm_onTime, int ANGLE_MAX, int ANGLE_MIN)
+static float pwm_map(volatile unsigned long pwm_onTime, int ANGLE_MAX, int ANGLE_MIN)
 {
-  double Angle = double((ANGLE_MAX - ANGLE_MIN) * (double(pwm_onTime) - PWM_MIN) / (PWM_MAX - PWM_MIN) + ANGLE_MIN);
+  float Angle = float((ANGLE_MAX - ANGLE_MIN) * (float(pwm_onTime) - PWM_MIN) / (PWM_MAX - PWM_MIN) + ANGLE_MIN);
   if (Angle < ANGLE_MIN)
   {
     Angle = ANGLE_MIN;
@@ -48,7 +48,7 @@ static double pwm_map(volatile unsigned long pwm_onTime, int ANGLE_MAX, int ANGL
   return Angle;
 }
 
-static void pwm_limit(double *angle, int ANGLE_MAX, int ANGLE_MIN)
+static void pwm_limit(float *angle, int ANGLE_MAX, int ANGLE_MIN)
 {
   if (*angle < ANGLE_MIN)
   {
@@ -67,9 +67,8 @@ void setup_Servos()
   aileronServo.attach(AILERON_OUT_PIN);
 }
 
-void writeServosAngle(double *inputAngle)
+void writeServosAngle(float *inputAngle)
 {
-      
 
   pwm_limit(&inputAngle[1], AILERON_MAX, AILERON_MIN);
   pwm_limit(&inputAngle[2], ELEVATOR_MAX, ELEVATOR_MIN);
@@ -87,7 +86,7 @@ void writeServosPWM(volatile unsigned long *inputPWM)
   rudderServo.write(pwm_map(inputPWM[3], RUDDER_MAX, RUDDER_MIN));
 }
 
-void getRCSignalAngle(double *recieverInput, bool *autoMode, int *auxMode)
+void getRCSignalAngle(float *recieverInput, bool *autoMode, int *auxMode)
 {
   unsigned long rcT[6];
   getRCSignalPWM(&rcT[0]);

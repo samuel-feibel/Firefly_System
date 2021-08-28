@@ -1,26 +1,35 @@
 #ifndef GPS_H
 #define GPS_H
 
-void setupGPS();
+#include "SparkFun_Ublox_Arduino_Library.h" //http://librarymanager/All#SparkFun_Ublox_GPS
 
-void updateGPS();
+class wrapGPS
+{
+private:
+    SFE_UBLOX_GPS myGPS;
 
-void printGPS();
+public:
+    wrapGPS();
 
-// Get Relevant Outputs
-long getGPSYear();
-long getGPSMonth();
-long getGPSDay();
-int getGPSHour();
-int getGPSMinute();
-int getGPSSecond();
-int getGPSMillisecond();
-long getGPSLatitude();
-long getGPSLongitude();
-long getGPSAltitude();
-byte getGPSSIV();
-long getGPSHeading();
-long getGPSGroundSpeed();
-long getGPSPDOP();
+    void setup();
+    void update();
+    void print();
+
+    // Get Relevant Outputs
+    long getYear();
+    long getMonth();
+    long getDay();
+    int getHour();
+    int getMinute();
+    int getSecond();
+    int getMillisecond();
+    long getLatitude();
+    long getLongitude();
+    long getAltitude();
+    byte getSIV();
+    long getHeading();
+    long getGroundSpeed();
+    long getPDOP();
+};
 
 #endif

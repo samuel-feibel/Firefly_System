@@ -1,10 +1,15 @@
 #include <Arduino.h>
-#include <Wire.h>                           //Needed for I2C to GPS
-#include "SparkFun_Ublox_Arduino_Library.h" //http://librarymanager/All#SparkFun_Ublox_GPS
+#include <Wire.h> //Needed for I2C to GPS
+#include "GPS.h"
 
-SFE_UBLOX_GPS myGPS;
+// Class wrapGPS
 
-void printGPS()
+wrapGPS::wrapGPS()
+{
+    SFE_UBLOX_GPS myGPS;
+}
+
+void wrapGPS::print()
 {
 
     if (1) //(myGPS.getPVT())
@@ -40,7 +45,7 @@ void printGPS()
     }
 }
 
-void setupGPS()
+void wrapGPS::setup()
 {
 
     Wire.begin();
@@ -71,7 +76,7 @@ void setupGPS()
     myGPS.saveConfiguration(); //Save the current settings to flash and BBR
 }
 
-void updateGPS()
+void wrapGPS::update()
 {
     myGPS.getPVT();
     //  Serial.print(" GPS Available: ");
@@ -79,59 +84,59 @@ void updateGPS()
 }
 
 // Get Relevant Outputs
-long getGPSYear()
+long wrapGPS::getYear()
 {
     return myGPS.getYear();
 }
-long getGPSMonth()
+long wrapGPS::getMonth()
 {
     return myGPS.getMonth();
 }
-long getGPSDay()
+long wrapGPS::getDay()
 {
     return myGPS.getDay();
 }
-int getGPSHour()
+int wrapGPS::getHour()
 {
     return myGPS.getHour();
 }
-int getGPSMinute()
+int wrapGPS::getMinute()
 {
     return myGPS.getMinute();
 }
-int getGPSSecond()
+int wrapGPS::getSecond()
 {
     return myGPS.getSecond();
 }
-int getGPSMillisecond()
+int wrapGPS::getMillisecond()
 {
     return myGPS.getMillisecond();
 }
-long getGPSLatitude()
+long wrapGPS::getLatitude()
 {
     return myGPS.getLatitude();
 }
-long getGPSLongitude()
+long wrapGPS::getLongitude()
 {
     return myGPS.getLongitude();
 }
-long getGPSAltitude()
+long wrapGPS::getAltitude()
 {
     return myGPS.getAltitude();
 }
-byte getGPSSIV()
+byte wrapGPS::getSIV()
 {
     return myGPS.getSIV();
 }
-long getGPSHeading()
+long wrapGPS::getHeading()
 {
     return myGPS.getHeading();
 }
-long getGPSGroundSpeed()
+long wrapGPS::getGroundSpeed()
 {
     return myGPS.getGroundSpeed();
 }
-long getGPSPDOP()
+long wrapGPS::getPDOP()
 {
     return myGPS.getPDOP();
 }

@@ -1,34 +1,33 @@
+/* RC Aircraft Autopilot
+ * Written by Samuel Feibel
+ *
+ * TODO:
+ * - Change pointers in estimator class to references
+ * - consider implementation of some sort of array/vector/matrix object
+ * - Run estimator and inverse
+ * - Debug
+*/
+
 // Includes
-#include <Arduino.h>
-#include <Servo.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <ICM_20948.h>
-#include <SparkFun_Ublox_Arduino_Library.h>
-#include <SD.h>
-#include <avr/wdt.h>
-#include <math.h>
-#include <BasicLinearAlgebra.h>
-
-#include <rcTiming.h>
-#include <servos.h>
-#include <GPS.h>
-#include <IMU.h>
-#include <barometer.h>
-#include <SDs.h>
-#include <utils.h>
-#include <stabilize.h>
-#include <test.h>
-#include <estimateState.h>
-
-
-// --- Constants --- //
+#include <main.h>
 
 // --- Settings --- //
 
 unsigned long prevLoopTime = 0;
 int prevAuxMode = 0;
 bool card_detected;
+
+// --- Objects --- //
+
+// Sensors
+wrapGPS myWrapGPS;
+wrapIMU myWrapIMU;
+wrapBarometer myWrapBarometer;
+
+// Estimator
+stateEstimator myStateEstimator(myWrapGPS, myWrapIMU, myWrapBarometer);
+
+// Stabilizer
 
 void setup()
 {
@@ -38,14 +37,14 @@ void setup()
   setup_rcTiming();
 
   // Less Critical
-  setupGPS();
-  updateGPS();
-  card_detected = setupSD();
-  setup_IMU();
-  setup_Barometer();
+  myWrapGPS.setup();
+  myWrapGPS.update();
+  // card_detected = setupSD();
+  myWrapIMU.setup();
+  myWrapBarometer.setup();
   pinMode(LED_BUILTIN, OUTPUT);
-  setupR0ECEF();
-  setupP0();
+  myStateEstimator.setupR0ECEF();
+  myStateEstimator.setupP0();
 
   // Last
   // wdt_enable(WDTO_60MS); // This needs to be last
@@ -54,32 +53,32 @@ void setup()
 void loop()
 {
 
-  if (millis() - prevLoopTime > 999){
-    double delt = (millis() - prevLoopTime)/1000.0;
-    
+  if (millis() - prevLoopTime > 999)
+  {
+    // float delt = (millis() - prevLoopTime) / 1000.0;
+
     // Serial.print("Time: ");
     // Serial.println(delt);
     prevLoopTime = millis();
     wdt_reset();
 
     // State Vector Initialize
-    static double xhat[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+    static float xhat[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
 
     // Read Reciever
-    static double receiverInput[4] = {0, 0, 0, 0};
-    static double servoInput[4] = {0, 0, 0, 0};
+    static float receiverInput[4] = {0, 0, 0, 0};
+    static float servoInput[4] = {0, 0, 0, 0};
     bool autoMode;
     int auxMode;
     getRCSignalAngle(&receiverInput[0], &autoMode, &auxMode);
 
     // Update Sensors
-    updateGPS();
-    updateIMU();
-    updateBarometer();
+    myWrapGPS.update();
+    myWrapIMU.update();
+    myWrapBarometer.update();
 
     // Update State Estimate
-    estimateState(&xhat[0], delt);
-    
+    // estimateState(&xhat[0], delt);
 
     // Mode Logic
     if (autoMode)
@@ -96,25 +95,25 @@ void loop()
     // Write Data
     if (card_detected && (prevAuxMode != 2 && auxMode == 2))
     {
-      openSD();
+      // openSD();
     }
 
     if (card_detected && (prevAuxMode == 2 && auxMode != 2))
     {
-      closeSD();
+      // closeSD();
     }
     prevAuxMode = auxMode;
 
     if (card_detected && auxMode == 2)
     {
-      writeData(&xhat[0], &servoInput[0], &receiverInput[0], &autoMode, &auxMode);
+      // writeData(&xhat[0], &servoInput[0], &receiverInput[0], &autoMode, &auxMode);
     }
 
     // Debug Prints
-    // Serial.println(volume(3.0,3.0,3.0));
-    // double magX = getIMUmagX();
-    // double magY = getIMUmagY();
-    // double magZ = getIMUmagZ();
+    // Serial.println(myWrapIMU.getaccX());
+    // float magX = getIMUmagX();
+    // float magY = getIMUmagY();
+    // float magZ = getIMUmagZ();
     // Serial.println(sqrt(magX*magX+magY*magY+magZ*magZ));
     // Serial.println(getGPSYear());
     // printGPS();
@@ -123,13 +122,14 @@ void loop()
     // Serial.println(getGPSSIV());
     // Serial.println(autoMode);
     // Serial.println(mcadd(1,1));
-    // double Lat = getGPSLatitude();
-    // double Lon = getGPSLongitude();
-    // double Alt = getGPSAltitude();
+    // float Lat = getGPSLatitude();
+    // float Lon = getGPSLongitude();
+    // float Alt = getGPSAltitude();
     // Serial.print(Lat);
     // Serial.print(" ");
     // Serial.print(Lon);
     // Serial.print(" ");
     // Serial.println(Alt);
+    // myStateEstimator.debug();
   }
 }

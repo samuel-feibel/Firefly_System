@@ -4,6 +4,7 @@
 #include <GPS.h>
 #include <IMU.h>
 
+/*
 File myFile;
 
 static void writeFormattedFloat(float val, uint8_t leading, uint8_t decimals) {
@@ -95,7 +96,7 @@ bool setupSD() {
   return 1;
 }
 
-void writeData(double *state, double *servoInput, double *receiverInput, bool *autoMode, int *auxMode) {
+void writeData(float *state, float *servoInput, float *receiverInput, bool *autoMode, int *auxMode) {
 
   //myFile = SD.open("dataLog.txt", FILE_WRITE);
   if (myFile) {
@@ -217,4 +218,5 @@ void closeSD() {
   myFile.close();
 }
 
+*/
 
