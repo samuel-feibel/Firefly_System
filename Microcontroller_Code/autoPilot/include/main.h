@@ -7,6 +7,7 @@
 #include <SD.h>
 #include <avr/wdt.h>
 #include <math.h>
+#include <BasicLinearAlgebra.h>
 
 #include <rcTiming.h>
 #include <servos.h>

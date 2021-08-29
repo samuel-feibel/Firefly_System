@@ -4,6 +4,10 @@
 #include <IMU.h>
 #include <GPS.h>
 #include <barometer.h>
+#include <BasicLinearAlgebra.h>
+
+using namespace BLA;
+const int Ns = 10;
 
 class stateEstimator
 {
@@ -20,6 +24,8 @@ private:
     wrapIMU &myWrapIMU;
     wrapBarometer &myWrapBarometer;
 
+    // Estimator Variables
+
     void LatLonAlt2NED_Fcn(float Lat, float Lon, float Alt, float r0_ECEF[3], float NED_C_ECEF[9], float *r_NED);
 
     void setAngle2Range(float *angle);
@@ -32,7 +38,7 @@ private:
 
     void f_Fcn(float *xhatk_u, float *uk, float *fdot);
 
-    void predictState(float delt, float *xhatk_u, float *uk, float *xhatkp1_p);
+    void predictState(float delt, float *xhatk_u, float *uk, Matrix<Ns> &xhatkp1_p);
 
 public:
     stateEstimator(wrapGPS &_myWrapGPS, wrapIMU &_myWrapIMU, wrapBarometer &_mywrapBarometer);

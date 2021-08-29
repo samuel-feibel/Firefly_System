@@ -43,7 +43,7 @@ void setup()
   myWrapIMU.setup();
   myWrapBarometer.setup();
   pinMode(LED_BUILTIN, OUTPUT);
-  myStateEstimator.setupR0ECEF();
+  // myStateEstimator.setupR0ECEF();
   myStateEstimator.setupP0();
 
   // Last
@@ -55,7 +55,7 @@ void loop()
 
   if (millis() - prevLoopTime > 999)
   {
-    // float delt = (millis() - prevLoopTime) / 1000.0;
+    float delt = (millis() - prevLoopTime) / 1000.0;
 
     // Serial.print("Time: ");
     // Serial.println(delt);
@@ -78,7 +78,7 @@ void loop()
     myWrapBarometer.update();
 
     // Update State Estimate
-    // estimateState(&xhat[0], delt);
+    myStateEstimator.step(&xhat[0], delt);
 
     // Mode Logic
     if (autoMode)
