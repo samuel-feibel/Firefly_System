@@ -1,8 +1,11 @@
 #include <Arduino.h>
 #include <servos.h>
+#include <BasicLinearAlgebra.h>
+
+using namespace BLA;
 
 //  --- Stabilize --- //
-void stabilize(float *receiverInput, float *servoInput, float *state)
+void stabilize(float *receiverInput, float *servoInput, Matrix<10> &state)
 {
     // Controls
     servoInput[0] = 0;  // Throttle

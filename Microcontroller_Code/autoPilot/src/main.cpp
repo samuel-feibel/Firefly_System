@@ -11,6 +11,8 @@
 // Includes
 #include <main.h>
 
+using namespace BLA;
+
 // --- Settings --- //
 
 unsigned long prevLoopTime = 0;
@@ -43,7 +45,7 @@ void setup()
   myWrapIMU.setup();
   myWrapBarometer.setup();
   pinMode(LED_BUILTIN, OUTPUT);
-  // myStateEstimator.setupR0ECEF();
+  myStateEstimator.setupR0ECEF();
   myStateEstimator.setupP0();
 
   // Last
@@ -62,9 +64,6 @@ void loop()
     prevLoopTime = millis();
     wdt_reset();
 
-    // State Vector Initialize
-    static float xhat[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-
     // Read Reciever
     static float receiverInput[4] = {0, 0, 0, 0};
     static float servoInput[4] = {0, 0, 0, 0};
@@ -78,13 +77,13 @@ void loop()
     myWrapBarometer.update();
 
     // Update State Estimate
-    myStateEstimator.step(&xhat[0], delt);
+    Matrix<Ns,1> xhat = myStateEstimator.step(delt);
 
     // Mode Logic
     if (autoMode)
     {
       digitalWrite(LED_BUILTIN, HIGH);
-      stabilize(&receiverInput[0], &servoInput[0], &xhat[0]);
+      stabilize(&receiverInput[0], &servoInput[0], xhat);
     }
     else
     {
@@ -131,5 +130,6 @@ void loop()
     // Serial.print(" ");
     // Serial.println(Alt);
     // myStateEstimator.debug();
+
   }
 }

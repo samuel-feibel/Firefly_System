@@ -8,13 +8,14 @@
 
 using namespace BLA;
 const int Ns = 10;
+const int Nm = 9;
 
 class stateEstimator
 {
 private:
     // Origin stuff
-    float r0_ECEF[3];
-    float NED_C_ECEF[9];
+    Matrix<3> r0_ECEF;
+    Matrix<3,3>  NED_C_ECEF;
     float dhdp;
     float alt0;
     float p0;
@@ -25,23 +26,40 @@ private:
     wrapBarometer &myWrapBarometer;
 
     // Estimator Variables
+    Matrix<Ns,1> xhat;
+    Matrix<Ns,Ns> P;
 
-    void LatLonAlt2NED_Fcn(float Lat, float Lon, float Alt, float r0_ECEF[3], float NED_C_ECEF[9], float *r_NED);
+    Matrix <Ns,6> G;
 
-    void setAngle2Range(float *angle);
 
-    void getMeasurementVector(float *Z, float *Z_input);
+    void LatLonAlt2ECEF_Fcn(float Lat, float Lon, float Alt, Matrix<3> &r_ECEF);
 
-    void LatLonAlt2ECEF_Fcn(float Lat, float Lon, float Alt, float *r_ECEF);
+    void LatLonAlt2NED_Fcn(float Lat, float Lon, float Alt, Matrix<3> &r_NED);
 
-    void TECEF2NED_Fcn(float r_ECEF[3], float *NED_C_ECEF);
+    void setAngle2Range(float &angle);
 
-    void f_Fcn(float *xhatk_u, float *uk, float *fdot);
+    void getMeasurementVector(Matrix<9> &Z, Matrix<6> &Z_input);
 
-    void predictState(float delt, float *xhatk_u, float *uk, Matrix<Ns> &xhatkp1_p);
+    void TECEF2NED_Fcn(Matrix<3> &r_ECEF);
+
+    void f_Fcn(Matrix<Ns> &fxhatk_u, Matrix<6> &uk, Matrix<Ns> &fdot);
+
+    void get_F_jac(Matrix<Ns> &xhatk_u, Matrix<6> &uk, Matrix<Ns,Ns> &F_jac);
+
+    void get_Q(float dT, Matrix<6,6> &Q);
+
+    void get_R(float dT, Matrix<9, 9> &R);
+
+    void get_H_jac(Matrix<Ns> &xhat, Matrix<9, Ns> &H_jac);
+
+    void h_fcn(Matrix<Ns> &xhat, Matrix<Nm> &h);
+
+    void predictState(float delt, Matrix<Ns> &xhat, Matrix<6> &uk);
 
 public:
     stateEstimator(wrapGPS &_myWrapGPS, wrapIMU &_myWrapIMU, wrapBarometer &_mywrapBarometer);
+
+    void init(Matrix<Ns,1> xhat0, Matrix<Ns,Ns> P0);
 
     void debug();
 
@@ -49,7 +67,9 @@ public:
 
     void setupP0();
 
-    void step(float *xhatk_u, float delt);
+    Matrix<Ns> step(float delt);
 };
 
 #endif
+
+
