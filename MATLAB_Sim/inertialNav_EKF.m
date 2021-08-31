@@ -110,9 +110,12 @@ F_jac_Fcn = matlabFunction(F,'Vars',{x,cntrl},'File','F_jac_Fcn');
 Qs = diag([sigmaN.Acc.x,sigmaN.Acc.y,3*sigmaN.Acc.z,...
            sigmaN.Gyr.x,sigmaN.Gyr.y,sigmaN.Gyr.z].^2);
 
-Gs = zeros(ns,size(Qs,1)); 
-Gs(4,1) = 1; Gs(5,2) = 1; Gs(6,3) = 1;  % accel
-Gs(7,4) = 1; Gs(8,5) = 1; Gs(9,6) = 1;  % angular accel
+% Gs = zeros(ns,size(Qs,1)); 
+% Gs(4,1) = 1; Gs(5,2) = 1; Gs(6,3) = 1;  % accel
+% Gs(7,4) = 1; Gs(8,5) = 1; Gs(9,6) = 1;  % angular accel
+
+Gs = jacobian(f,cntrl);
+
 
 % Parameters
 Qp = [];
@@ -121,6 +124,7 @@ Gp = zeros(np,size(Gs,2));
 % Combine
 Q = blkdiag(Qs,Qp);
 G = [Gs;Gp];
+G_jac_Fcn = matlabFunction(G,'Vars',{x,cntrl},'File','G_jac_Fcn');
 
 syms dT
 Q_Fcn = matlabFunction(Q,'Vars',dT,'File','Q_Fcn');

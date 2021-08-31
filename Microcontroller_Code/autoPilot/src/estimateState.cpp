@@ -9,12 +9,17 @@ void stateEstimator::debug()
 {
 }
 
-void stateEstimator::init(Matrix<Ns, 1> xhat0, Matrix<Ns, Ns> P0)
+void stateEstimator::init()
 {
   // State and Covariance
-  xhat = xhat0;
-  P = P0;
+  xhat = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+  P.Fill(0.0);
+  for (int i = 1; i < Ns; i++)
+  {
+    P(i, i) = 100;
+  }
 
+  // THIS IS WRONG. FIX in MATLAB
   // G
   G.Fill(0.0);
   G(3, 0) = 1.0;
@@ -74,9 +79,9 @@ void stateEstimator::getMeasurementVector(Matrix<9> &Z, Matrix<6> &Z_input)
   Z_input(2) = myWrapIMU.getaccZ() * 1E-3 * 9.81 * -1;
 
   // Gyro
-  Z_input(4) = myWrapIMU.getgyrX() * M_PI / 180;
-  Z_input(5) = myWrapIMU.getgyrY() * M_PI / 180 * -1;
-  Z_input(6) = myWrapIMU.getgyrZ() * M_PI / 180 * -1;
+  Z_input(3) = myWrapIMU.getgyrX() * M_PI / 180;
+  Z_input(4) = myWrapIMU.getgyrY() * M_PI / 180 * -1;
+  Z_input(5) = myWrapIMU.getgyrZ() * M_PI / 180 * -1;
 
   // --- Z --- //
 
@@ -228,6 +233,7 @@ void stateEstimator::get_F_jac(Matrix<Ns> &xhat, Matrix<6> &uk, Matrix<Ns, Ns> &
 
 void stateEstimator::get_Q(float dT, Matrix<6, 6> &Q)
 {
+  Q.Fill(0.0);
   Q(0, 0) = pow(dT * 8.055656553821564E-2 + 2.236262379681608, 2.0);
   Q(1, 1) = pow(dT * 8.602270870712547E-2 + 1.313070372031577, 2.0);
   Q(2, 2) = pow(dT * 2.831314927881532E-1 + 4.820209694184105, 2.0);
@@ -238,6 +244,7 @@ void stateEstimator::get_Q(float dT, Matrix<6, 6> &Q)
 
 void stateEstimator::get_H_jac(Matrix<Ns> &xhat, Matrix<9, Ns> &H_jac)
 {
+  H_jac.Fill(0.0);
   float t2 = fabs(xhat(3));
   float t3 = fabs(xhat(4));
   float t4 = fabs(xhat(5));
@@ -352,6 +359,7 @@ void stateEstimator::get_H_jac(Matrix<Ns> &xhat, Matrix<9, Ns> &H_jac)
 
 void stateEstimator::get_R(float dT, Matrix<9, 9> &R)
 {
+  R.Fill(0.0);
   R(0, 0) = 2.5E+1 / 2.0;
   R(1, 1) = 2.5E+1 / 2.0;
   R(2, 2) = 1.0E+2;
@@ -463,6 +471,8 @@ Matrix<Ns> stateEstimator::step(float delt)
   Matrix<6> Z_input;
   getMeasurementVector(Z, Z_input);
 
+  // Z_input.Fill(0.001);
+  // Z_input(2) = -9.81;
   // Predict State
   predictState(delt, xhat, Z_input); // xhatkp1_p
 
@@ -480,11 +490,13 @@ Matrix<Ns> stateEstimator::step(float delt)
   Matrix<6, 6> Q;
   get_Q(90.0, Q);
   Matrix<Ns, Ns> deltI;
+  deltI.Fill(0.0);
   float delt2 = delt * delt;
   for (int i = 0; i < Ns; i++)
   {
     deltI(i, i) = delt2;
   }
+
   P = F_jac * P * (~F_jac) + G * Q * (~G) * deltI;
 
   // Kalman Gain
@@ -510,14 +522,22 @@ Matrix<Ns> stateEstimator::step(float delt)
 
   // Update Step
   xhat = xhat + K * res; // xhatkp1_u
-  Matrix<Ns,Ns> Is;
+
+  Matrix<Ns, Ns> Is;
   Is.Fill(0.0);
   for (int i = 0; i < Ns; i++)
   {
     Is(i, i) = 1.0;
   }
+
   Matrix<Ns, Ns> ImKH = (Is - K * H_jac);
-  P = ImKH * P * (~ImKH) + K * R * (~K);
+  // P = ImKH * P * (~ImKH)  + K * R * (~K);
+  // Matrix<Ns, Ns> Left = ImKH * P;
+  Matrix<Ns, Ns> Full = P * (~ImKH);
+  // Matrix<Ns, Ns> Ofull = P * (~ImKH);
+  Serial << Full << '\n';
+  return xhat;
 
 
+  // It appears that this runs out of memory on this last fcn. Next step is to seperate some of these fcns so that memory is freed up
 }

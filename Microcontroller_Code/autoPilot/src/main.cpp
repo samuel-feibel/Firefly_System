@@ -47,6 +47,7 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
   myStateEstimator.setupR0ECEF();
   myStateEstimator.setupP0();
+  myStateEstimator.init();
 
   // Last
   // wdt_enable(WDTO_60MS); // This needs to be last
@@ -77,7 +78,10 @@ void loop()
     myWrapBarometer.update();
 
     // Update State Estimate
+    myStateEstimator.init();  // THIS IS A DEBUT STEP
     Matrix<Ns,1> xhat = myStateEstimator.step(delt);
+    // Matrix<Ns,1> xhat;
+    // xhat.Fill(0.0);
 
     // Mode Logic
     if (autoMode)
@@ -130,6 +134,6 @@ void loop()
     // Serial.print(" ");
     // Serial.println(Alt);
     // myStateEstimator.debug();
-
+    // Serial.println("here");
   }
 }

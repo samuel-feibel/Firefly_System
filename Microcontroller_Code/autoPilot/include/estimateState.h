@@ -59,7 +59,7 @@ private:
 public:
     stateEstimator(wrapGPS &_myWrapGPS, wrapIMU &_myWrapIMU, wrapBarometer &_mywrapBarometer);
 
-    void init(Matrix<Ns,1> xhat0, Matrix<Ns,Ns> P0);
+    void init();
 
     void debug();
 
