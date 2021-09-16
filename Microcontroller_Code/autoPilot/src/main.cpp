@@ -29,6 +29,9 @@ wrapBarometer myWrapBarometer;
 // Estimator
 stateEstimator myStateEstimator(myWrapGPS, myWrapIMU, myWrapBarometer);
 
+// SD Card
+wrapSD myWrapSD(myWrapGPS, myWrapIMU, myWrapBarometer);
+
 // Stabilizer
 
 void setup()
@@ -41,11 +44,11 @@ void setup()
   // Less Critical
   myWrapGPS.setup();
   myWrapGPS.update();
-  // card_detected = setupSD();
+  card_detected = myWrapSD.setup();
   myWrapIMU.setup();
   myWrapBarometer.setup();
   pinMode(LED_BUILTIN, OUTPUT);
-  myStateEstimator.setupR0ECEF();
+  // myStateEstimator.setupR0ECEF();
   myStateEstimator.setupP0();
   myStateEstimator.init();
 
@@ -56,7 +59,7 @@ void setup()
 void loop()
 {
 
-  if (millis() - prevLoopTime > 999)
+  if ((millis() - prevLoopTime) > 100)
   {
     float delt = (millis() - prevLoopTime) / 1000.0;
 
@@ -78,10 +81,10 @@ void loop()
     myWrapBarometer.update();
 
     // Update State Estimate
-    myStateEstimator.init();  // THIS IS A DEBUT STEP
-    Matrix<Ns,1> xhat = myStateEstimator.step(delt);
-    // Matrix<Ns,1> xhat;
-    // xhat.Fill(0.0);
+    // myStateEstimator.init(); // THIS IS A DEBUG STEP
+    // Matrix<Ns, 1> xhat = myStateEstimator.step(delt); // THIS IS A DEBUG STEP
+    Matrix<Ns, 1> xhat;
+    xhat.Fill(0);
 
     // Mode Logic
     if (autoMode)
@@ -98,42 +101,22 @@ void loop()
     // Write Data
     if (card_detected && (prevAuxMode != 2 && auxMode == 2))
     {
-      // openSD();
+      myWrapSD.open();
     }
 
     if (card_detected && (prevAuxMode == 2 && auxMode != 2))
     {
-      // closeSD();
+      myWrapSD.close();
     }
     prevAuxMode = auxMode;
 
     if (card_detected && auxMode == 2)
     {
-      // writeData(&xhat[0], &servoInput[0], &receiverInput[0], &autoMode, &auxMode);
+      myWrapSD.writeData(xhat, &servoInput[0], &receiverInput[0], autoMode, auxMode);
     }
 
     // Debug Prints
-    // Serial.println(myWrapIMU.getaccX());
-    // float magX = getIMUmagX();
-    // float magY = getIMUmagY();
-    // float magZ = getIMUmagZ();
-    // Serial.println(sqrt(magX*magX+magY*magY+magZ*magZ));
-    // Serial.println(getGPSYear());
-    // printGPS();
-    // printIMU();
-    // Serial.println(receiverInput[1] );
-    // Serial.println(getGPSSIV());
-    // Serial.println(autoMode);
-    // Serial.println(mcadd(1,1));
-    // float Lat = getGPSLatitude();
-    // float Lon = getGPSLongitude();
-    // float Alt = getGPSAltitude();
-    // Serial.print(Lat);
-    // Serial.print(" ");
-    // Serial.print(Lon);
-    // Serial.print(" ");
-    // Serial.println(Alt);
-    // myStateEstimator.debug();
+
     // Serial.println("here");
   }
 }

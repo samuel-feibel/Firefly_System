@@ -1,0 +1,9 @@
+--- Available filters and text transformations: colorize, debug, default, direct, hexlify, log2file, nocontrol, printable, send_on_enter, time
+--- More details at http://bit.ly/pio-monitor-filters
+Setting up GPS...Success!
+No SD card detected
+Setting up IMU...Success!
+Setting up Barometer...Success!
+Setting up r0_ECEF ... 0 Sats in view. Failed.
+Retrying...3 Sats in view. Success!
+Setting up p0... Success!

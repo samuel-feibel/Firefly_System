@@ -462,17 +462,9 @@ void stateEstimator::setupP0()
   p0 = pressure;
 }
 
-// --- estimateState --- //
-Matrix<Ns> stateEstimator::step(float delt)
+void stateEstimator::timeUpdate(float delt, Matrix<6> &Z_input)
 {
 
-  // Get Measurement vector
-  Matrix<9> Z;
-  Matrix<6> Z_input;
-  getMeasurementVector(Z, Z_input);
-
-  // Z_input.Fill(0.001);
-  // Z_input(2) = -9.81;
   // Predict State
   predictState(delt, xhat, Z_input); // xhatkp1_p
 
@@ -498,6 +490,10 @@ Matrix<Ns> stateEstimator::step(float delt)
   }
 
   P = F_jac * P * (~F_jac) + G * Q * (~G) * deltI;
+}
+
+void stateEstimator::measurementUpdate(Matrix<9> &Z)
+{
 
   // Kalman Gain
   Matrix<9, Ns> H_jac;
@@ -532,12 +528,24 @@ Matrix<Ns> stateEstimator::step(float delt)
 
   Matrix<Ns, Ns> ImKH = (Is - K * H_jac);
   // P = ImKH * P * (~ImKH)  + K * R * (~K);
-  // Matrix<Ns, Ns> Left = ImKH * P;
-  Matrix<Ns, Ns> Full = P * (~ImKH);
-  // Matrix<Ns, Ns> Ofull = P * (~ImKH);
-  Serial << Full << '\n';
+  Matrix<Ns, Ns> Left = ImKH * P;
+  Matrix<Ns, Ns> Full = Left * (~ImKH);
+  P = Full + K * R * (~K);
+}
+// --- estimateState --- //
+Matrix<Ns> stateEstimator::step(float delt)
+{
+
+  // Get Measurement vector
+  Matrix<9> Z;
+  Matrix<6> Z_input;
+  getMeasurementVector(Z, Z_input);
+
+  // --- Time Update --- //
+  timeUpdate(delt, Z_input);
+
+  // --- Measurement Update --- //
+  measurementUpdate(Z);
   return xhat;
 
-
-  // It appears that this runs out of memory on this last fcn. Next step is to seperate some of these fcns so that memory is freed up
 }

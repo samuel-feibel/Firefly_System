@@ -85,7 +85,7 @@ f = [fs;fp];
 
 
 % Continuous time diff eq of motion
-f_Fcn = matlabFunction(f,'Vars',{t,x,cntrl},'File','f_Fcn');
+f_Fcn = matlabFunction(f,'Vars',{t,[x;cntrl]},'File','f_Fcn');
 
 % for ode45
 
@@ -283,6 +283,7 @@ for k=1:(n_measurements-1)
     % Predict Covariance
     [F] = getF_stateparam(xhat1u(:,k),Z_input(:,k),delt);
     Q = Q_Fcn(dT);
+    G = G_jac_Fcn(xhat1u(:,k),Z_input(:,k));
     P1p(1:n,1:n,k+1) = F*P1u(1:n,1:n,k)*F' + G*Q*G'*delt^2;
     
     

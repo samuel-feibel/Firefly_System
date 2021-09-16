@@ -28,7 +28,6 @@ private:
     // Estimator Variables
     Matrix<Ns,1> xhat;
     Matrix<Ns,Ns> P;
-
     Matrix <Ns,6> G;
 
 
@@ -56,6 +55,10 @@ private:
 
     void predictState(float delt, Matrix<Ns> &xhat, Matrix<6> &uk);
 
+    void timeUpdate(float delt, Matrix<6> &Z_input);
+
+    void measurementUpdate(Matrix<9> &Z);
+    
 public:
     stateEstimator(wrapGPS &_myWrapGPS, wrapIMU &_myWrapIMU, wrapBarometer &_mywrapBarometer);
 
