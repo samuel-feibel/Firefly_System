@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../../autoPilot"
+		},
+		{
+			"name": "autopilot_teensy",
+			"path": ".."
+		}
+	],
+	"settings": {}
+}
