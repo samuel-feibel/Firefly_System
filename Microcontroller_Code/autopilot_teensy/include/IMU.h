@@ -10,9 +10,9 @@ private:
   const float BIAS_GYR_Y = -1.5720; // deg/s
   const float BIAS_GYR_Z = -0.3581; // deg/s
 
-  const float BIAS_MAG_X = 15.8147;  // uT
-  const float BIAS_MAG_Y = -23.0732; // uT
-  const float BIAS_MAG_Z = 16.3668;  // uT
+  const float BIAS_MAG_X = -28.5600;  // uT
+  const float BIAS_MAG_Y = 0.3450; // uT
+  const float BIAS_MAG_Z = -5.9450;  // uT
 
   ICM_20948_I2C myICM;
 

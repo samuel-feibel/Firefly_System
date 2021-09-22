@@ -7,6 +7,7 @@
 #include <avr/wdt.h>
 #include <math.h>
 #include <BasicLinearAlgebra.h>
+#include <Streaming.h>
 
 #include <GPS.h>
 #include <IMU.h>

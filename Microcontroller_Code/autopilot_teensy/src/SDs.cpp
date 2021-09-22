@@ -204,7 +204,7 @@ void wrapSD::writeData(BLA::Matrix<10, 1> &xhat, float *servoInput, float *recei
     myFile.print(", ");
 
     // -- States --- //
-    for (int i = 0; i++; i < 10)
+    for (int i = 0;  i < 10; i++)
     {
       myFile.print(xhat(i));
       myFile.print(", ");

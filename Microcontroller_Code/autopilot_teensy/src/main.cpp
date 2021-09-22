@@ -46,12 +46,12 @@ void setup()
   myWrapIMU.setup();
   myWrapBarometer.setup();
   pinMode(LED_BUILTIN, OUTPUT);
-  myStateEstimator.setupR0ECEF();
+  // myStateEstimator.setupR0ECEF();
   myStateEstimator.setupP0();
   myStateEstimator.init();
 
   // Last
-  wdt_enable(WDTO_60MS); // This needs to be last
+  // wdt_enable(WDTO_60MS); // This needs to be last
 }
 
 void loop()
@@ -62,8 +62,8 @@ void loop()
   {
     float delt = (millis() - prevLoopTime) / 1000.0;
 
-    Serial.print("Time: ");
-    Serial.println(delt);
+    // Serial.print("Time: ");
+    // Serial.println(delt);
     prevLoopTime = millis();
     wdt_reset();
 
@@ -113,8 +113,13 @@ void loop()
       myWrapSD.writeData(xhat, &servoInput[0], &receiverInput[0], autoMode, auxMode);
     }
 
+    myWrapSD.open();
+    myWrapSD.writeData(xhat, &servoInput[0], &receiverInput[0], autoMode, auxMode);
+    myWrapSD.close();
+    
     // Debug Prints
-
+    Serial << myWrapIMU.getRawmagX() << " " << myWrapIMU.getRawmagY() << " "<< myWrapIMU.getRawmagZ() << " "<< endl;
+    // Serial << sqrt(myWrapIMU.getRawmagX() * myWrapIMU.getRawmagX() + myWrapIMU.getRawmagY() * myWrapIMU.getRawmagY() + myWrapIMU.getRawmagZ() * myWrapIMU.getRawmagZ() ) << endl;
     // Serial.println("here");
   }
   
