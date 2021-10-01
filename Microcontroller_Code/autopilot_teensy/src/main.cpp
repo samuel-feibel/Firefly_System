@@ -2,10 +2,8 @@
  * Written by Samuel Feibel
  *
  * TODO:
- * - Change pointers in estimator class to references
- * - consider implementation of some sort of array/vector/matrix object
- * - Run estimator and inverse
- * - Debug
+ * - Check all units and constants for errors
+ * - figure out source of explosion at higher frequencies
 */
 
 // Includes
@@ -46,19 +44,19 @@ void setup()
   myWrapIMU.setup();
   myWrapBarometer.setup();
   pinMode(LED_BUILTIN, OUTPUT);
-  // myStateEstimator.setupR0ECEF();
+  myStateEstimator.setupR0ECEF();
   myStateEstimator.setupP0();
   myStateEstimator.init();
 
   // Last
   // wdt_enable(WDTO_60MS); // This needs to be last
+  prevLoopTime = millis();
 }
 
 void loop()
 {
 
-
-  if ((millis() - prevLoopTime) > 49)
+  if ((millis() - prevLoopTime) > 250)
   {
     float delt = (millis() - prevLoopTime) / 1000.0;
 
@@ -79,8 +77,8 @@ void loop()
     myWrapBarometer.update();
 
     // Update State Estimate
-    myStateEstimator.init(); // THIS IS A DEBUG STEP
-    Matrix<Ns, 1> xhat = myStateEstimator.step(delt); // THIS IS A DEBUG STEP
+    // myStateEstimator.init();                          // THIS IS A DEBUG STEP
+    Matrix<Ns, 1> xhat = myStateEstimator.step(delt); 
     // Matrix<Ns, 1> xhat;
     // xhat.Fill(0);
 
@@ -113,15 +111,19 @@ void loop()
       myWrapSD.writeData(xhat, &servoInput[0], &receiverInput[0], autoMode, auxMode);
     }
 
-    myWrapSD.open();
-    myWrapSD.writeData(xhat, &servoInput[0], &receiverInput[0], autoMode, auxMode);
-    myWrapSD.close();
-    
+    if (card_detected)
+    {
+      myWrapSD.open();
+      myWrapSD.writeData(xhat, &servoInput[0], &receiverInput[0], autoMode, auxMode);
+      myWrapSD.close();
+    }
+
     // Debug Prints
-    Serial << myWrapIMU.getRawmagX() << " " << myWrapIMU.getRawmagY() << " "<< myWrapIMU.getRawmagZ() << " "<< endl;
+    // Serial << myWrapIMU.getRawmagX() << " " << myWrapIMU.getRawmagY() << " " << myWrapIMU.getRawmagZ() << " " << endl;
     // Serial << sqrt(myWrapIMU.getRawmagX() * myWrapIMU.getRawmagX() + myWrapIMU.getRawmagY() * myWrapIMU.getRawmagY() + myWrapIMU.getRawmagZ() * myWrapIMU.getRawmagZ() ) << endl;
+    // Serial << sqrt(myWrapIMU.getmagX() * myWrapIMU.getmagX() + myWrapIMU.getmagY() * myWrapIMU.getmagY() + myWrapIMU.getmagZ() * myWrapIMU.getmagZ() ) << endl;
+    // auto temp = xhat.Submatrix<3,1>(3,0);
+    // Serial << temp << endl;
     // Serial.println("here");
   }
-  
- 
 }

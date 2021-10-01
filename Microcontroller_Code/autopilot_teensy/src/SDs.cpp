@@ -7,7 +7,7 @@ void wrapSD::writeFormattedFloat(float val, uint8_t leading, uint8_t decimals)
   float aval = abs(val);
   if (val < 0)
   {
-    myFile.print("-");
+    myFile.print("-"); 
   }
   else
   {

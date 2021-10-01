@@ -153,9 +153,8 @@ v_I = I_C_B*[u+u0;v;w];
 matlabFunction(atan2(v_I(2),v_I(1)),'Vars',{x,cntrl},'File','heading_Fcn');
 
 % magVec = I_C_B'*(magVec0-[bias.Mag.x;bias.Mag.y;bias.Mag.z]);
-syms('magVec0',[3,1]);
-magVec = I_C_B'*(magVec0);
-% matlabFunction(magVec,'Vars',{x,cntrl},'File','magVec_Fcn');
+
+matlabFunction(magVec,'Vars',{x,cntrl},'File','magVec_Fcn');
 
 h = [N;E;D;...
      norm([u+u0;v;w]);...
@@ -165,7 +164,7 @@ h = [N;E;D;...
      ];
  
  % Full measurement
-h_Fcn = matlabFunction(h,'Vars',{x,cntrl,magVec0},'File','h_Fcn');
+h_Fcn = matlabFunction(h,'Vars',{x,cntrl},'File','h_Fcn');
 
 % Jacobian
 H = jacobian(h,x);

@@ -6,13 +6,13 @@ class wrapIMU
 {
 private:
   // --- Biases --- //
-  const float BIAS_GYR_X = -0.1325; // deg/s
-  const float BIAS_GYR_Y = -1.5720; // deg/s
-  const float BIAS_GYR_Z = -0.3581; // deg/s
+  const float BIAS_GYR_X = 0.1300; // deg/s
+  const float BIAS_GYR_Y = -2.8500; // deg/s
+  const float BIAS_GYR_Z = -0.7500; // deg/s
 
-  const float BIAS_MAG_X = -28.5600;  // uT
-  const float BIAS_MAG_Y = 0.3450; // uT
-  const float BIAS_MAG_Z = -5.9450;  // uT
+  const float BIAS_MAG_X = 17.6100;  // uT
+  const float BIAS_MAG_Y = -22.6950; // uT
+  const float BIAS_MAG_Z = 17.0450;  // uT
 
   ICM_20948_I2C myICM;
 
