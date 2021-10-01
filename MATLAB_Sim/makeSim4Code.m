@@ -24,8 +24,11 @@
 % 
 % matlabFunction(NED_C_ECEF,'Vars',{r0_ECEF},'File','TECEF2NED_Fcn');
 
-[F]=getF_stateparam(Xk,cntrl,delt)
+% [F]=getF_stateparam(Xk,cntrl,delt)
 
+q = sym('q',[4,1],{'real'} );
+[Euler] = Quat2Euler(q);
+ccode(Euler,'File','ccodeFiles/Quat2Euler.c')
 % 
 % 
 % disp(1)

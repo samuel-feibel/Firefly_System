@@ -109,7 +109,33 @@ void stateEstimator::getMeasurementVector(Matrix<9> &Z, Matrix<6> &Z_input)
   float pressure = myWrapBarometer.getPressure();
   float delAlt = (pressure - p0) * dhdp;
   Z(8) = -delAlt;
-  
+}
+
+// Continuous F Function
+void stateEstimator::quat2euler(Matrix<Ns, 1> &xhat, Matrix<3, 1> &eulerAngles)
+{
+  float q1 = xhat(6);
+  float q2 = xhat(7);
+  float q3 = xhat(8);
+  float q4 = xhat(9);
+
+  eulerAngles.Fill(0.0);
+
+  float t2 = q2 * q2;
+  float t3 = t2 * 2.0;
+  float t4 = -t3;
+  eulerAngles(0, 0) = atan2(q1 * q4 * 2.0 + q2 * q3 * 2.0, t4 - (q1 * q1) * 2.0 + 1.0);
+  float temp = asin(q1 * q3 * 2.0 + q2 * q4 * 2.0);
+  if (temp > 1.0)
+  {
+    temp = 1.0;
+  }
+  if (temp < -1.0)
+  {
+    temp = -1.0;
+  }
+  eulerAngles(1, 0) = temp;
+  eulerAngles(2, 0) = atan2(q1 * q2 * 2.0 + q3 * q4 * 2.0, t4 - (q3 * q3) * 2.0 + 1.0);
 }
 
 // Helper function to generate transformation matrix from ECEF to NED
@@ -419,10 +445,10 @@ void stateEstimator::get_R(float dT, Matrix<9, 9> &R)
   R(0, 0) = 1; //2.5E+1 / 2.0;
   R(1, 1) = 1; //2.5E+1 / 2.0;
   R(2, 2) = 1.0E+2;
-  R(3, 3) = 1.0 / 4.0E+2;
-  R(4, 4) = 100; //pow(dT * 4.698552240547276E-3 + 6.495281709453083E-1, 2.0);
-  R(5, 5) = 100; //pow(dT * 1.373789489995686E-3 + 7.878470583458638E-1, 2.0);
-  R(6, 6) = 100; //pow(dT * 2.990748419728659E-3 + 6.606739589323193E-1, 2.0);
+  R(3, 3) = 1E-2;
+  R(4, 4) = 100;           //pow(dT * 4.698552240547276E-3 + 6.495281709453083E-1, 2.0);
+  R(5, 5) = 100;           //pow(dT * 1.373789489995686E-3 + 7.878470583458638E-1, 2.0);
+  R(6, 6) = 100;           //pow(dT * 2.990748419728659E-3 + 6.606739589323193E-1, 2.0);
   R(7, 7) = (M_PI * M_PI); // / 3.6E+3;
   R(8, 8) = 4.0E-4;
 }
@@ -451,10 +477,7 @@ void stateEstimator::predictState(float delt, Matrix<Ns> &xhat, Matrix<6> &uk)
   for (int i = 0; i < Ns; i++)
   {
     xhat(i) = xhat(i) + delt * f(i);
-
   }
-    
-
 }
 
 // Sets up R0ECEF and NED_C_ECEF using the first GPS measurement
@@ -545,7 +568,6 @@ void stateEstimator::timeUpdate(float delt, Matrix<6> &Z_input)
   Matrix<6, 6> Q;
   get_Q(90.0, Q);
 
-
   // G
   Matrix<Ns, 6> G;
   get_G_jac(xhat, G);
@@ -580,7 +602,7 @@ void stateEstimator::measurementUpdate(Matrix<9> &Z)
   Invert(invDenom);
 
   Matrix<Ns, Nm> K = P * (~H_jac) * invDenom;
- 
+
   // h
   Matrix<Nm> h;
   h_fcn(xhat, h);
@@ -599,8 +621,8 @@ void stateEstimator::measurementUpdate(Matrix<9> &Z)
   // Update Step
   xhat = xhat + K * res; // xhatkp1_u
 
-   // Debug Check for NaN
-   /*
+  // Debug Check for NaN
+  /*
   auto debugVar = xhat;
   Serial << debugVar << endl;
   for (int i = 0; i < debugVar.Rows; i++ )
@@ -641,5 +663,6 @@ Matrix<Ns> stateEstimator::step(float delt)
   // --- Measurement Update --- //
   measurementUpdate(Z);
   Serial << xhat << endl;
+
   return xhat;
 }

@@ -43,6 +43,8 @@ private:
 
     void TECEF2NED_Fcn(Matrix<3> &r_ECEF);
 
+    void quat2euler(Matrix<Ns, 1> &xhat, Matrix<3, 1> &eulerAngles);
+
     void get_I_C_B(Matrix<Ns, 1> &xhat, Matrix<3, 3> &I_C_B);
 
     void f_Fcn(Matrix<Ns> &fxhatk_u, Matrix<6> &uk, Matrix<Ns> &f);

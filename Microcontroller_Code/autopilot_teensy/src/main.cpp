@@ -56,10 +56,12 @@ void setup()
 void loop()
 {
 
-  if ((millis() - prevLoopTime) > 250)
+  if ((millis() - prevLoopTime) > 1000)
   {
     float delt = (millis() - prevLoopTime) / 1000.0;
-
+    
+    //DEBUG
+    delt = .2;
     // Serial.print("Time: ");
     // Serial.println(delt);
     prevLoopTime = millis();
