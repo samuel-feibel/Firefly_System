@@ -7,6 +7,7 @@ import random
 import plotly.graph_objs as go
 from collections import deque
 import numpy as np
+import
 
 import serial
 
@@ -56,6 +57,6 @@ def update_graph_scatter(n):
             'layout' : go.Layout(xaxis=dict(range=[min(X),max(X)]),yaxis = dict(range = [min(Y),max(Y)]),)}
   
 if __name__ == '__main__':
-    ser = serial.Serial('COM3', 115200, timeout=0, parity=serial.PARITY_EVEN, rtscts=1)
+    ser = serial.Serial('COM3', 115200, timeout=0)
     app.run_server()
     ser.close()

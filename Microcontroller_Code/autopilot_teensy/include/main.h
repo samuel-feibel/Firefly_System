@@ -8,6 +8,8 @@
 #include <math.h>
 #include <BasicLinearAlgebra.h>
 #include <Streaming.h>
+// #include <pb_arduino.h>
+#include <base64.h>
 
 #include <GPS.h>
 #include <IMU.h>
@@ -17,4 +19,6 @@
 #include <stabilize.h>
 #include <test.h>
 #include <estimateState.h>
+#include <pb_encode.h>
+#include <autopilot.pb.h>
 #endif

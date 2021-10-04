@@ -1,6 +1,7 @@
 // Helpful Functions for the whole project
 #include <Arduino.h>
 #include <BasicLinearAlgebra.h>
+#include <utils.h>
 
 void copy(float *a, float *b, int b_size)
 {

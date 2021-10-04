@@ -8,8 +8,10 @@
 
 // Includes
 #include <main.h>
-
+#include <vector>
+#include <string>
 using namespace BLA;
+
 
 // --- Settings --- //
 
@@ -32,6 +34,9 @@ wrapSD myWrapSD(myWrapGPS, myWrapIMU, myWrapBarometer);
 
 // Stabilizer
 
+// Protobufs
+Example exam = Example_init_zero;
+
 void setup()
 {
   // Critical Setup
@@ -44,7 +49,7 @@ void setup()
   myWrapIMU.setup();
   myWrapBarometer.setup();
   pinMode(LED_BUILTIN, OUTPUT);
-  myStateEstimator.setupR0ECEF();
+  // myStateEstimator.setupR0ECEF();
   myStateEstimator.setupP0();
   myStateEstimator.init();
 
@@ -56,12 +61,12 @@ void setup()
 void loop()
 {
 
-  if ((millis() - prevLoopTime) > 1000)
+  if ((millis() - prevLoopTime) > 500)
   {
     float delt = (millis() - prevLoopTime) / 1000.0;
     
     //DEBUG
-    delt = .2;
+    // delt = .2;
     // Serial.print("Time: ");
     // Serial.println(delt);
     prevLoopTime = millis();
@@ -113,12 +118,33 @@ void loop()
       myWrapSD.writeData(xhat, &servoInput[0], &receiverInput[0], autoMode, auxMode);
     }
 
+    // DEBUG
     if (card_detected)
     {
       myWrapSD.open();
       myWrapSD.writeData(xhat, &servoInput[0], &receiverInput[0], autoMode, auxMode);
       myWrapSD.close();
     }
+
+    exam.value = 15;
+
+    uint8_t packet_buffer[64];
+    pb_ostream_t stream = pb_ostream_from_buffer(packet_buffer, sizeof(packet_buffer));
+
+    bool status = pb_encode(&stream, Example_fields, &exam);
+    int packet_length = stream.bytes_written;
+
+    Serial.println("here");
+    Serial.println(base64_encode(packet_buffer, packet_length).c_str());
+
+    // pb_ostream_s pb_out = as_pb_ostream(Serial);
+    // bool status = pb_encode(&pb_out, Example_fields, &exam);
+
+    // Serial.println(status);
+    // pb_ostream_t stream = pb_ostream_from_buffer(packet_buffer,sizeof(packet_buffer));
+
+    // int packet_length = stream.bytes_written;
+    // Serial.println(stream.state);
 
     // Debug Prints
     // Serial << myWrapIMU.getRawmagX() << " " << myWrapIMU.getRawmagY() << " " << myWrapIMU.getRawmagZ() << " " << endl;

@@ -1,5 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H
+#include <Arduino.h>
 #include <BasicLinearAlgebra.h>
 
 void copy(float *a, float *b, int b_size);

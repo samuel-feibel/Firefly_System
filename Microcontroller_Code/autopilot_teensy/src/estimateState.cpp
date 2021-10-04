@@ -662,7 +662,7 @@ Matrix<Ns> stateEstimator::step(float delt)
 
   // --- Measurement Update --- //
   measurementUpdate(Z);
-  Serial << xhat << endl;
+  // Serial << xhat << endl;
 
   return xhat;
 }
