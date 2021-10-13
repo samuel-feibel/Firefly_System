@@ -1,6 +1,6 @@
 #include <SDs.h>
 
-wrapSD::wrapSD(wrapGPS &_myWrapGPS, wrapIMU &_myWrapIMU, wrapBarometer &_mywrapBarometer) : myWrapGPS(_myWrapGPS), myWrapIMU(_myWrapIMU), myWrapBarometer(_mywrapBarometer) {}
+wrapSD::wrapSD(){}
 
 void wrapSD::writeFormattedFloat(float val, uint8_t leading, uint8_t decimals)
 {
@@ -43,7 +43,7 @@ void wrapSD::writeFormattedFloat(float val, uint8_t leading, uint8_t decimals)
   }
 }
 
-bool wrapSD::setup()
+bool wrapSD::setup(PlaneBuf &plane_buf)
 {
   //Serial.print("Initializing SD card...");
   // On the Ethernet Shield, CS is pin 4. It's set as an output by default.
@@ -57,7 +57,7 @@ bool wrapSD::setup()
     return 0;
   }
   Serial.println("Setting up SD card...Success");
-
+/*
   // First Log Entry
   myFile = SD.open("dataLog.txt", FILE_WRITE);
   myFile.println("================================ Starting Log =================================");
@@ -127,13 +127,13 @@ bool wrapSD::setup()
   // close file
   myFile.println("");
   myFile.close();
-
+*/
   return 1;
 }
 
-void wrapSD::writeData(BLA::Matrix<10, 1> &xhat, float *servoInput, float *receiverInput, bool &autoMode, int &auxMode)
+void wrapSD::writeData(PlaneBuf &plane_buf)
 {
-
+  /*
     if (myFile)
   {
     // write data
@@ -227,7 +227,9 @@ void wrapSD::writeData(BLA::Matrix<10, 1> &xhat, float *servoInput, float *recei
   {
     // if the file didn't open, print an error:
     Serial.println("error opening test.txt");
+    
   }
+  */
 }
 
 void wrapSD::open()

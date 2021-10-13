@@ -10,100 +10,21 @@
 #endif
 
 /* Struct definitions */
-typedef struct _BarometerBuf { 
-    bool has_pressure;
-    float pressure; 
-    bool has_altitude;
-    float altitude; 
-} BarometerBuf;
+/* Combine Sensors */
+typedef struct _SensorStruct { 
+    /* GPSStruct GPS = 1;
+ IMUStruct IMU = 2;
+ BarometerStruct baro = 3; */
+    int32_t test; 
+} SensorStruct;
 
-typedef struct _GPSBuf { 
-    bool has_lat;
-    float lat; 
-    bool has_lon;
-    float lon; 
-    bool has_alt;
-    float alt; 
-    bool has_groundSpeed;
-    float groundSpeed; 
-    bool has_SIV;
-    float SIV; 
-    bool has_heading;
-    float heading; 
-} GPSBuf;
-
-typedef struct _IMUBuf { 
-    bool has_accX;
-    float accX; 
-    bool has_accY;
-    float accY; 
-    bool has_accZ;
-    float accZ; 
-    bool has_gyrX;
-    float gyrX; 
-    bool has_gyrY;
-    float gyrY; 
-    bool has_gyrZ;
-    float gyrZ; 
-    bool has_rawGyrX;
-    float rawGyrX; 
-    bool has_rawGyrY;
-    float rawGyrY; 
-    bool has_rawGyrZ;
-    float rawGyrZ; 
-    bool has_magX;
-    float magX; 
-    bool has_magY;
-    float magY; 
-    bool has_magZ;
-    float magZ; 
-    bool has_rawMagX;
-    float rawMagX; 
-    bool has_rawMagY;
-    float rawMagY; 
-    bool has_rawMagZ;
-    float rawMagZ; 
-} IMUBuf;
-
-typedef struct _ModeBuf { 
-    bool has_auxMode;
-    int32_t auxMode; 
-    bool has_autoMode;
-    int32_t autoMode; 
-} ModeBuf;
-
-typedef struct _StateEstimatorBuf { 
-    bool has_delt;
-    float delt; 
-    pb_callback_t xhat; 
-    pb_callback_t P; 
-} StateEstimatorBuf;
-
-typedef struct _StatusBuf { 
-    bool has_StatusSD;
-    bool StatusSD; 
-    bool has_StatusTransmitter;
-    bool StatusTransmitter; 
-} StatusBuf;
-
-typedef struct _SensorBuf { 
-    bool has_GPS_buf;
-    GPSBuf GPS_buf; 
-    bool has_IMU_buf;
-    IMUBuf IMU_buf; 
-    bool has_baro_buf;
-    BarometerBuf baro_buf; 
-} SensorBuf;
-
+/* Plane Object is highest */
 typedef struct _PlaneBuf { 
-    bool has_sensor_buf;
-    SensorBuf sensor_buf; 
-    bool has_stateEstimator_buf;
-    StateEstimatorBuf stateEstimator_buf; 
-    bool has_status_buf;
-    StatusBuf status_buf; 
-    bool has_mode_buf;
-    ModeBuf mode_buf; 
+    float delt; 
+    bool has_sensors;
+    SensorStruct sensors; /* StateEstimatorStruct stateEstimator = 3;
+ StatusStruct status = 4;
+ ModeStruct mode = 5; */
 } PlaneBuf;
 
 
@@ -112,167 +33,39 @@ extern "C" {
 #endif
 
 /* Initializer values for message structs */
-#define GPSBuf_init_default                      {false, 0, false, 0, false, 0, false, 0, false, 0, false, 0}
-#define IMUBuf_init_default                      {false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0}
-#define BarometerBuf_init_default                {false, 0, false, 0}
-#define SensorBuf_init_default                   {false, GPSBuf_init_default, false, IMUBuf_init_default, false, BarometerBuf_init_default}
-#define StateEstimatorBuf_init_default           {false, 0, {{NULL}, NULL}, {{NULL}, NULL}}
-#define StatusBuf_init_default                   {false, 0, false, 0}
-#define ModeBuf_init_default                     {false, 0, false, 0}
-#define PlaneBuf_init_default                    {false, SensorBuf_init_default, false, StateEstimatorBuf_init_default, false, StatusBuf_init_default, false, ModeBuf_init_default}
-#define GPSBuf_init_zero                         {false, 0, false, 0, false, 0, false, 0, false, 0, false, 0}
-#define IMUBuf_init_zero                         {false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0}
-#define BarometerBuf_init_zero                   {false, 0, false, 0}
-#define SensorBuf_init_zero                      {false, GPSBuf_init_zero, false, IMUBuf_init_zero, false, BarometerBuf_init_zero}
-#define StateEstimatorBuf_init_zero              {false, 0, {{NULL}, NULL}, {{NULL}, NULL}}
-#define StatusBuf_init_zero                      {false, 0, false, 0}
-#define ModeBuf_init_zero                        {false, 0, false, 0}
-#define PlaneBuf_init_zero                       {false, SensorBuf_init_zero, false, StateEstimatorBuf_init_zero, false, StatusBuf_init_zero, false, ModeBuf_init_zero}
+#define SensorStruct_init_default                {0}
+#define PlaneBuf_init_default                    {0, false, SensorStruct_init_default}
+#define SensorStruct_init_zero                   {0}
+#define PlaneBuf_init_zero                       {0, false, SensorStruct_init_zero}
 
 /* Field tags (for use in manual encoding/decoding) */
-#define BarometerBuf_pressure_tag                1
-#define BarometerBuf_altitude_tag                2
-#define GPSBuf_lat_tag                           1
-#define GPSBuf_lon_tag                           2
-#define GPSBuf_alt_tag                           3
-#define GPSBuf_groundSpeed_tag                   4
-#define GPSBuf_SIV_tag                           5
-#define GPSBuf_heading_tag                       6
-#define IMUBuf_accX_tag                          1
-#define IMUBuf_accY_tag                          2
-#define IMUBuf_accZ_tag                          3
-#define IMUBuf_gyrX_tag                          4
-#define IMUBuf_gyrY_tag                          5
-#define IMUBuf_gyrZ_tag                          6
-#define IMUBuf_rawGyrX_tag                       7
-#define IMUBuf_rawGyrY_tag                       8
-#define IMUBuf_rawGyrZ_tag                       9
-#define IMUBuf_magX_tag                          10
-#define IMUBuf_magY_tag                          11
-#define IMUBuf_magZ_tag                          12
-#define IMUBuf_rawMagX_tag                       13
-#define IMUBuf_rawMagY_tag                       14
-#define IMUBuf_rawMagZ_tag                       15
-#define ModeBuf_auxMode_tag                      1
-#define ModeBuf_autoMode_tag                     2
-#define StateEstimatorBuf_delt_tag               1
-#define StateEstimatorBuf_xhat_tag               2
-#define StateEstimatorBuf_P_tag                  3
-#define StatusBuf_StatusSD_tag                   1
-#define StatusBuf_StatusTransmitter_tag          2
-#define SensorBuf_GPS_buf_tag                    1
-#define SensorBuf_IMU_buf_tag                    2
-#define SensorBuf_baro_buf_tag                   3
-#define PlaneBuf_sensor_buf_tag                  1
-#define PlaneBuf_stateEstimator_buf_tag          2
-#define PlaneBuf_status_buf_tag                  3
-#define PlaneBuf_mode_buf_tag                    4
+#define SensorStruct_test_tag                    1
+#define PlaneBuf_delt_tag                        1
+#define PlaneBuf_sensors_tag                     2
 
 /* Struct field encoding specification for nanopb */
-#define GPSBuf_FIELDLIST(X, a) \
-X(a, STATIC,   OPTIONAL, FLOAT,    lat,               1) \
-X(a, STATIC,   OPTIONAL, FLOAT,    lon,               2) \
-X(a, STATIC,   OPTIONAL, FLOAT,    alt,               3) \
-X(a, STATIC,   OPTIONAL, FLOAT,    groundSpeed,       4) \
-X(a, STATIC,   OPTIONAL, FLOAT,    SIV,               5) \
-X(a, STATIC,   OPTIONAL, FLOAT,    heading,           6)
-#define GPSBuf_CALLBACK NULL
-#define GPSBuf_DEFAULT NULL
-
-#define IMUBuf_FIELDLIST(X, a) \
-X(a, STATIC,   OPTIONAL, FLOAT,    accX,              1) \
-X(a, STATIC,   OPTIONAL, FLOAT,    accY,              2) \
-X(a, STATIC,   OPTIONAL, FLOAT,    accZ,              3) \
-X(a, STATIC,   OPTIONAL, FLOAT,    gyrX,              4) \
-X(a, STATIC,   OPTIONAL, FLOAT,    gyrY,              5) \
-X(a, STATIC,   OPTIONAL, FLOAT,    gyrZ,              6) \
-X(a, STATIC,   OPTIONAL, FLOAT,    rawGyrX,           7) \
-X(a, STATIC,   OPTIONAL, FLOAT,    rawGyrY,           8) \
-X(a, STATIC,   OPTIONAL, FLOAT,    rawGyrZ,           9) \
-X(a, STATIC,   OPTIONAL, FLOAT,    magX,             10) \
-X(a, STATIC,   OPTIONAL, FLOAT,    magY,             11) \
-X(a, STATIC,   OPTIONAL, FLOAT,    magZ,             12) \
-X(a, STATIC,   OPTIONAL, FLOAT,    rawMagX,          13) \
-X(a, STATIC,   OPTIONAL, FLOAT,    rawMagY,          14) \
-X(a, STATIC,   OPTIONAL, FLOAT,    rawMagZ,          15)
-#define IMUBuf_CALLBACK NULL
-#define IMUBuf_DEFAULT NULL
-
-#define BarometerBuf_FIELDLIST(X, a) \
-X(a, STATIC,   OPTIONAL, FLOAT,    pressure,          1) \
-X(a, STATIC,   OPTIONAL, FLOAT,    altitude,          2)
-#define BarometerBuf_CALLBACK NULL
-#define BarometerBuf_DEFAULT NULL
-
-#define SensorBuf_FIELDLIST(X, a) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  GPS_buf,           1) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  IMU_buf,           2) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  baro_buf,          3)
-#define SensorBuf_CALLBACK NULL
-#define SensorBuf_DEFAULT NULL
-#define SensorBuf_GPS_buf_MSGTYPE GPSBuf
-#define SensorBuf_IMU_buf_MSGTYPE IMUBuf
-#define SensorBuf_baro_buf_MSGTYPE BarometerBuf
-
-#define StateEstimatorBuf_FIELDLIST(X, a) \
-X(a, STATIC,   OPTIONAL, FLOAT,    delt,              1) \
-X(a, CALLBACK, REPEATED, FLOAT,    xhat,              2) \
-X(a, CALLBACK, REPEATED, FLOAT,    P,                 3)
-#define StateEstimatorBuf_CALLBACK pb_default_field_callback
-#define StateEstimatorBuf_DEFAULT NULL
-
-#define StatusBuf_FIELDLIST(X, a) \
-X(a, STATIC,   OPTIONAL, BOOL,     StatusSD,          1) \
-X(a, STATIC,   OPTIONAL, BOOL,     StatusTransmitter,   2)
-#define StatusBuf_CALLBACK NULL
-#define StatusBuf_DEFAULT NULL
-
-#define ModeBuf_FIELDLIST(X, a) \
-X(a, STATIC,   OPTIONAL, INT32,    auxMode,           1) \
-X(a, STATIC,   OPTIONAL, INT32,    autoMode,          2)
-#define ModeBuf_CALLBACK NULL
-#define ModeBuf_DEFAULT NULL
+#define SensorStruct_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, INT32,    test,              1)
+#define SensorStruct_CALLBACK NULL
+#define SensorStruct_DEFAULT NULL
 
 #define PlaneBuf_FIELDLIST(X, a) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  sensor_buf,        1) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  stateEstimator_buf,   2) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  status_buf,        3) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  mode_buf,          4)
+X(a, STATIC,   SINGULAR, FLOAT,    delt,              1) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  sensors,           2)
 #define PlaneBuf_CALLBACK NULL
 #define PlaneBuf_DEFAULT NULL
-#define PlaneBuf_sensor_buf_MSGTYPE SensorBuf
-#define PlaneBuf_stateEstimator_buf_MSGTYPE StateEstimatorBuf
-#define PlaneBuf_status_buf_MSGTYPE StatusBuf
-#define PlaneBuf_mode_buf_MSGTYPE ModeBuf
+#define PlaneBuf_sensors_MSGTYPE SensorStruct
 
-extern const pb_msgdesc_t GPSBuf_msg;
-extern const pb_msgdesc_t IMUBuf_msg;
-extern const pb_msgdesc_t BarometerBuf_msg;
-extern const pb_msgdesc_t SensorBuf_msg;
-extern const pb_msgdesc_t StateEstimatorBuf_msg;
-extern const pb_msgdesc_t StatusBuf_msg;
-extern const pb_msgdesc_t ModeBuf_msg;
+extern const pb_msgdesc_t SensorStruct_msg;
 extern const pb_msgdesc_t PlaneBuf_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
-#define GPSBuf_fields &GPSBuf_msg
-#define IMUBuf_fields &IMUBuf_msg
-#define BarometerBuf_fields &BarometerBuf_msg
-#define SensorBuf_fields &SensorBuf_msg
-#define StateEstimatorBuf_fields &StateEstimatorBuf_msg
-#define StatusBuf_fields &StatusBuf_msg
-#define ModeBuf_fields &ModeBuf_msg
+#define SensorStruct_fields &SensorStruct_msg
 #define PlaneBuf_fields &PlaneBuf_msg
 
 /* Maximum encoded size of messages (where known) */
-/* StateEstimatorBuf_size depends on runtime parameters */
-/* PlaneBuf_size depends on runtime parameters */
-#define BarometerBuf_size                        10
-#define GPSBuf_size                              30
-#define IMUBuf_size                              75
-#define ModeBuf_size                             22
-#define SensorBuf_size                           121
-#define StatusBuf_size                           4
+#define PlaneBuf_size                            18
+#define SensorStruct_size                        11
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -1,12 +1,11 @@
-#include <Arduino.h>
 #include "barometer.h"
-
-wrapBarometer::wrapBarometer()
+wrapBarometer::wrapBarometer() //BarometerStruct &_baro_struct): baro_struct(_baro_struct)
 {
   Adafruit_DPS310 dps;
   Adafruit_Sensor *dps_temp = dps.getTemperatureSensor();
   Adafruit_Sensor *dps_pressure = dps.getPressureSensor();
 }
+
 
 void wrapBarometer::setup()
 {
@@ -31,6 +30,7 @@ void wrapBarometer::setup()
 
 void wrapBarometer::update()
 {
+  
   sensors_event_t pressure_event;
 
   // Reading pressure also reads temp so don't check pressure
@@ -44,6 +44,8 @@ void wrapBarometer::update()
   {
     pressure = -1;
   }
+
+  // Serial.println(pressure);
 }
 
 float wrapBarometer::getPressure()

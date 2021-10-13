@@ -16,26 +16,26 @@ _sym_db = _symbol_database.Default()
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='autopilot.proto',
   package='',
-  syntax='proto2',
+  syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0f\x61utopilot.proto\"\x18\n\x07\x45xample\x12\r\n\x05value\x18\x01 \x02(\x05'
+  serialized_pb=b'\n\x0f\x61utopilot.proto\"\x1c\n\x0cSensorStruct\x12\x0c\n\x04test\x18\x01 \x01(\x05\"8\n\x08PlaneBuf\x12\x0c\n\x04\x64\x65lt\x18\x01 \x01(\x02\x12\x1e\n\x07sensors\x18\x02 \x01(\x0b\x32\r.SensorStructb\x06proto3'
 )
 
 
 
 
-_EXAMPLE = _descriptor.Descriptor(
-  name='Example',
-  full_name='Example',
+_SENSORSTRUCT = _descriptor.Descriptor(
+  name='SensorStruct',
+  full_name='SensorStruct',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='value', full_name='Example.value', index=0,
-      number=1, type=5, cpp_type=1, label=2,
+      name='test', full_name='SensorStruct.test', index=0,
+      number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -48,23 +48,71 @@ _EXAMPLE = _descriptor.Descriptor(
   ],
   serialized_options=None,
   is_extendable=False,
-  syntax='proto2',
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
   serialized_start=19,
-  serialized_end=43,
+  serialized_end=47,
 )
 
-DESCRIPTOR.message_types_by_name['Example'] = _EXAMPLE
+
+_PLANEBUF = _descriptor.Descriptor(
+  name='PlaneBuf',
+  full_name='PlaneBuf',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='delt', full_name='PlaneBuf.delt', index=0,
+      number=1, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='sensors', full_name='PlaneBuf.sensors', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=49,
+  serialized_end=105,
+)
+
+_PLANEBUF.fields_by_name['sensors'].message_type = _SENSORSTRUCT
+DESCRIPTOR.message_types_by_name['SensorStruct'] = _SENSORSTRUCT
+DESCRIPTOR.message_types_by_name['PlaneBuf'] = _PLANEBUF
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-Example = _reflection.GeneratedProtocolMessageType('Example', (_message.Message,), {
-  'DESCRIPTOR' : _EXAMPLE,
+SensorStruct = _reflection.GeneratedProtocolMessageType('SensorStruct', (_message.Message,), {
+  'DESCRIPTOR' : _SENSORSTRUCT,
   '__module__' : 'autopilot_pb2'
-  # @@protoc_insertion_point(class_scope:Example)
+  # @@protoc_insertion_point(class_scope:SensorStruct)
   })
-_sym_db.RegisterMessage(Example)
+_sym_db.RegisterMessage(SensorStruct)
+
+PlaneBuf = _reflection.GeneratedProtocolMessageType('PlaneBuf', (_message.Message,), {
+  'DESCRIPTOR' : _PLANEBUF,
+  '__module__' : 'autopilot_pb2'
+  # @@protoc_insertion_point(class_scope:PlaneBuf)
+  })
+_sym_db.RegisterMessage(PlaneBuf)
 
 
 # @@protoc_insertion_point(module_scope)

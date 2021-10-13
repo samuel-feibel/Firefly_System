@@ -8,6 +8,9 @@
 #include <barometer.h>
 #include <IMU.h>
 #include <BasicLinearAlgebra.h>
+#include <pb_encode.h>
+#include <autopilot.pb.h>
+#include <base64.h>
 
 class wrapSD{
 
@@ -16,17 +19,12 @@ class wrapSD{
     // File
     File myFile;
 
-    // Sensor objects
-    wrapGPS &myWrapGPS;
-    wrapIMU &myWrapIMU;
-    wrapBarometer &myWrapBarometer;
-
     void writeFormattedFloat(float val, uint8_t leading, uint8_t decimals);
 
     public:
-    wrapSD(wrapGPS &_myWrapGPS, wrapIMU &_myWrapIMU, wrapBarometer &_mywrapBarometer);
-    bool setup();
-    void writeData(BLA::Matrix<10,1> &xhat, float *servoInput, float *receiverInput, bool &autoMode, int &auxMode);
+    wrapSD();
+    bool setup(PlaneBuf &plane_buf);
+    void writeData(PlaneBuf &plane_buf);
     void open();
     void close();
 
