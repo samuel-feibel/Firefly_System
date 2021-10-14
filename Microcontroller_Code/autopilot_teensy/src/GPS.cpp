@@ -4,9 +4,8 @@
 
 // Class wrapGPS
 
-wrapGPS::wrapGPS()
+wrapGPS::wrapGPS(GPSStruct &_GPS_struct): GPS_struct(_GPS_struct)
 {
-    SFE_UBLOX_GPS myGPS;
 }
 
 void wrapGPS::print()
@@ -53,16 +52,16 @@ void wrapGPS::setup()
     bool initialized = false;
     while (!initialized)
     {
-        Serial.print("Setting up GPS...");
+        // Serial.print("Setting up GPS...");
         if (myGPS.begin() == false) //Connect to the Ublox module using Wire port
         {
-            Serial.println(F("Failed, retrying"));
+            // Serial.println(F("Failed, retrying"));
             delay(500);
         }
         else
         {
             initialized = true;
-            Serial.println(F("Success!"));
+            // Serial.println(F("Success!"));
         }
     }
 
@@ -79,8 +78,19 @@ void wrapGPS::setup()
 void wrapGPS::update()
 {
     myGPS.getPVT();
-    //  Serial.print(" GPS Available: ");
-    //  Serial.print(myGPS.getPVT());
+
+    // Add to Struct
+
+    // START WITH TIME DATA
+
+    GPS_struct.lat = myGPS.getLatitude() * 1E-7;
+    GPS_struct.lon = myGPS.getLongitude() * 1E-7;
+    GPS_struct.alt = myGPS.getAltitude() * 1E-3;
+    GPS_struct.groundSpeed = myGPS.getGroundSpeed() * 1E-3;
+    GPS_struct.heading = myGPS.getHeading() * 1E-5 * M_PI / 180;
+    GPS_struct.SIV = myGPS.getSIV();
+
+    // Calculate NED
 }
 
 // Get Relevant Outputs

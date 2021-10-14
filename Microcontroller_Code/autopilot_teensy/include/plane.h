@@ -31,7 +31,9 @@ class plane
 {
 private:
     PlaneBuf plane_buf;
-    Sensors mySensor(SensorStruct);
+    Sensors mySensor;
+
+    
     // Objects
     // wrapSD myWrapSD;
     // Sensors mySensors;

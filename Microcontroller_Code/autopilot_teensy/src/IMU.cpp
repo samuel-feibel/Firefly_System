@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include "IMU.h" // Click here to get the library: http://librarymanager/All#SparkFun_ICM_20948_IMU
 
 #define SERIAL_PORT Serial
@@ -11,9 +10,8 @@
 // On the SparkFun 9DoF IMU breakout the default is 1, and when
 // the ADR jumper is closed the value becomes 0
 
-wrapIMU::wrapIMU()
+wrapIMU::wrapIMU(IMUStruct &_IMU_struct) : IMU_struct(_IMU_struct)
 {
-  ICM_20948_I2C myICM; // create  ICM_20948_I2C object
 }
 
 // Below here are some helper functions to print the data nicely!
@@ -167,7 +165,7 @@ void wrapIMU::setup()
 #endif
 
   bool initialized = false;
-  Serial.print("Setting up IMU...");
+  // Serial.print("Setting up IMU...");
   while (!initialized)
   {
 
@@ -198,13 +196,13 @@ void wrapIMU::setup()
     //SERIAL_PORT.println( myICM.statusString() );
     if (myICM.status != ICM_20948_Stat_Ok)
     {
-      Serial.println("Failed, retrying");
+      // Serial.println("Failed, retrying");
       delay(500);
     }
     else
     {
       initialized = true;
-      Serial.println("Success!");
+      // Serial.println("Success!");
     }
   }
 }
@@ -215,10 +213,33 @@ void wrapIMU::update()
   if (myICM.dataReady())
   {
     myICM.getAGMT(); // The values are only updated when you call 'getAGMT'
+
+    // Fill Struct
+    float ACC_MULTIPLIER = 1E-3 * 9.81;
+    IMU_struct.acc[0] = myICM.accX() * ACC_MULTIPLIER;
+    IMU_struct.acc[1] = myICM.accY() * ACC_MULTIPLIER * -1;
+    IMU_struct.acc[2] = myICM.accZ() * ACC_MULTIPLIER * -1;
+
+    float GYR_MULTIPLIER = M_PI / 180;
+    IMU_struct.gyr[0] = (myICM.gyrX() - BIAS_GYR_X) * GYR_MULTIPLIER;
+    IMU_struct.gyr[1] = (myICM.gyrY() - BIAS_GYR_Y) * GYR_MULTIPLIER * -1;
+    IMU_struct.gyr[2] = (myICM.gyrZ() - BIAS_GYR_Y) * GYR_MULTIPLIER * -1;
+
+    IMU_struct.mag[0] = (myICM.magX() - BIAS_MAG_X);
+    IMU_struct.mag[1] = (myICM.magY() - BIAS_MAG_Y);
+    IMU_struct.mag[2] = (myICM.magZ() - BIAS_MAG_Z);
+
+    IMU_struct.rawGyr[0] = myICM.gyrX();
+    IMU_struct.rawGyr[1] = myICM.gyrY();
+    IMU_struct.rawGyr[2] = myICM.gyrZ();
+
+    IMU_struct.rawMag[0] = myICM.magX();
+    IMU_struct.rawMag[1] = myICM.magY();
+    IMU_struct.rawMag[2] = myICM.magZ();
   }
   else
   {
-    Serial.println("Waiting for data");
+    // Serial.println("Waiting for data");
   }
 }
 
@@ -245,73 +266,4 @@ void wrapIMU::print()
   printFormattedFloat(myICM.temp(), 5, 2);
 
   Serial.println();
-}
-
-// Report Raw Values
-float wrapIMU::getRawgyrX()
-{
-  return myICM.gyrX();
-}
-float wrapIMU::getRawgyrY()
-{
-  return myICM.gyrY();
-}
-float wrapIMU::getRawgyrZ()
-{
-  return myICM.gyrZ();
-}
-float wrapIMU::getRawmagX()
-{
-  return myICM.magX();
-}
-float wrapIMU::getRawmagY()
-{
-  return myICM.magY();
-}
-float wrapIMU::getRawmagZ()
-
-{
-  return myICM.magZ();
-}
-
-// Report non-biased Values
-float wrapIMU::getaccX()
-{
-  return myICM.accX();
-}
-float wrapIMU::getaccY()
-{
-  return myICM.accY();
-}
-float wrapIMU::getaccZ()
-{
-  return myICM.accZ();
-}
-float wrapIMU::getgyrX() // (deg/s)
-{
-  return myICM.gyrX() - BIAS_GYR_X;
-}
-float wrapIMU::getgyrY() // (deg/s)
-{
-  return myICM.gyrY() - BIAS_GYR_Y;
-}
-float wrapIMU::getgyrZ() // (deg/s)
-{
-  return myICM.gyrZ() - BIAS_GYR_Z;
-}
-float wrapIMU::getmagX() // uT
-{
-  return myICM.magX() - BIAS_MAG_X;
-}
-float wrapIMU::getmagY() // uT
-{
-  return myICM.magY() - BIAS_MAG_Y;
-}
-float wrapIMU::getmagZ() // uT
-{
-  return myICM.magZ() - BIAS_MAG_Z;
-}
-float wrapIMU::gettemp() // C
-{
-  return myICM.temp();
 }

@@ -8,14 +8,17 @@
 
 // Sensors
 #include <barometer.h>
+#include <IMU.h>
+#include <GPS.h>
 
 class Sensors
 {
     private:
         SensorStruct& sensor_struct;
-        // wrapBarometer myWrapBarometer(BarometerStruct);
+        wrapBarometer myWrapBarometer;
+        wrapIMU myWrapIMU;
+        wrapGPS myWrapGPS;
         
-
     public:
         Sensors(SensorStruct &_sensor_Struct);
 

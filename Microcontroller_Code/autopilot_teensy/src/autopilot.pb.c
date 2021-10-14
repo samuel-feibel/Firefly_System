@@ -6,10 +6,28 @@
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
+PB_BIND(GPSStruct, GPSStruct, AUTO)
+
+
+PB_BIND(IMUStruct, IMUStruct, AUTO)
+
+
+PB_BIND(BarometerStruct, BarometerStruct, AUTO)
+
+
 PB_BIND(SensorStruct, SensorStruct, AUTO)
 
 
-PB_BIND(PlaneBuf, PlaneBuf, AUTO)
+PB_BIND(StateEstimatorStruct, StateEstimatorStruct, AUTO)
+
+
+PB_BIND(StatusStruct, StatusStruct, AUTO)
+
+
+PB_BIND(ModeStruct, ModeStruct, AUTO)
+
+
+PB_BIND(PlaneBuf, PlaneBuf, 2)
 
 
 
