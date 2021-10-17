@@ -7,9 +7,17 @@ import random
 import plotly.graph_objs as go
 from collections import deque
 import numpy as np
-import
-
 import serial
+
+# import sys
+
+from google.protobuf.message import DecodeError
+
+import autopilot_pb2
+import base64
+
+pack = autopilot_pb2.PlaneBuf()
+
 
 X = deque(maxlen = 200)
 X.append(1)
@@ -30,21 +38,18 @@ app.layout = html.Div(
     ]
 )
 
-# def pull_all():
-    # s = ser.pull_all()
-    # arr = s.split('\n')
-    # for line in arr:
-    #   l = line.decode('ascii').replace('[', '').replace(']', '').strip()
-    #   a = np.fromstring(s, sep=',')
-    #   Y.append(a[0])
-
 @app.callback(Output('live-graph', 'figure'), [Input('graph-update', 'n_intervals')])  
 def update_graph_scatter(n):
     X.append(X[-1]+1)
-
-    s = ser.readline().decode("ascii").replace('[', '').replace(']', '').strip()
-    arr = np.fromstring(s, sep=',')
-    Y.append(arr[0])
+    # Y.append(Y[-1]+Y[-1] * random.uniform(-0.1,0.1))
+    c = ser.readline()
+    if c:
+        try:
+            pack.ParseFromString(base64.decodebytes(c))
+            Y.append(pack.sensors.IMU.acc[0])
+        except DecodeError:
+            ...
+        
 
     data = plotly.graph_objs.Scatter(
             x=list(X),

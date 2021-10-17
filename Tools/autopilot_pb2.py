@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0f\x61utopilot.proto\"{\n\tGPSStruct\x12\x0b\n\x03lat\x18\x01 \x01(\x02\x12\x0b\n\x03lon\x18\x02 \x01(\x02\x12\x0b\n\x03\x61lt\x18\x03 \x01(\x02\x12\x13\n\x0bgroundSpeed\x18\x04 \x01(\x02\x12\x0b\n\x03SIV\x18\x05 \x01(\x02\x12\x0f\n\x07heading\x18\x06 \x01(\x02\x12\x14\n\x0cposition_NED\x18\x07 \x03(\x02\"R\n\tIMUStruct\x12\x0b\n\x03\x61\x63\x63\x18\x01 \x03(\x02\x12\x0b\n\x03gyr\x18\x02 \x03(\x02\x12\x0b\n\x03mag\x18\x03 \x03(\x02\x12\x0e\n\x06rawMag\x18\x04 \x03(\x02\x12\x0e\n\x06rawGyr\x18\x05 \x03(\x02\"E\n\x0f\x42\x61rometerStruct\x12\x10\n\x08pressure\x18\x01 \x01(\x02\x12\x13\n\x0btemperature\x18\x02 \x01(\x02\x12\x0b\n\x03\x61lt\x18\x03 \x01(\x02\"k\n\x0cSensorStruct\x12\x17\n\x03GPS\x18\x01 \x01(\x0b\x32\n.GPSStruct\x12\x17\n\x03IMU\x18\x02 \x01(\x0b\x32\n.IMUStruct\x12\x1e\n\x04\x62\x61ro\x18\x03 \x01(\x0b\x32\x10.BarometerStruct\x12\t\n\x01z\x18\x04 \x03(\x02\"/\n\x14StateEstimatorStruct\x12\x0c\n\x04xhat\x18\x01 \x03(\x02\x12\t\n\x01P\x18\x02 \x03(\x02\"/\n\x0cStatusStruct\x12\n\n\x02SD\x18\x01 \x01(\x08\x12\x13\n\x0bTransmitter\x18\x02 \x01(\x08\"/\n\nModeStruct\x12\x0f\n\x07\x61uxMode\x18\x01 \x01(\x05\x12\x10\n\x08\x61utoMode\x18\x02 \x01(\x05\"\xa1\x01\n\x08PlaneBuf\x12\x0c\n\x04\x64\x65lt\x18\x01 \x01(\x02\x12\x1e\n\x07sensors\x18\x02 \x01(\x0b\x32\r.SensorStruct\x12-\n\x0estateEstimator\x18\x03 \x01(\x0b\x32\x15.StateEstimatorStruct\x12\x1d\n\x06status\x18\x04 \x01(\x0b\x32\r.StatusStruct\x12\x19\n\x04mode\x18\x05 \x01(\x0b\x32\x0b.ModeStructb\x06proto3'
+  serialized_pb=b'\n\x0f\x61utopilot.proto\"\xe1\x01\n\tGPSStruct\x12\x0b\n\x03lat\x18\x01 \x01(\x02\x12\x0b\n\x03lon\x18\x02 \x01(\x02\x12\x0b\n\x03\x61lt\x18\x03 \x01(\x02\x12\x13\n\x0bgroundSpeed\x18\x04 \x01(\x02\x12\x0b\n\x03SIV\x18\x05 \x01(\x02\x12\x0f\n\x07heading\x18\x06 \x01(\x02\x12\x14\n\x0cposition_NED\x18\x07 \x03(\x02\x12\x0c\n\x04year\x18\x08 \x01(\x05\x12\r\n\x05month\x18\t \x01(\x05\x12\x0b\n\x03\x64\x61y\x18\n \x01(\x05\x12\x0c\n\x04hour\x18\x0b \x01(\x05\x12\x0e\n\x06minute\x18\x0c \x01(\x05\x12\x0e\n\x06second\x18\r \x01(\x05\x12\x0c\n\x04msec\x18\x0e \x01(\x05\"R\n\tIMUStruct\x12\x0b\n\x03\x61\x63\x63\x18\x01 \x03(\x02\x12\x0b\n\x03gyr\x18\x02 \x03(\x02\x12\x0b\n\x03mag\x18\x03 \x03(\x02\x12\x0e\n\x06rawMag\x18\x04 \x03(\x02\x12\x0e\n\x06rawGyr\x18\x05 \x03(\x02\"E\n\x0f\x42\x61rometerStruct\x12\x10\n\x08pressure\x18\x01 \x01(\x02\x12\x13\n\x0btemperature\x18\x02 \x01(\x02\x12\x0b\n\x03\x61lt\x18\x03 \x01(\x02\"|\n\x0cSensorStruct\x12\x17\n\x03GPS\x18\x01 \x01(\x0b\x32\n.GPSStruct\x12\x17\n\x03IMU\x18\x02 \x01(\x0b\x32\n.IMUStruct\x12\x1e\n\x04\x62\x61ro\x18\x03 \x01(\x0b\x32\x10.BarometerStruct\x12\x0f\n\x07z_input\x18\x04 \x03(\x02\x12\t\n\x01z\x18\x05 \x03(\x02\"/\n\x14StateEstimatorStruct\x12\x0c\n\x04xhat\x18\x01 \x03(\x02\x12\t\n\x01P\x18\x02 \x03(\x02\"/\n\x0cStatusStruct\x12\n\n\x02SD\x18\x01 \x01(\x08\x12\x13\n\x0bTransmitter\x18\x02 \x01(\x08\"/\n\nModeStruct\x12\x0f\n\x07\x61uxMode\x18\x01 \x01(\x05\x12\x10\n\x08\x61utoMode\x18\x02 \x01(\x05\"\xb1\x01\n\x08PlaneBuf\x12\x0c\n\x04\x64\x65lt\x18\x01 \x01(\x02\x12\x1e\n\x07sensors\x18\x02 \x01(\x0b\x32\r.SensorStruct\x12-\n\x0estateEstimator\x18\x03 \x01(\x0b\x32\x15.StateEstimatorStruct\x12\x1d\n\x06status\x18\x04 \x01(\x0b\x32\r.StatusStruct\x12\x19\n\x04mode\x18\x05 \x01(\x0b\x32\x0b.ModeStruct\x12\x0e\n\x06mcTime\x18\x06 \x01(\x02\x62\x06proto3'
 )
 
 
@@ -82,6 +82,55 @@ _GPSSTRUCT = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='year', full_name='GPSStruct.year', index=7,
+      number=8, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='month', full_name='GPSStruct.month', index=8,
+      number=9, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='day', full_name='GPSStruct.day', index=9,
+      number=10, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='hour', full_name='GPSStruct.hour', index=10,
+      number=11, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='minute', full_name='GPSStruct.minute', index=11,
+      number=12, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='second', full_name='GPSStruct.second', index=12,
+      number=13, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='msec', full_name='GPSStruct.msec', index=13,
+      number=14, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -94,8 +143,8 @@ _GPSSTRUCT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=19,
-  serialized_end=142,
+  serialized_start=20,
+  serialized_end=245,
 )
 
 
@@ -154,8 +203,8 @@ _IMUSTRUCT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=144,
-  serialized_end=226,
+  serialized_start=247,
+  serialized_end=329,
 )
 
 
@@ -200,8 +249,8 @@ _BAROMETERSTRUCT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=228,
-  serialized_end=297,
+  serialized_start=331,
+  serialized_end=400,
 )
 
 
@@ -235,8 +284,15 @@ _SENSORSTRUCT = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='z', full_name='SensorStruct.z', index=3,
+      name='z_input', full_name='SensorStruct.z_input', index=3,
       number=4, type=2, cpp_type=6, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='z', full_name='SensorStruct.z', index=4,
+      number=5, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -253,8 +309,8 @@ _SENSORSTRUCT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=299,
-  serialized_end=406,
+  serialized_start=402,
+  serialized_end=526,
 )
 
 
@@ -292,8 +348,8 @@ _STATEESTIMATORSTRUCT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=408,
-  serialized_end=455,
+  serialized_start=528,
+  serialized_end=575,
 )
 
 
@@ -331,8 +387,8 @@ _STATUSSTRUCT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=457,
-  serialized_end=504,
+  serialized_start=577,
+  serialized_end=624,
 )
 
 
@@ -370,8 +426,8 @@ _MODESTRUCT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=506,
-  serialized_end=553,
+  serialized_start=626,
+  serialized_end=673,
 )
 
 
@@ -418,6 +474,13 @@ _PLANEBUF = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='mcTime', full_name='PlaneBuf.mcTime', index=5,
+      number=6, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -430,8 +493,8 @@ _PLANEBUF = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=556,
-  serialized_end=717,
+  serialized_start=676,
+  serialized_end=853,
 )
 
 _SENSORSTRUCT.fields_by_name['GPS'].message_type = _GPSSTRUCT

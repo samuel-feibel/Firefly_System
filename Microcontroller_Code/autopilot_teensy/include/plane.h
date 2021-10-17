@@ -19,7 +19,7 @@
 // #include <utils.h>
 // #include <stabilize.h>
 // #include <test.h>
-// #include <estimateState.h>
+#include <estimateState.h>
 #include <pb_encode.h>
 #include <pb.h>
 #include <autopilot.pb.h>
@@ -32,12 +32,7 @@ class plane
 private:
     PlaneBuf plane_buf;
     Sensors mySensor;
-
-    
-    // Objects
-    // wrapSD myWrapSD;
-    // Sensors mySensors;
-    // stateEstimator myStateEstimator;
+    stateEstimator myStateEstimator;
 
     // --- Settings --- //
 

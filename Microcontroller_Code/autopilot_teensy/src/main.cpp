@@ -11,7 +11,6 @@
 
 plane myPlane;
 
-
 void setup()
 {
   myPlane.setup();

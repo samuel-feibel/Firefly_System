@@ -25,6 +25,13 @@ typedef struct _GPSStruct {
     float SIV; 
     float heading; 
     float position_NED[3]; 
+    int32_t year; 
+    int32_t month; 
+    int32_t day; 
+    int32_t hour; 
+    int32_t minute; 
+    int32_t second; 
+    int32_t msec; 
 } GPSStruct;
 
 typedef struct _IMUStruct { 
@@ -61,7 +68,8 @@ typedef struct _SensorStruct {
     IMUStruct IMU; 
     bool has_baro;
     BarometerStruct baro; 
-    pb_callback_t z; 
+    float z_input[6]; 
+    float z[9]; 
 } SensorStruct;
 
 /* Plane Object is highest */
@@ -75,6 +83,7 @@ typedef struct _PlaneBuf {
     StatusStruct status; 
     bool has_mode;
     ModeStruct mode; 
+    float mcTime; 
 } PlaneBuf;
 
 
@@ -83,22 +92,22 @@ extern "C" {
 #endif
 
 /* Initializer values for message structs */
-#define GPSStruct_init_default                   {0, 0, 0, 0, 0, 0, {0, 0, 0}}
+#define GPSStruct_init_default                   {0, 0, 0, 0, 0, 0, {0, 0, 0}, 0, 0, 0, 0, 0, 0, 0}
 #define IMUStruct_init_default                   {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
 #define BarometerStruct_init_default             {0, 0, 0}
-#define SensorStruct_init_default                {false, GPSStruct_init_default, false, IMUStruct_init_default, false, BarometerStruct_init_default, {{NULL}, NULL}}
+#define SensorStruct_init_default                {false, GPSStruct_init_default, false, IMUStruct_init_default, false, BarometerStruct_init_default, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define StateEstimatorStruct_init_default        {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define StatusStruct_init_default                {0, 0}
 #define ModeStruct_init_default                  {0, 0}
-#define PlaneBuf_init_default                    {0, false, SensorStruct_init_default, false, StateEstimatorStruct_init_default, false, StatusStruct_init_default, false, ModeStruct_init_default}
-#define GPSStruct_init_zero                      {0, 0, 0, 0, 0, 0, {0, 0, 0}}
+#define PlaneBuf_init_default                    {0, false, SensorStruct_init_default, false, StateEstimatorStruct_init_default, false, StatusStruct_init_default, false, ModeStruct_init_default, 0}
+#define GPSStruct_init_zero                      {0, 0, 0, 0, 0, 0, {0, 0, 0}, 0, 0, 0, 0, 0, 0, 0}
 #define IMUStruct_init_zero                      {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
 #define BarometerStruct_init_zero                {0, 0, 0}
-#define SensorStruct_init_zero                   {false, GPSStruct_init_zero, false, IMUStruct_init_zero, false, BarometerStruct_init_zero, {{NULL}, NULL}}
+#define SensorStruct_init_zero                   {false, GPSStruct_init_zero, false, IMUStruct_init_zero, false, BarometerStruct_init_zero, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define StateEstimatorStruct_init_zero           {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define StatusStruct_init_zero                   {0, 0}
 #define ModeStruct_init_zero                     {0, 0}
-#define PlaneBuf_init_zero                       {0, false, SensorStruct_init_zero, false, StateEstimatorStruct_init_zero, false, StatusStruct_init_zero, false, ModeStruct_init_zero}
+#define PlaneBuf_init_zero                       {0, false, SensorStruct_init_zero, false, StateEstimatorStruct_init_zero, false, StatusStruct_init_zero, false, ModeStruct_init_zero, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define BarometerStruct_pressure_tag             1
@@ -111,6 +120,13 @@ extern "C" {
 #define GPSStruct_SIV_tag                        5
 #define GPSStruct_heading_tag                    6
 #define GPSStruct_position_NED_tag               7
+#define GPSStruct_year_tag                       8
+#define GPSStruct_month_tag                      9
+#define GPSStruct_day_tag                        10
+#define GPSStruct_hour_tag                       11
+#define GPSStruct_minute_tag                     12
+#define GPSStruct_second_tag                     13
+#define GPSStruct_msec_tag                       14
 #define IMUStruct_acc_tag                        1
 #define IMUStruct_gyr_tag                        2
 #define IMUStruct_mag_tag                        3
@@ -125,12 +141,14 @@ extern "C" {
 #define SensorStruct_GPS_tag                     1
 #define SensorStruct_IMU_tag                     2
 #define SensorStruct_baro_tag                    3
-#define SensorStruct_z_tag                       4
+#define SensorStruct_z_input_tag                 4
+#define SensorStruct_z_tag                       5
 #define PlaneBuf_delt_tag                        1
 #define PlaneBuf_sensors_tag                     2
 #define PlaneBuf_stateEstimator_tag              3
 #define PlaneBuf_status_tag                      4
 #define PlaneBuf_mode_tag                        5
+#define PlaneBuf_mcTime_tag                      6
 
 /* Struct field encoding specification for nanopb */
 #define GPSStruct_FIELDLIST(X, a) \
@@ -140,7 +158,14 @@ X(a, STATIC,   SINGULAR, FLOAT,    alt,               3) \
 X(a, STATIC,   SINGULAR, FLOAT,    groundSpeed,       4) \
 X(a, STATIC,   SINGULAR, FLOAT,    SIV,               5) \
 X(a, STATIC,   SINGULAR, FLOAT,    heading,           6) \
-X(a, STATIC,   FIXARRAY, FLOAT,    position_NED,      7)
+X(a, STATIC,   FIXARRAY, FLOAT,    position_NED,      7) \
+X(a, STATIC,   SINGULAR, INT32,    year,              8) \
+X(a, STATIC,   SINGULAR, INT32,    month,             9) \
+X(a, STATIC,   SINGULAR, INT32,    day,              10) \
+X(a, STATIC,   SINGULAR, INT32,    hour,             11) \
+X(a, STATIC,   SINGULAR, INT32,    minute,           12) \
+X(a, STATIC,   SINGULAR, INT32,    second,           13) \
+X(a, STATIC,   SINGULAR, INT32,    msec,             14)
 #define GPSStruct_CALLBACK NULL
 #define GPSStruct_DEFAULT NULL
 
@@ -164,8 +189,9 @@ X(a, STATIC,   SINGULAR, FLOAT,    alt,               3)
 X(a, STATIC,   OPTIONAL, MESSAGE,  GPS,               1) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  IMU,               2) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  baro,              3) \
-X(a, CALLBACK, REPEATED, FLOAT,    z,                 4)
-#define SensorStruct_CALLBACK pb_default_field_callback
+X(a, STATIC,   FIXARRAY, FLOAT,    z_input,           4) \
+X(a, STATIC,   FIXARRAY, FLOAT,    z,                 5)
+#define SensorStruct_CALLBACK NULL
 #define SensorStruct_DEFAULT NULL
 #define SensorStruct_GPS_MSGTYPE GPSStruct
 #define SensorStruct_IMU_MSGTYPE IMUStruct
@@ -194,7 +220,8 @@ X(a, STATIC,   SINGULAR, FLOAT,    delt,              1) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  sensors,           2) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  stateEstimator,    3) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  status,            4) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  mode,              5)
+X(a, STATIC,   OPTIONAL, MESSAGE,  mode,              5) \
+X(a, STATIC,   SINGULAR, FLOAT,    mcTime,            6)
 #define PlaneBuf_CALLBACK NULL
 #define PlaneBuf_DEFAULT NULL
 #define PlaneBuf_sensors_MSGTYPE SensorStruct
@@ -222,12 +249,12 @@ extern const pb_msgdesc_t PlaneBuf_msg;
 #define PlaneBuf_fields &PlaneBuf_msg
 
 /* Maximum encoded size of messages (where known) */
-/* SensorStruct_size depends on runtime parameters */
-/* PlaneBuf_size depends on runtime parameters */
 #define BarometerStruct_size                     15
-#define GPSStruct_size                           45
+#define GPSStruct_size                           122
 #define IMUStruct_size                           75
 #define ModeStruct_size                          22
+#define PlaneBuf_size                            438
+#define SensorStruct_size                        293
 #define StateEstimatorStruct_size                100
 #define StatusStruct_size                        4
 

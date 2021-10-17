@@ -4,7 +4,7 @@
 
 // Class wrapGPS
 
-wrapGPS::wrapGPS(GPSStruct &_GPS_struct): GPS_struct(_GPS_struct)
+wrapGPS::wrapGPS(GPSStruct &_GPS_struct) : GPS_struct(_GPS_struct)
 {
 }
 
@@ -73,15 +73,26 @@ void wrapGPS::setup()
     myGPS.setAutoPVT(true);           //Tell the GPS to "send" each solution and the lib not to update stale data implicitly
 
     myGPS.saveConfiguration(); //Save the current settings to flash and BBR
+
+
+
 }
 
 void wrapGPS::update()
 {
     myGPS.getPVT();
+    // Serial.println(myGPS.getSIV());
 
     // Add to Struct
 
     // START WITH TIME DATA
+    GPS_struct.year = myGPS.getYear();
+    GPS_struct.month = myGPS.getMonth();
+    GPS_struct.day = myGPS.getDay();
+    GPS_struct.hour = myGPS.getHour();
+    GPS_struct.minute = myGPS.getMinute();
+    GPS_struct.second = myGPS.getSecond();
+    GPS_struct.msec = myGPS.getMillisecond();
 
     GPS_struct.lat = myGPS.getLatitude() * 1E-7;
     GPS_struct.lon = myGPS.getLongitude() * 1E-7;
@@ -91,62 +102,57 @@ void wrapGPS::update()
     GPS_struct.SIV = myGPS.getSIV();
 
     // Calculate NED
+    Matrix <3> r_NED;
+    LatLonAlt2NED_Fcn(GPS_struct.lat,GPS_struct.lon, GPS_struct.alt,NED_C_ECEF0, r_NED);
+    for (int i = 1; i < 3; i++)
+    {
+        GPS_struct.position_NED[i] = r_NED(i);
+    }
+
+    // Set origin for linearization
+    if ( (GPS_struct.SIV > 2) && hasLinearized==0){
+        LatLonAlt2ECEF_Fcn(GPS_struct.lat, GPS_struct.lon, GPS_struct.alt, r0_ECEF);
+        TECEF2NED_Fcn(r0_ECEF, NED_C_ECEF0);
+        hasLinearized = 1;
+    }
+    
+    // GPS_struct.hasLinearized = hasLinearized;    can remove hasLinearized with this addition
+    
 }
 
-// Get Relevant Outputs
-long wrapGPS::getYear()
+void wrapGPS::LatLonAlt2NED_Fcn(float lat, float lon, float alt, Matrix<3,3> &NED_C_ECEF, Matrix<3> &r_NED)
 {
-    return myGPS.getYear();
+    Matrix<3> r_ECEF;
+    LatLonAlt2ECEF_Fcn(lat, lon, alt, r_ECEF);
+    r_NED = NED_C_ECEF * (r_ECEF - r0_ECEF);
 }
-long wrapGPS::getMonth()
+
+void wrapGPS::LatLonAlt2ECEF_Fcn(float Lat, float Lon, float Alt, Matrix<3> &r_ECEF)
 {
-    return myGPS.getMonth();
+
+    Lat = Lat * M_PI / 180.0;
+    Lon = Lon * M_PI / 180.0;
+    float a = 6378137.0;      // m
+    float b = 6356752.314245; // m
+    float cosLat = cos(Lat);
+    float sinLat = sin(Lat);
+    float cosLon = cos(Lon);
+    float sinLon = sin(Lon);
+    float a2 = a * a;
+    float denom = sqrt(a * a * cosLat * cosLat + b * b * sinLat * sinLat);
+    float N = a2 / denom;
+
+    r_ECEF = {(N + Alt) * cosLat * cosLon,
+              (N + Alt) * cosLat * sinLon,
+              ((b * b) * N / (a * a) + Alt) * sinLat};
 }
-long wrapGPS::getDay()
+
+void wrapGPS::TECEF2NED_Fcn(Matrix<3> &r_ECEF, Matrix<3,3> &NED_C_ECEF)
 {
-    return myGPS.getDay();
-}
-int wrapGPS::getHour()
-{
-    return myGPS.getHour();
-}
-int wrapGPS::getMinute()
-{
-    return myGPS.getMinute();
-}
-int wrapGPS::getSecond()
-{
-    return myGPS.getSecond();
-}
-int wrapGPS::getMillisecond()
-{
-    return myGPS.getMillisecond();
-}
-long wrapGPS::getLatitude()
-{
-    return myGPS.getLatitude();
-}
-long wrapGPS::getLongitude()
-{
-    return myGPS.getLongitude();
-}
-long wrapGPS::getAltitude()
-{
-    return myGPS.getAltitude();
-}
-byte wrapGPS::getSIV()
-{
-    return myGPS.getSIV();
-}
-long wrapGPS::getHeading()
-{
-    return myGPS.getHeading();
-}
-long wrapGPS::getGroundSpeed()
-{
-    return myGPS.getGroundSpeed();
-}
-long wrapGPS::getPDOP()
-{
-    return myGPS.getPDOP();
+    float phi = asin(r_ECEF(2) / norm3(r_ECEF));
+    float lambda = atan2(r_ECEF(1), r_ECEF(0));
+
+    NED_C_ECEF = {-sin(phi) * cos(lambda), -sin(lambda), -cos(phi) * cos(lambda),
+                  -sin(phi) * sin(lambda), cos(lambda), -cos(phi) * sin(lambda),
+                  cos(phi), 0, -sin(phi)};
 }

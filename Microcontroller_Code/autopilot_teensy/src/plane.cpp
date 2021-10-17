@@ -5,16 +5,18 @@
 #include <example.pb.h>
 
 
-
-
 // Stabilizer
-plane::plane(): plane_buf(),
- mySensor(plane_buf.sensors)
+plane::plane(): plane_buf()
+,mySensor(plane_buf.sensors)
+,myStateEstimator(plane_buf.stateEstimator)
 {
   // --- Protobufs --- //
 
   // Sensors
   plane_buf.has_sensors = true;
+
+  // State Estimator
+  plane_buf.has_stateEstimator = true;
 
 }
 
@@ -22,37 +24,25 @@ void plane::setup()
 {
   // Critical
 
+  // Less Critical
   Serial.begin(115200);
-
   mySensor.setup();
 
-  
-  /*
-  // Less Critical
-  myWrapGPS.setup();
-  myWrapGPS.update();
-  card_detected = myWrapSD.setup();
-  myWrapIMU.setup();
-  myWrapBarometer.setup();
-  pinMode(LED_BUILTIN, OUTPUT);
-  // myStateEstimator.setupR0ECEF();
-  myStateEstimator.setupP0();
-  myStateEstimator.init();
-*/
   // Last
   // wdt_enable(WDTO_60MS); // This needs to be last
   prevLoopTime = millis();
-  prevAuxMode = 0;
 }
 
 void plane::loop()
 {
-  if ((millis() - prevLoopTime) > 500)
+  if ((millis() - prevLoopTime) > 100)
   {
     
     plane_buf.delt = (millis() - prevLoopTime) / 1000.0;
     prevLoopTime = millis();
+    plane_buf.mcTime = millis()/1000.0;
 
+    // Update Sensors
     mySensor.update();
 
     //DEBUG
@@ -60,23 +50,15 @@ void plane::loop()
     // Serial.print("Time: ");
     // Serial.println(delt);
     // wdt_reset();
-  /*
 
     // Read Reciever
-    static float receiverInput[4] = {0, 0, 0, 0};
-    static float servoInput[4] = {0, 0, 0, 0};
-    bool autoMode = 0;
-    int auxMode = 0;
 
-    // Update Sensors
-    // mySensors.update(plane_buf.sensors);
 
     // Update State Estimate
     // myStateEstimator.init();                          // THIS IS A DEBUG STEP
-    Matrix<Ns, 1> xhat = myStateEstimator.step(delt); 
-    // Matrix<Ns, 1> xhat;
-    // xhat.Fill(0);
+    myStateEstimator.step(plane_buf.delt, &plane_buf.sensors.z_input[0], &plane_buf.sensors.z[0]); 
 
+    /*
     // Mode Logic
     if (autoMode)
     {
@@ -117,7 +99,7 @@ void plane::loop()
 */
 
  // write data
-  uint8_t packet_buffer[128];
+  uint8_t packet_buffer[512];
   pb_ostream_t stream = pb_ostream_from_buffer(packet_buffer, sizeof(packet_buffer));
 
   bool status = pb_encode(&stream, PlaneBuf_fields, &plane_buf);
@@ -125,6 +107,8 @@ void plane::loop()
   // Serial.println(packet_length);
 
   Serial.println(base64_encode(packet_buffer, packet_length).c_str());
+
+  // Serial << millis() << ',' << 5 << endl;
 
 }
 

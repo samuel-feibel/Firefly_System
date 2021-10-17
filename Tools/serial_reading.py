@@ -19,9 +19,12 @@ with serial.Serial('COM3', 115200, timeout=0) as ser:
             try:
                 pack.ParseFromString(base64.decodebytes(c))
                 # print(pack.sensors.baro.alt)
-                print(pack.sensors.baro.temperature)
+                # print(pack.sensors.baro.temperature)
                 # print(pack.sensors.IMU.gyr)
-                # print(pack.sensors.baro.pressure)
+                # print(pack.sensors.baro.alt)
                 # print(pack.delt)
+                print(pack.sensors.z_input[0])
+                # print(pack.sensors.IMU.acc)
+                print(pack.stateEstimator.xhat)
             except DecodeError:
                 ...

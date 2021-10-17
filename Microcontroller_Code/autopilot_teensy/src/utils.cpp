@@ -23,3 +23,39 @@ float norm3(BLA::Matrix<3> x)
 {
     return (sqrt(x(1) * x(1) + x(2) * x(2) + x(3) * x(3)));
 }
+
+void array2BLAMatrix(BLA::Matrix<6> &vec, float *arr)
+{
+    for (int i = 0; i < vec.Rows; i++)
+    {
+        vec(i) = *arr;
+        ++arr;
+    }
+}
+
+void array2BLAMatrix(BLA::Matrix<9> &vec, float *arr)
+{
+    for (int i = 0; i < vec.Rows; i++)
+    {
+        vec(i) = *arr;
+        ++arr;
+    }
+}
+
+void BLAMatrix2array(float *arr, BLA::Matrix<10> &vec)
+{
+    for (int i = 0; i < vec.Rows; i++)
+    {
+        *arr = vec(i);
+        ++arr;
+    }
+}
+
+void BLAMatrix2arrayDiag(float *arr, BLA::Matrix<10,10> &vec)
+{
+    for (int i = 0; i < vec.Rows; i++)
+    {
+        *arr = vec(i,i);
+        ++arr;
+    }
+}

@@ -35,5 +35,18 @@ void wrapBarometer::update()
     dps.getEvents(&temp_event, &pressure_event);
     baro_struct.temperature = temp_event.temperature;
     baro_struct.pressure = pressure_event.pressure;
+
+    // Linearize
+    if (hasLinearized == 0)
+    {
+      dhdp = (-1.0 / 1.2E-4) * 1.0 / baro_struct.pressure;
+      alt0 = (-1.0 / 1.2E-4) * log(baro_struct.pressure / 1013.25);
+      p0 = baro_struct.pressure;
+
+      hasLinearized = 1;
+    }
+
+    // Find Altitude
+    baro_struct.alt = -1.0 * (baro_struct.pressure - p0) * dhdp;
   }
 }

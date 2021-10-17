@@ -1,47 +1,34 @@
 #ifndef ESTIMATESTATE_H
 #define ESTIMATESTATE_H
 
-#include <IMU.h>
-#include <GPS.h>
-#include <barometer.h>
+#include <Arduino.h>
+#include <math.h>
+#include <utils.h>
 #include <BasicLinearAlgebra.h>
 #include <Streaming.h>
+#include <pb_encode.h>
+#include <pb.h>
+#include <autopilot.pb.h>
 
 using namespace BLA;
 const int Ns = 10;
+const int Ninput = 6;
 const int Nm = 9;
-const Matrix<3,1> magVec0 = {17.1864,3.8436,35.9023};
+const Matrix<3, 1> magVec0 = {17.1864, 3.8436, 35.9023};
 
 class stateEstimator
 {
 private:
-    // Origin stuff
-    Matrix<3> r0_ECEF;
-    Matrix<3,3>  NED_C_ECEF;
-    float dhdp;
-    float alt0;
-    float p0;
 
-    // Sensor objects
-    wrapGPS &myWrapGPS;
-    wrapIMU &myWrapIMU;
-    wrapBarometer &myWrapBarometer;
+    // Protobuf
+    StateEstimatorStruct &stateEstimator_struct;
 
     // Estimator Variables
-    Matrix<Ns,1> xhat;
-    Matrix<Ns,Ns> P;
-    Matrix <Ns,6> G;
-
-
-    void LatLonAlt2ECEF_Fcn(float Lat, float Lon, float Alt, Matrix<3> &r_ECEF);
-
-    void LatLonAlt2NED_Fcn(float Lat, float Lon, float Alt, Matrix<3> &r_NED);
+    Matrix<Ns, 1> xhat;
+    Matrix<Ns, Ns> P;
+    Matrix<Ns, 6> G;
 
     void setAngle2Range(float &angle);
-
-    void getMeasurementVector(Matrix<9> &Z, Matrix<6> &Z_input);
-
-    void TECEF2NED_Fcn(Matrix<3> &r_ECEF);
 
     void quat2euler(Matrix<Ns, 1> &xhat, Matrix<3, 1> &eulerAngles);
 
@@ -49,9 +36,9 @@ private:
 
     void f_Fcn(Matrix<Ns> &fxhatk_u, Matrix<6> &uk, Matrix<Ns> &f);
 
-    void get_Phi(Matrix<Ns> &xhatk_u, Matrix<6> &uk, float delt, Matrix<Ns,Ns> &Phi);
+    void get_Phi(Matrix<Ns> &xhatk_u, Matrix<6> &uk, float delt, Matrix<Ns, Ns> &Phi);
 
-    void get_Q(float dT, Matrix<6,6> &Q);
+    void get_Q(float dT, Matrix<6, 6> &Q);
 
     void get_R(float dT, Matrix<9, 9> &R);
 
@@ -66,21 +53,15 @@ private:
     void timeUpdate(float delt, Matrix<6> &Z_input);
 
     void measurementUpdate(Matrix<9> &Z);
-    
+
 public:
-    stateEstimator(wrapGPS &_myWrapGPS, wrapIMU &_myWrapIMU, wrapBarometer &_mywrapBarometer);
+    stateEstimator(StateEstimatorStruct &_stateEstimator_struct);
 
     void init();
 
     void debug();
 
-    void setupR0ECEF();
-
-    void setupP0();
-
-    Matrix<Ns> step(float delt);
+    void step(float &delt, float *z_input_arr, float *z_arr);
 };
 
 #endif
-
-
