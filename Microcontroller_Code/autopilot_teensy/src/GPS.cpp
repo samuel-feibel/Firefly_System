@@ -73,7 +73,7 @@ void wrapGPS::setup()
     myGPS.setAutoPVT(true);           //Tell the GPS to "send" each solution and the lib not to update stale data implicitly
 
     myGPS.saveConfiguration(); //Save the current settings to flash and BBR
-
+    GPS_struct.hasLinearized = 0;
 
 
 }
@@ -110,14 +110,12 @@ void wrapGPS::update()
     }
 
     // Set origin for linearization
-    if ( (GPS_struct.SIV > 2) && hasLinearized==0){
+    if ( (GPS_struct.SIV > 2) && GPS_struct.hasLinearized==0){
         LatLonAlt2ECEF_Fcn(GPS_struct.lat, GPS_struct.lon, GPS_struct.alt, r0_ECEF);
         TECEF2NED_Fcn(r0_ECEF, NED_C_ECEF0);
-        hasLinearized = 1;
+        GPS_struct.hasLinearized = 1;
     }
-    
-    // GPS_struct.hasLinearized = hasLinearized;    can remove hasLinearized with this addition
-    
+        
 }
 
 void wrapGPS::LatLonAlt2NED_Fcn(float lat, float lon, float alt, Matrix<3,3> &NED_C_ECEF, Matrix<3> &r_NED)

@@ -19,7 +19,8 @@ plot(flightData.Time,flightData.Gyr.z);
 
 gyrBias = [median(flightData.Gyr.x);median(flightData.Gyr.y);median(flightData.Gyr.z)];
 
-[flightData] = loadFlightData('magTuning_Sunapee.txt');
+close all;
+[flightData] = loadFlightData('magTuning_10202021_3.txt');
 
 figure
 hold on

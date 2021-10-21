@@ -25,6 +25,7 @@ class Sensors
         void setup(); 
 
         void update();
+
 };
 
 #endif

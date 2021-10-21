@@ -23,6 +23,8 @@ void wrapBarometer::setup()
   // Setup highest precision
   dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
   dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
+
+  baro_struct.hasLinearized = 0;
 }
 
 void wrapBarometer::update()
@@ -37,13 +39,13 @@ void wrapBarometer::update()
     baro_struct.pressure = pressure_event.pressure;
 
     // Linearize
-    if (hasLinearized == 0)
+    if (baro_struct.hasLinearized == 0)
     {
       dhdp = (-1.0 / 1.2E-4) * 1.0 / baro_struct.pressure;
       alt0 = (-1.0 / 1.2E-4) * log(baro_struct.pressure / 1013.25);
       p0 = baro_struct.pressure;
 
-      hasLinearized = 1;
+      baro_struct.hasLinearized = 1;
     }
 
     // Find Altitude

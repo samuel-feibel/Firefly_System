@@ -3,7 +3,6 @@ import sys
 from google.protobuf.message import DecodeError
 
 import autopilot_pb2
-# import example_pb2
 import serial
 import base64
 
@@ -23,7 +22,7 @@ with serial.Serial('COM3', 115200, timeout=0) as ser:
                 # print(pack.sensors.IMU.gyr)
                 # print(pack.sensors.baro.alt)
                 # print(pack.delt)
-                print(pack.sensors.z_input[0])
+                # print(pack.sensors.z_input[0])
                 # print(pack.sensors.IMU.acc)
                 print(pack.stateEstimator.xhat)
             except DecodeError:

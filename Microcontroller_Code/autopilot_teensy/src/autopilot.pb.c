@@ -15,7 +15,7 @@ PB_BIND(IMUStruct, IMUStruct, AUTO)
 PB_BIND(BarometerStruct, BarometerStruct, AUTO)
 
 
-PB_BIND(SensorStruct, SensorStruct, AUTO)
+PB_BIND(SensorStruct, SensorStruct, 2)
 
 
 PB_BIND(StateEstimatorStruct, StateEstimatorStruct, AUTO)

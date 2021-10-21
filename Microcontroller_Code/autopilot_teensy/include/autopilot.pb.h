@@ -14,6 +14,7 @@ typedef struct _BarometerStruct {
     float pressure; 
     float temperature; 
     float alt; 
+    bool hasLinearized; 
 } BarometerStruct;
 
 /* Individual Sensors */
@@ -32,6 +33,7 @@ typedef struct _GPSStruct {
     int32_t minute; 
     int32_t second; 
     int32_t msec; 
+    bool hasLinearized; 
 } GPSStruct;
 
 typedef struct _IMUStruct { 
@@ -92,17 +94,17 @@ extern "C" {
 #endif
 
 /* Initializer values for message structs */
-#define GPSStruct_init_default                   {0, 0, 0, 0, 0, 0, {0, 0, 0}, 0, 0, 0, 0, 0, 0, 0}
+#define GPSStruct_init_default                   {0, 0, 0, 0, 0, 0, {0, 0, 0}, 0, 0, 0, 0, 0, 0, 0, 0}
 #define IMUStruct_init_default                   {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
-#define BarometerStruct_init_default             {0, 0, 0}
+#define BarometerStruct_init_default             {0, 0, 0, 0}
 #define SensorStruct_init_default                {false, GPSStruct_init_default, false, IMUStruct_init_default, false, BarometerStruct_init_default, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define StateEstimatorStruct_init_default        {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define StatusStruct_init_default                {0, 0}
 #define ModeStruct_init_default                  {0, 0}
 #define PlaneBuf_init_default                    {0, false, SensorStruct_init_default, false, StateEstimatorStruct_init_default, false, StatusStruct_init_default, false, ModeStruct_init_default, 0}
-#define GPSStruct_init_zero                      {0, 0, 0, 0, 0, 0, {0, 0, 0}, 0, 0, 0, 0, 0, 0, 0}
+#define GPSStruct_init_zero                      {0, 0, 0, 0, 0, 0, {0, 0, 0}, 0, 0, 0, 0, 0, 0, 0, 0}
 #define IMUStruct_init_zero                      {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
-#define BarometerStruct_init_zero                {0, 0, 0}
+#define BarometerStruct_init_zero                {0, 0, 0, 0}
 #define SensorStruct_init_zero                   {false, GPSStruct_init_zero, false, IMUStruct_init_zero, false, BarometerStruct_init_zero, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define StateEstimatorStruct_init_zero           {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define StatusStruct_init_zero                   {0, 0}
@@ -113,6 +115,7 @@ extern "C" {
 #define BarometerStruct_pressure_tag             1
 #define BarometerStruct_temperature_tag          2
 #define BarometerStruct_alt_tag                  3
+#define BarometerStruct_hasLinearized_tag        4
 #define GPSStruct_lat_tag                        1
 #define GPSStruct_lon_tag                        2
 #define GPSStruct_alt_tag                        3
@@ -127,6 +130,7 @@ extern "C" {
 #define GPSStruct_minute_tag                     12
 #define GPSStruct_second_tag                     13
 #define GPSStruct_msec_tag                       14
+#define GPSStruct_hasLinearized_tag              15
 #define IMUStruct_acc_tag                        1
 #define IMUStruct_gyr_tag                        2
 #define IMUStruct_mag_tag                        3
@@ -165,7 +169,8 @@ X(a, STATIC,   SINGULAR, INT32,    day,              10) \
 X(a, STATIC,   SINGULAR, INT32,    hour,             11) \
 X(a, STATIC,   SINGULAR, INT32,    minute,           12) \
 X(a, STATIC,   SINGULAR, INT32,    second,           13) \
-X(a, STATIC,   SINGULAR, INT32,    msec,             14)
+X(a, STATIC,   SINGULAR, INT32,    msec,             14) \
+X(a, STATIC,   SINGULAR, BOOL,     hasLinearized,    15)
 #define GPSStruct_CALLBACK NULL
 #define GPSStruct_DEFAULT NULL
 
@@ -181,7 +186,8 @@ X(a, STATIC,   FIXARRAY, FLOAT,    rawGyr,            5)
 #define BarometerStruct_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, FLOAT,    pressure,          1) \
 X(a, STATIC,   SINGULAR, FLOAT,    temperature,       2) \
-X(a, STATIC,   SINGULAR, FLOAT,    alt,               3)
+X(a, STATIC,   SINGULAR, FLOAT,    alt,               3) \
+X(a, STATIC,   SINGULAR, BOOL,     hasLinearized,     4)
 #define BarometerStruct_CALLBACK NULL
 #define BarometerStruct_DEFAULT NULL
 
@@ -249,12 +255,12 @@ extern const pb_msgdesc_t PlaneBuf_msg;
 #define PlaneBuf_fields &PlaneBuf_msg
 
 /* Maximum encoded size of messages (where known) */
-#define BarometerStruct_size                     15
-#define GPSStruct_size                           122
+#define BarometerStruct_size                     17
+#define GPSStruct_size                           124
 #define IMUStruct_size                           75
 #define ModeStruct_size                          22
-#define PlaneBuf_size                            438
-#define SensorStruct_size                        293
+#define PlaneBuf_size                            442
+#define SensorStruct_size                        297
 #define StateEstimatorStruct_size                100
 #define StatusStruct_size                        4
 

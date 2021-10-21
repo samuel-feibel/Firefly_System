@@ -21,8 +21,6 @@ private:
     Matrix<3,3> NED_C_ECEF0;
     Matrix<3> r0_ECEF;
 
-    bool hasLinearized = 0;
-
     void LatLonAlt2ECEF_Fcn(float Lat, float Lon, float Alt, Matrix<3> &r_ECEF);
 
     void LatLonAlt2NED_Fcn(float lat, float lon, float alt, Matrix<3,3> &NED_C_ECEF, Matrix<3> &r_NED);

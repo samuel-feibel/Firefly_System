@@ -1,13 +1,15 @@
 #include <SDs.h>
 
-wrapSD::wrapSD(){}
+#define outputProtoBuf 0
+
+wrapSD::wrapSD(PlaneBuf &_plane_buf) : plane_buf(_plane_buf) {}
 
 void wrapSD::writeFormattedFloat(float val, uint8_t leading, uint8_t decimals)
 {
   float aval = abs(val);
   if (val < 0)
   {
-    myFile.print("-"); 
+    myFile.print("-");
   }
   else
   {
@@ -43,7 +45,16 @@ void wrapSD::writeFormattedFloat(float val, uint8_t leading, uint8_t decimals)
   }
 }
 
-bool wrapSD::setup(PlaneBuf &plane_buf)
+void wrapSD::writeVec(float *vec, int size)
+{
+  for (int i = 0; i < size; i++)
+  {
+    writeFormattedFloat(*vec, 5, 2);
+    myFile.print(", ");
+    ++vec;
+  }
+}
+bool wrapSD::setup()
 {
   //Serial.print("Initializing SD card...");
   // On the Ethernet Shield, CS is pin 4. It's set as an output by default.
@@ -57,179 +68,151 @@ bool wrapSD::setup(PlaneBuf &plane_buf)
     return 0;
   }
   Serial.println("Setting up SD card...Success");
-/*
-  // First Log Entry
-  myFile = SD.open("dataLog.txt", FILE_WRITE);
-  myFile.println("================================ Starting Log =================================");
-  myFile.print("Current Time: ");
-  myFile.print(myWrapGPS.getYear());
-  myFile.print("-");
-  myFile.print(myWrapGPS.getMonth());
-  myFile.print("-");
-  myFile.print(myWrapGPS.getDay());
-  myFile.print(" ");
-  myFile.print(myWrapGPS.getHour());
-  myFile.print(":");
-  myFile.print(myWrapGPS.getMinute());
-  myFile.print(":");
-  myFile.print(myWrapGPS.getSecond());
-  myFile.print(".");
-  //Pretty print leading zeros
-  int mseconds = myWrapGPS.getMillisecond();
-  if (mseconds < 100)
-    myFile.print("0");
-  if (mseconds < 10)
-    myFile.print("0");
-  myFile.print(mseconds);
-  myFile.println("");
 
-  // Data Type Header
-  myFile.print("Time (ms), ");
-  myFile.print("Scaled. Acc x (mg), ");
-  myFile.print("Scaled. Acc y (mg), ");
-  myFile.print("Scaled. Acc z (mg), ");
-  myFile.print("Gyr (DPS) x, ");
-  myFile.print("Gyr (DPS) y, ");
-  myFile.print("Gyr (DPS) z, ");
-  myFile.print("Mag (uT) x, ");
-  myFile.print("Mag (uT) y, ");
-  myFile.print("Mag (uT) z, ");
-  myFile.print("Tmp (C), ");
-  myFile.print("Lat, ");
-  myFile.print("Lon, ");
-  myFile.print("Alt (mm), ");
-  myFile.print("Speed (mm/s), ");
-  myFile.print("Heading (degrees * 10^-5), ");
-  myFile.print("pDOP, ");
-  myFile.print("SIV, ");
-  myFile.print("Pressure (hPa), ");
-  myFile.print("Reciever Throttle Val (0-180), ");
-  myFile.print("Reciever Aileron Servo (deg), ");
-  myFile.print("Reciever Elevator Servo (deg), ");
-  myFile.print("Reciever Rudder Servo (deg), ");
-  myFile.print("Auto Mode (deg), ");
-  myFile.print("Aux Mode,");
-  myFile.print("N, ");
-  myFile.print("E, ");
-  myFile.print("D, ");
-  myFile.print("u, ");
-  myFile.print("v, ");
-  myFile.print("w, ");
-  myFile.print("q1, ");
-  myFile.print("q2, ");
-  myFile.print("q3, ");
-  myFile.print("q4, ");
-  myFile.print("Servo Throttle Val (0-180), ");
-  myFile.print("Servo Aileron Servo (deg), ");
-  myFile.print("Servo Elevator Servo (deg), ");
-  myFile.print("Servo Rudder Servo (deg)");
+  if (!outputProtoBuf)
+  {
+    // First Log Entry
+    myFile = SD.open("dataLog.txt", FILE_WRITE);
+    myFile.println("================================ Starting Log =================================");
+    myFile.print("Current Time: ");
+    myFile.print(plane_buf.sensors.GPS.year);
+    myFile.print("-");
+    myFile.print(plane_buf.sensors.GPS.month);
+    myFile.print("-");
+    myFile.print(plane_buf.sensors.GPS.day);
+    myFile.print(" ");
+    myFile.print(plane_buf.sensors.GPS.hour);
+    myFile.print(":");
+    myFile.print(plane_buf.sensors.GPS.minute);
+    myFile.print(":");
+    myFile.print(plane_buf.sensors.GPS.second);
+    myFile.println("");
+    // Data Type Header
+    myFile.print("Time (ms), ");
+    myFile.print("Scaled. Acc x (mg), ");
+    myFile.print("Scaled. Acc y (mg), ");
+    myFile.print("Scaled. Acc z (mg), ");
+    myFile.print("Gyr (DPS) x, ");
+    myFile.print("Gyr (DPS) y, ");
+    myFile.print("Gyr (DPS) z, ");
+    myFile.print("Mag (uT) x, ");
+    myFile.print("Mag (uT) y, ");
+    myFile.print("Mag (uT) z, ");
+    myFile.print("Tmp (C), ");
+    myFile.print("Lat, ");
+    myFile.print("Lon, ");
+    myFile.print("Alt (mm), ");
+    myFile.print("Speed (mm/s), ");
+    myFile.print("Heading (degrees * 10^-5), ");
+    myFile.print("pDOP, ");
+    myFile.print("SIV, ");
+    myFile.print("Pressure (hPa), ");
+    myFile.print("Reciever Throttle Val (0-180), ");
+    myFile.print("Reciever Aileron Servo (deg), ");
+    myFile.print("Reciever Elevator Servo (deg), ");
+    myFile.print("Reciever Rudder Servo (deg), ");
+    myFile.print("Auto Mode (deg), ");
+    myFile.print("Aux Mode,");
+    myFile.print("N, ");
+    myFile.print("E, ");
+    myFile.print("D, ");
+    myFile.print("u, ");
+    myFile.print("v, ");
+    myFile.print("w, ");
+    myFile.print("q1, ");
+    myFile.print("q2, ");
+    myFile.print("q3, ");
+    myFile.print("q4, ");
+    myFile.print("Servo Throttle Val (0-180), ");
+    myFile.print("Servo Aileron Servo (deg), ");
+    myFile.print("Servo Elevator Servo (deg), ");
+    myFile.print("Servo Rudder Servo (deg)");
 
-  // close file
-  myFile.println("");
-  myFile.close();
-*/
+    // close file
+    myFile.println("");
+    myFile.close();
+  }
+
   return 1;
 }
 
-void wrapSD::writeData(PlaneBuf &plane_buf)
+void wrapSD::writeData()
 {
-  /*
-    if (myFile)
+
+  if (myFile)
   {
-    // write data
-
-    // --- IMU --- //
-    myFile.print(millis());
-    myFile.print(", ");
-    writeFormattedFloat(myWrapIMU.getaccX(), 5, 2);
-    myFile.print(", ");
-    writeFormattedFloat(myWrapIMU.getaccY(), 5, 2);
-    myFile.print(", ");
-    writeFormattedFloat(myWrapIMU.getaccZ(), 5, 2);
-    myFile.print(", ");
-    writeFormattedFloat(myWrapIMU.getgyrX(), 5, 2);
-    myFile.print(", ");
-    writeFormattedFloat(myWrapIMU.getgyrY(), 5, 2);
-    myFile.print(", ");
-    writeFormattedFloat(myWrapIMU.getgyrZ(), 5, 2);
-    myFile.print(", ");
-    writeFormattedFloat(myWrapIMU.getmagX(), 5, 2);
-    myFile.print(", ");
-    writeFormattedFloat(myWrapIMU.getmagY(), 5, 2);
-    myFile.print(", ");
-    writeFormattedFloat(myWrapIMU.getmagZ(), 5, 2);
-    myFile.print(", ");
-    writeFormattedFloat(myWrapIMU.gettemp(), 5, 2);
-    myFile.print(", ");
-
-    // -- GPS --- //
-    long latitude = myWrapGPS.getLatitude();
-    myFile.print(latitude);
-    myFile.print(", ");
-    long longitude = myWrapGPS.getLongitude();
-    myFile.print(longitude);
-    myFile.print(", ");
-    long altitude = myWrapGPS.getAltitude();
-    myFile.print(altitude);
-    myFile.print(", ");
-    long speed = myWrapGPS.getGroundSpeed();
-    myFile.print(speed);
-    myFile.print(", ");
-    long heading = myWrapGPS.getHeading();
-    myFile.print(heading);
-    myFile.print(", ");
-    int pDOP = myWrapGPS.getPDOP();
-    myFile.print(pDOP / 100.0, 2);
-    myFile.print(", ");
-    byte SIV = myWrapGPS.getSIV();
-    myFile.print(SIV);
-    myFile.print(", ");
-
-    // -- Barometer --//
-    myFile.print(myWrapBarometer.getPressure());
-    myFile.print(", ");
-
-    // -- Receiver Inputs --- //
-    myFile.print(receiverInput[0]);
-    myFile.print(", ");
-    myFile.print(receiverInput[1]);
-    myFile.print(", ");
-    myFile.print(receiverInput[2]);
-    myFile.print(", ");
-    myFile.print(receiverInput[3]);
-    myFile.print(", ");
-    myFile.print(autoMode);
-    myFile.print(", ");
-    myFile.print(auxMode);
-    myFile.print(", ");
-
-    // -- States --- //
-    for (int i = 0;  i < 10; i++)
+    if (outputProtoBuf)
     {
-      myFile.print(xhat(i));
-      myFile.print(", ");
+      // write data
+      uint8_t packet_buffer[512];
+      pb_ostream_t stream = pb_ostream_from_buffer(packet_buffer, sizeof(packet_buffer));
+
+      bool status = pb_encode(&stream, PlaneBuf_fields, &plane_buf);
+      int packet_length = stream.bytes_written;
+      // Serial.println(packet_length);
+
+      myFile.println(base64_encode(packet_buffer, packet_length).c_str());
     }
+    else
+    {
+      // --- IMU --- //
+      myFile.print(millis());
+      myFile.print(", ");
+      writeVec(&plane_buf.sensors.IMU.acc[0], 3);
+      writeVec(&plane_buf.sensors.IMU.rawGyr[0], 3);
+      writeVec(&plane_buf.sensors.IMU.rawMag[0], 3);
 
-    // -- Servo Inputs --- //
-    myFile.print(servoInput[0]);
-    myFile.print(", ");
-    myFile.print(servoInput[1]);
-    myFile.print(", ");
-    myFile.print(servoInput[2]);
-    myFile.print(", ");
-    myFile.print(servoInput[3]);
-
-    // close the file:
-    myFile.println("");
-    //myFile.close();
+      writeFormattedFloat(plane_buf.sensors.baro.temperature, 5, 2);
+      myFile.print(", ");
+      // -- GPS --- //
+      myFile.print(plane_buf.sensors.GPS.lat);
+      myFile.print(", ");
+      myFile.print(plane_buf.sensors.GPS.lon);
+      myFile.print(", ");
+      myFile.print(plane_buf.sensors.GPS.alt);
+      myFile.print(", ");
+      myFile.print(plane_buf.sensors.GPS.groundSpeed);
+      myFile.print(", ");
+      myFile.print(plane_buf.sensors.GPS.heading);
+      myFile.print(", ");
+      myFile.print(0.00); // PDOP is null
+      myFile.print(", ");
+      myFile.print(plane_buf.sensors.GPS.SIV);
+      myFile.print(", ");
+      // -- Barometer --//
+      myFile.print(plane_buf.sensors.baro.pressure);
+      myFile.print(", ");
+      // -- Receiver Inputs --- //
+      myFile.print(0);
+      myFile.print(", ");
+      myFile.print(0);
+      myFile.print(", ");
+      myFile.print(0);
+      myFile.print(", ");
+      myFile.print(0);
+      myFile.print(", ");
+      myFile.print(0);
+      myFile.print(", ");
+      myFile.print(0);
+      myFile.print(", ");
+      // -- States --- //
+      writeVec(&plane_buf.stateEstimator.xhat[0], 10);
+      // -- Servo Inputs --- //
+      myFile.print(0);
+      myFile.print(", ");
+      myFile.print(0);
+      myFile.print(", ");
+      myFile.print(0);
+      myFile.print(", ");
+      myFile.print(0);
+      myFile.println("");
+    }
   }
   else
   {
     // if the file didn't open, print an error:
     Serial.println("error opening test.txt");
-    
   }
-  */
 }
 
 void wrapSD::open()

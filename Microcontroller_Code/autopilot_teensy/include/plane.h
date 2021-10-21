@@ -14,7 +14,7 @@
 // #include <GPS.h>
 // #include <IMU.h>
 // #include <barometer.h>
-// #include <SDs.h>
+#include <SDs.h>
 #include <sensors.h>
 // #include <utils.h>
 // #include <stabilize.h>
@@ -33,6 +33,7 @@ private:
     PlaneBuf plane_buf;
     Sensors mySensor;
     stateEstimator myStateEstimator;
+    wrapSD myWrapSD; 
 
     // --- Settings --- //
 

@@ -395,6 +395,7 @@ void stateEstimator::predictState(float delt, Matrix<Ns> &xhat, Matrix<6> &uk)
 void stateEstimator::timeUpdate(float delt, Matrix<6> &Z_input)
 {
 
+
     // Predict State
     predictState(delt, xhat, Z_input); // xhatkp1_p
 
@@ -460,16 +461,19 @@ void stateEstimator::measurementUpdate(Matrix<9> &Z)
     Matrix<Nm> h;
     h_fcn(xhat, h);
 
-    // DEBUG
-    Z(4) = h(4);
-    Z(5) = h(5);
-    Z(6) = h(6);
-
     // residual
     Matrix<Nm> res = Z - h;
     float res_heading = res(8);
     setAngle2Range(res_heading);
     res(8) = res_heading;
+
+
+    // DEBUG
+    // auto subK_ref = K.Submatrix<4, 3>(1, 4);
+    // Matrix<4,3> subK = subK_ref;
+    // Serial << subK << endl;
+    // K.Fill(0.0);
+    // K.Submatrix<4, 3>(1, 4) = subK;
 
     // Update Step
     xhat = xhat + K * res; // xhatkp1_u
@@ -501,6 +505,7 @@ void stateEstimator::measurementUpdate(Matrix<9> &Z)
     Matrix<Ns, Ns> ImKH = (Is - K * H_jac);
     P = ImKH * P * (~ImKH) + K * R * (~K);
 }
+
 // --- estimateState --- //
 void stateEstimator::step(float &delt, float *z_input_arr, float *z_arr)
 {
@@ -510,11 +515,26 @@ void stateEstimator::step(float &delt, float *z_input_arr, float *z_arr)
     array2BLAMatrix(Z_input, &z_input_arr[0]);
     array2BLAMatrix(Z, &z_arr[0]);
 
+    // DEBUG
+    Z(0) = 0.0; Z(1) = 0.0; Z(2) = 0.0;
+    Z(3) = 0.0;
+
+    // Z_input(0) = 0.0001;
+    // Z_input(1) = 0.0001;
+    // Z_input(2) = -9.8101;
+
     // --- Time Update --- //
     timeUpdate(delt, Z_input);
 
+
     // --- Measurement Update --- //
     measurementUpdate(Z);
+
+
+    // Matrix<3> eulerAngles;
+    // quat2euler(xhat,eulerAngles);
+    // for (int i=0; i < eulerAngles.Rows; i++){eulerAngles(i) = eulerAngles(i) * 180/M_PI;}
+    // Serial << eulerAngles << endl;
 
     // Convert Outputs
     BLAMatrix2array(&stateEstimator_struct.xhat[0], xhat);

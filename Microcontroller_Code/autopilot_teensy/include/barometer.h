@@ -10,7 +10,6 @@ class wrapBarometer
 private:
   Adafruit_DPS310 dps;
   BarometerStruct &baro_struct;
-  bool hasLinearized = 0;
   float dhdp;
   float alt0;
   float p0;

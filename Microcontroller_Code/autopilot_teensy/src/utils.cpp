@@ -51,11 +51,11 @@ void BLAMatrix2array(float *arr, BLA::Matrix<10> &vec)
     }
 }
 
-void BLAMatrix2arrayDiag(float *arr, BLA::Matrix<10,10> &vec)
+void BLAMatrix2arrayDiag(float *arr, BLA::Matrix<10, 10> &vec)
 {
     for (int i = 0; i < vec.Rows; i++)
     {
-        *arr = vec(i,i);
+        *arr = vec(i, i);
         ++arr;
     }
 }

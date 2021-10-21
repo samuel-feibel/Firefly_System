@@ -17,6 +17,4 @@ void BLAMatrix2array(float *arr, BLA::Matrix<10> &vec);
 
 void BLAMatrix2arrayDiag(float *arr, BLA::Matrix<10,10> &vec);
 
-
-
 #endif
