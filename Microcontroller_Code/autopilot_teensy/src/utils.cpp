@@ -42,6 +42,24 @@ void array2BLAMatrix(BLA::Matrix<9> &vec, float *arr)
     }
 }
 
+void array2BLAMatrix(BLA::Matrix<4> &vec, float *arr)
+{
+    for (int i = 0; i < vec.Rows; i++)
+    {
+        vec(i) = *arr;
+        ++arr;
+    }
+}
+
+void array2BLAMatrix(BLA::Matrix<3> &vec, float *arr)
+{
+    for (int i = 0; i < vec.Rows; i++)
+    {
+        vec(i) = *arr;
+        ++arr;
+    }
+}
+
 void BLAMatrix2array(float *arr, BLA::Matrix<10> &vec)
 {
     for (int i = 0; i < vec.Rows; i++)
@@ -56,6 +74,33 @@ void BLAMatrix2arrayDiag(float *arr, BLA::Matrix<10, 10> &vec)
     for (int i = 0; i < vec.Rows; i++)
     {
         *arr = vec(i, i);
+        ++arr;
+    }
+}
+
+void BLAMatrix2array(float *arr, BLA::Matrix<4> &vec)
+{
+    for (int i = 0; i < vec.Rows; i++)
+    {
+        *arr = vec(i);
+        ++arr;
+    }
+}
+
+void BLAMatrix2arrayDiag(float *arr, BLA::Matrix<4, 4> &vec)
+{
+    for (int i = 0; i < vec.Rows; i++)
+    {
+        *arr = vec(i, i);
+        ++arr;
+    }
+}
+
+void BLAMatrix2array(float *arr, BLA::Matrix<3> &vec)
+{
+    for (int i = 0; i < vec.Rows; i++)
+    {
+        *arr = vec(i);
         ++arr;
     }
 }

@@ -3,12 +3,8 @@
 #include <plane.h>
 #include <example.pb.h>
 
-
 // Stabilizer
-plane::plane(): plane_buf()
-,mySensor(plane_buf.sensors)
-,myStateEstimator(plane_buf.stateEstimator)
-,myWrapSD(plane_buf)
+plane::plane() : plane_buf(), mySensor(plane_buf.sensors), myStateEstimator(plane_buf.stateEstimator), myWrapSD(plane_buf)
 {
   // --- Protobufs --- //
 
@@ -17,7 +13,6 @@ plane::plane(): plane_buf()
 
   // State Estimator
   plane_buf.has_stateEstimator = true;
-
 }
 
 void plane::setup()
@@ -39,16 +34,17 @@ void plane::setup()
   // Last
   // wdt_enable(WDTO_60MS); // This needs to be last
   prevLoopTime = millis();
+  prevSerLoopTime = millis();
 }
 
 void plane::loop()
 {
-  if ((millis() - prevLoopTime) > 500)
+  if ((millis() - prevLoopTime) > 100)
   {
-    
+
     plane_buf.delt = (millis() - prevLoopTime) / 1000.0;
     prevLoopTime = millis();
-    plane_buf.mcTime = millis()/1000.0;
+    plane_buf.mcTime = millis() / 1000.0;
 
     // Update Sensors
     mySensor.update();
@@ -61,19 +57,17 @@ void plane::loop()
 
     // Read Reciever
 
-
     // Update State Estimate
-    myStateEstimator.init();                          // THIS IS A DEBUG STEP
-    myStateEstimator.step(plane_buf.delt, &plane_buf.sensors.z_input[0], &plane_buf.sensors.z[0]); 
+    // myStateEstimator.init();                          // THIS IS A DEBUG STEP
+    myStateEstimator.step(plane_buf.delt, &plane_buf.sensors.z_input[0], &plane_buf.sensors.z[0]);
 
-        // DEBUG
+    // DEBUG
     if (card_detected)
     {
       myWrapSD.open();
       myWrapSD.writeData();
       myWrapSD.close();
     }
-
 
     /*
     // Mode Logic
@@ -108,8 +102,11 @@ void plane::loop()
 
 
 */
+  }
 
- // write data
+if (millis()-prevSerLoopTime > 500){
+  prevSerLoopTime = millis();
+  // write data
   uint8_t packet_buffer[512];
   pb_ostream_t stream = pb_ostream_from_buffer(packet_buffer, sizeof(packet_buffer));
 
@@ -117,10 +114,8 @@ void plane::loop()
   int packet_length = stream.bytes_written;
   // Serial.println(packet_length);
 
-  // Serial.println(base64_encode(packet_buffer, packet_length).c_str());
+  Serial.println(base64_encode(packet_buffer, packet_length).c_str());
 
   // Serial << millis() << ',' << 5 << endl;
-
 }
-
 }

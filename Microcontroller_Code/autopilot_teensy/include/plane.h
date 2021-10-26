@@ -38,6 +38,7 @@ private:
     // --- Settings --- //
 
     unsigned long prevLoopTime;
+    unsigned long prevSerLoopTime;
     int prevAuxMode;
     bool card_detected;
 

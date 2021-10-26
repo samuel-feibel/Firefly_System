@@ -25,12 +25,7 @@ void Sensors::update(){
     myWrapGPS.update();
 
     // Update Measurement Vector
-    copy(&sensor_struct.z_input[0], &sensor_struct.IMU.acc[0], 3);
-    copy(&sensor_struct.z_input[3], &sensor_struct.IMU.gyr[0], 3);
-    copy(&sensor_struct.z[0], &sensor_struct.GPS.position_NED[0], 3);
-    sensor_struct.z[3] =sensor_struct.GPS.groundSpeed;
-    copy(&sensor_struct.z[4], &sensor_struct.IMU.mag[0], 3);
-    sensor_struct.z[7] =sensor_struct.GPS.heading;
-    sensor_struct.z[8] =sensor_struct.baro.alt;
+    copy(&sensor_struct.z_input[0], &sensor_struct.IMU.gyr[0], 3);
+    copy(&sensor_struct.z[0], &sensor_struct.IMU.mag[0], 3);
 
     }

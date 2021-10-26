@@ -1,15 +1,10 @@
-%% Inertial Nav + GPS
+%% Attitude Only
 % Finds attitude and position from sensors only, no model
 % This is the most recent working model
 
-close all;
+close all; clear all;
 rng(12);
 d2r = pi/180;
-
-try r_NED;
-    
-catch
-
 
 %% Constants
 
@@ -19,12 +14,6 @@ g0 = 9.8; % m/s^2
 u0 = 0;
 
 %% Load and Parse Flight Data
-startIdx = 1;        % This is specific to each set of flight data
-% startIdx =1798;
-addpath('DataFiles');
-[flightData] = loadFlightData("DataFiles/paramEstFlight2.TXT",startIdx);
-
-n_measurements = size(flightData.Time,1);
 
 %% States
 
@@ -42,7 +31,6 @@ x = [xs;xp];
 n = ns+np;
 
 % Control Inputs
-
 syms p q r real
 cntrl = transpose([p q r]);
 
@@ -73,31 +61,24 @@ f = [fs;fp];
 
 
 % Continuous time diff eq of motion
-f_Fcn = matlabFunction(f,'Vars',{t,[x;cntrl]},'File','f_Fcn');
+matlabFunction(f,'Vars',{[x;cntrl]},'File','f_Fcn');
 
 % for ode45
-
 f_cntrl = [f;zeros(length(cntrl),1)];
-f_cntrl_Fcn = matlabFunction(f_cntrl,'Vars',{t,[x;cntrl]},'File','f_cntrl_Fcn');
-
+matlabFunction(f_cntrl,'Vars',{t,[x;cntrl]},'File','f_cntrl_Fcn');
 
 F = jacobian(f,x);
 syms delt;
 Phi = eye(n) + F*delt;
-% df/dx jacobian
-F_jac_Fcn = matlabFunction(F,'Vars',{x,cntrl},'File','F_jac_Fcn');
 
+matlabFunction(Phi,'Vars',{delt,[x;cntrl]},'File','Phi_Fcn');
 
 %% Noise
-
-[sigmaN] = makeSigma("Combined_DATALOG.TXT");
-
 
 % ---- Process Noise ---- %
 
 % States
-Qs = diag([sigmaN.Gyr.x,sigmaN.Gyr.y,sigmaN.Gyr.z].^2);
-
+Qs = diag([0.0189845388442364, 0.020660226476864607, 0.02769334420437668].^2);
 Gs = jacobian(f,cntrl);
 
 
@@ -108,7 +89,7 @@ Gp = zeros(np,size(Gs,2));
 % Combine
 Q = blkdiag(Qs,Qp);
 G = [Gs;Gp];
-G_jac_Fcn = matlabFunction(G,'Vars',{x,cntrl},'File','G_jac_Fcn');
+matlabFunction(G,'Vars',{x,cntrl},'File','G_jac_Fcn');
 
 syms dT
 Q_Fcn = matlabFunction(Q,'Vars',dT,'File','Q_Fcn');
@@ -116,192 +97,139 @@ Q_Fcn = matlabFunction(Q,'Vars',dT,'File','Q_Fcn');
 
 % ---- Measurement Noise ---- %
 
-R = diag([sigmaN.Mag.x, sigmaN.Mag.y,sigmaN.Mag.z].^2);
-
-R_Fcn = matlabFunction(R,'Vars',dT,'File','R_Fcn');
+R = diag([0.7356117692017315, 0.6273443875505387, 0.7582585400442549].^2);
 
 %% Sensor Measurement
 
-% magVec = I_C_B'*(magVec0-[bias.Mag.x;bias.Mag.y;bias.Mag.z]);
-syms('magVec0',[3,1]);
-magVec = I_C_B'*(magVec0);
-% matlabFunction(magVec,'Vars',{x,cntrl},'File','magVec_Fcn');
+syms('magVec0Sym',[3,1]);
+magVec0 = [-10.732501411437989, 13.064998292922974, 35.80500106811523]';
+magVec = I_C_B'*(magVec0Sym);
 
 h = [magVec];
- 
+
  % Full measurement
-h_Fcn = matlabFunction(h,'Vars',{x,cntrl,magVec0},'File','h_Fcn');
+matlabFunction(h,'Vars',{x,magVec0Sym},'File','h_Fcn');
 
 % Jacobian
 H = jacobian(h,x);
-H_jac_Fcn = matlabFunction(H,'Vars',{x,cntrl,magVec0},'File','H_jac_Fcn');
+matlabFunction(H,'Vars',{x,magVec0Sym},'File','H_jac_Fcn');
 
-r0_ECEF = LatLonAlt2ECEF(flightData.Lat(1),flightData.Lon(1),flightData.Alt(1));
-[NED_C_ECEF] = TECEF2NED(r0_ECEF);
-r_ECEF = LatLonAlt2ECEF(flightData.Lat',flightData.Lon',flightData.Alt');
+% Z_input = [flightData.Gyr.x';...
+%            flightData.Gyr.y';...
+%            flightData.Gyr.z'];
+% 
+%  Z = [flightData.Mag.x';...
+%      flightData.Mag.y';...
+%      flightData.Mag.z'];
 
-r_NED = zeros(3,size(r_ECEF,2));
-for i=1:size(r_ECEF,2)
-    r_NED(:,i) = NED_C_ECEF*(r_ECEF(:,i)-r_ECEF(:,1));
-end
-
-idc = find(~isnan(flightData.Pressure));
-alt0 = pressure2alt(flightData.Pressure(idc(1)));
-alt = pressure2alt(flightData.Pressure);
-alt = -(alt-alt0);
-
-Z_input = [ % Acc
-           flightData.Acc.x';...
-           flightData.Acc.y';...
-           flightData.Acc.z';...
-           % Gyr
-           ([flightData.Gyr.x';...
-           flightData.Gyr.y';...
-           flightData.Gyr.z'] - ...
-           [bias.Gyr.x';...
-           bias.Gyr.y';...
-           bias.Gyr.z'])
-           ];
-
- Z =[r_NED;...
-     flightData.Speed';...
-     ([flightData.Mag.x';...
-     flightData.Mag.y';...
-     flightData.Mag.z']...
-     -[bias.Mag.x;bias.Mag.y;bias.Mag.z+37.87]);...
-     setAngle2Range(flightData.Heading');...
-     alt';...
-     ];
-
-end
-
-simOn = 0;
-
+simOn = 1;
 
 %% Initial Conditions
 
-dT = 0;
-
 clear xhat1u xhat1p P1u P1p
 
-% xs = transpose([N E D u v w phi theta psi]);
-
-xs0 = [0;0;0;...
-       10;0;0;...
-       Euler2Quat([0;0;180]*d2r)];
+[q0_est] = Euler2Quat([0;0;0]*d2r);
+xs0 = q0_est;
   
 xp0 = [];
    
 x0 = [xs0;xp0];
 
-Ps0 = diag([0;0;0;...
-            5;5;5;...
-            Euler2Quat([20;20;325]*d2r)].^2);
+Ps0 = diag((0.01*[1;1;1;1]).^2);
 Pp0 = diag([]);
 P0 = diag([diag(Ps0);diag(Pp0)]);
 
-
-
-%% Simulation Data
-if simOn
-cntrl  = [0;0;0;0;0;0];
-[tTrue,xTrue] = ode45(@f_cntrl_Fcn,[0:.001:10],[x0;cntrl]);
-xTrue =xTrue';
-
-n_measurements = length(tTrue);
-
-clear Z Z_input
-for i=1:n_measurements
-    Z(:,i) = h_Fcn(xTrue(1:10,i),xTrue(11:16,i));
-    Z_input(:,i) = cntrl;
-end
-
-end
 %% Initial Conditions
+
+n_measurements = 100;
+nInput = 3;
+nM = 3;
+delt = 1;
 
 % Instantiate Vars
 xhat1p = nan(n,n_measurements); P1p=nan(n,n,n_measurements);
 xhat1u = nan(n,n_measurements); P1u=nan(n,n,n_measurements);
+xhat_true = nan(n,n_measurements);
+Z_input = nan(nInput,n_measurements); Z_input_true = nan(nInput,n_measurements);
+Z = nan(nM,n_measurements); Z_true = nan(nM,n_measurements);
 
+[q0_true] = Euler2Quat([0;0;0]*d2r);
+xhat_true(:,1)=q0_true;
 xhat1u(:,1)=x0;P1u(:,:,1)=P0;
 
 %% Estimator
 
-condP = nan(n_measurements,1);
-
 tic
 for k=1:(n_measurements-1)
+
     % Display
     if mod(k,n_measurements)==0
         disp(num2str(100*k/n_measurements));
     end
-    
-    if simOn
-        delt = 0.001;
-    else
-        delt = (flightData.Time(k+1)-flightData.Time(k));
-    end
+
+    % Calculate Truth
+    Z_input_true(:,k) = randn(3,1)*1*d2r;
+    Z_input(:,k) = Z_input_true(:,k) + sqrt(Q)*randn(nInput,1);
+    xhat_true(:,k+1) = xhat_true(:,k) + delt*f_Fcn([xhat_true(:,k);Z_input_true(:,k)]);
+    Z_true(:,k+1) =  h_Fcn(xhat_true(:,k+1),magVec0) + sqrt(R)*randn(nM,1);
+    Z(:,k+1) = Z_true(:,k+1);
     
     % Predict State
-    xhat1p(:,k+1)=predict_stateparam_IN(xhat1u(:,k),Z_input(:,k),delt);
+    xhat1p(:,k+1) = xhat1u(:,k) + delt*f_Fcn([xhat1u(:,k);Z_input(:,k)]);
     
     % Normalize
-    xhat1p(7:10,k+1)=xhat1p(7:10,k+1)/norm(xhat1p(7:10,k+1));
+    xhat1p(1:4,k+1)=xhat1p(1:4,k+1)/norm(xhat1p(1:4,k+1));
 
     % Predict Covariance
-    [F] = getF_stateparam(xhat1u(:,k),Z_input(:,k),delt);
-    Q = Q_Fcn(dT);
+    Phi = Phi_Fcn(delt,[xhat1u(:,k);Z_input(:,k)]);
     G = G_jac_Fcn(xhat1u(:,k),Z_input(:,k));
-    P1p(1:n,1:n,k+1) = F*P1u(1:n,1:n,k)*F' + G*Q*G'*delt^2;
+    P1p(1:n,1:n,k+1) = Phi*P1u(1:n,1:n,k)*Phi' + G*Q*G'*delt^2;
     
     
     % Kalman Gain
-    H = H_jac_Fcn(xhat1p(:,k+1),Z_input(:,k+1));
-    R = R_Fcn(dT);
-    
-    % Baro Logic
-    if isnan(Z(9,k+1))
-        isBaro=0;
-        R = R(1:8,1:8);
-        H = H(1:8,:);
-    else
-        isBaro=1;
-    end
+    H = H_jac_Fcn(xhat1p(:,k+1),magVec0);
     
     K = P1p(1:n,1:n,k+1)*H'/(H*P1p(1:n,1:n,k+1)*H' + R);
     
     % Predicted Measurement
-    h_current = h_Fcn(xhat1p(:,k+1),Z_input(:,k+1));
+    h_current = h_Fcn(xhat1p(:,k+1),magVec0);
+    hSave(:,k) = h_current;
     
     % Current Measurement
     z_current = Z(:,k+1);
     
-    % Heading Residual Correction
-    res_heading = z_current(8)-h_current(8);
-    if res_heading > pi
-        res_heading = res_heading - 2*pi;
-    elseif res_heading < -pi
-        res_heading = res_heading + 2*pi;
-    end
-    
     res_current = z_current-h_current;
-    res_current(8,:) = res_heading;
-    
-    % Baro Logic
-    if isBaro
-    else
-        res_current = res_current(1:8);
-    end
     
     % Update
     xhat1u(:,k+1) = xhat1p(:,k+1) + K *res_current;
     P1u(1:n,1:n,k+1) = (eye(n)-K*H)*P1p(1:n,1:n,k+1)*(eye(n)-K*H)' + K*R*K';
     
     % Normalize
-    xhat1u(7:10,k+1)=xhat1u(7:10,k+1)/norm(xhat1u(7:10,k+1));
+    xhat1u(1:4,k+1)=xhat1u(1:4,k+1)/norm(xhat1u(1:4,k+1));
     
-    [ex,ey,ez] = Quat2base(xhat1u(7:10,k+1));
-    
+%     [ex,ey,ez] = Quat2base(xhat1u(1:4,k+1));
+    [Euler_est(:,k)] = Quat2Euler(xhat1u(1:4,k+1));
+    [Euler_true(:,k)] = Quat2Euler(xhat_true(1:4,k+1));
     
 end
 toc
+
+%% Plots
+time = delt*(0:(n_measurements-2));
+
+figure
+plot(time,Euler_est)
+hold on
+plot(time,Euler_true,'--')
+xlabel('Time'); ylabel('Euler');
+legend('R Est','P Est','Y Est','R True','P True','Y True')
+
+figure
+plot(time,hSave)
+hold on
+plot(time,Z(:,2:end),'--')
+xlabel('Time'); ylabel('Mag');
+legend('X mag','Y mag','Z mag','X mag True','Y mag True','Z mag True')
+
+
+

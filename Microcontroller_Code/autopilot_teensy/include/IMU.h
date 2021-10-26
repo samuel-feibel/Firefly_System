@@ -10,13 +10,10 @@ class wrapIMU
 {
 private:
   // --- Biases --- //
-  const float BIAS_GYR_X = -0.0515; // deg/s
-  const float BIAS_GYR_Y = -1.5822; // deg/s
-  const float BIAS_GYR_Z = -0.3067; // deg/s
+  const float BIAS_GYR [3] = {0.07251906394958496, 1.6412214636802673, 0.3396944999694824}; // deg/s
 
-  const float BIAS_MAG_X = -14.6250;  // uT
-  const float BIAS_MAG_Y = -19.6500; // uT
-  const float BIAS_MAG_Z = 9.6750;  // uT
+  const float BIAS_MAG [3] = {-12.225000381469727, -19.350001335144043, 8.775001525878906};  // uT
+
 
   // Protobuf
   IMUStruct& IMU_struct;

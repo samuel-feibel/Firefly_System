@@ -25,11 +25,9 @@ x = []
 y0 = []
 y1 = []
 y2 = []
-h0 = []
-h1 = []
-h2 = []
 bias = [0,0,0]
-magVec0 = [0,0,0]
+vec0 = [0,0,0]
+std0 = [0,0,0]
 
 r2d = 180/np.pi
 
@@ -39,7 +37,7 @@ figure, axs = plt.subplots(figsize=(8,6))
 
 t = time.time()
 # do stuff
-recentWindow = 20
+recentWindow = 50
 
 while True:
     c = ser.readline()
@@ -53,20 +51,15 @@ while True:
 
         # Euler = [phi;theta;psi];
         x.append(pack.mcTime)
-        y0.append(pack.sensors.IMU.mag[0])
-        y1.append(pack.sensors.IMU.mag[1])
-        y2.append(pack.sensors.IMU.mag[2])
-        h0.append(pack.stateEstimator.xhat[4])
-        h1.append(pack.stateEstimator.xhat[5])
-        h2.append(pack.stateEstimator.xhat[6])
-         
+        y0.append(pack.sensors.IMU.rawMag[0])
+        y1.append(pack.sensors.IMU.rawMag[1])
+        y2.append(pack.sensors.IMU.rawMag[2])
+
         axs.clear()
         axs.plot(x, y0, 'r', label = "x")
         axs.plot(x, y1, 'g', label = "y")
         axs.plot(x, y2, 'b', label = "z")
-        axs.plot(x, h0, 'r--')
-        axs.plot(x, h1, 'g--')
-        axs.plot(x, h2, 'b--')
+
         axs.legend()
 
         ## Save Stuff
@@ -74,12 +67,17 @@ while True:
         bias[1] = (max(y1)+min(y1))/2
         bias[2] = (max(y2)+min(y2))/2
 
-        # print(bias)
+        print(bias)
 
-        magVec0[0] = np.mean(y0[len(y0)-recentWindow:len(y0)])
-        magVec0[1] = np.mean(y1[len(y1)-recentWindow:len(y1)])
-        magVec0[2] = np.mean(y2[len(y2)-recentWindow:len(y2)])
-        # print(magVec0)
+        vec0[0] = np.mean(y0[len(y0)-recentWindow:len(y0)])
+        vec0[1] = np.mean(y1[len(y1)-recentWindow:len(y1)])
+        vec0[2] = np.mean(y2[len(y2)-recentWindow:len(y2)])
+        # print(vec0)
+
+        std0[0] = np.std(y0[len(y0)-recentWindow:len(y0)])
+        std0[1] = np.std(y1[len(y1)-recentWindow:len(y1)])
+        std0[2] = np.std(y2[len(y2)-recentWindow:len(y2)])
+        # print(std0)
         
         figure.canvas.draw()
         

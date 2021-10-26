@@ -11,10 +11,10 @@
 #include <autopilot.pb.h>
 
 using namespace BLA;
-const int Ns = 10;
-const int Ninput = 6;
-const int Nm = 9;
-const Matrix<3, 1> magVec0 = {17.1864, 3.8436, 35.9023};
+const int Ns = 4;
+const int Ninput = 3;
+const int Nm = 3;
+const Matrix<3, 1> magVec0 = {-10.732501411437989, 13.064998292922974, 35.80500106811523};
 
 class stateEstimator
 {
@@ -26,7 +26,6 @@ private:
     // Estimator Variables
     Matrix<Ns, 1> xhat;
     Matrix<Ns, Ns> P;
-    Matrix<Ns, 6> G;
 
     void setAngle2Range(float &angle);
 
@@ -34,25 +33,25 @@ private:
 
     void get_I_C_B(Matrix<Ns, 1> &xhat, Matrix<3, 3> &I_C_B);
 
-    void f_Fcn(Matrix<Ns> &fxhatk_u, Matrix<6> &uk, Matrix<Ns> &f);
+    void f_Fcn(Matrix<Ns> &fxhatk_u, Matrix<Ninput> &uk, Matrix<Ns> &f);
 
-    void get_Phi(Matrix<Ns> &xhatk_u, Matrix<6> &uk, float delt, Matrix<Ns, Ns> &Phi);
+    void get_Phi(Matrix<Ns> &xhatk_u, Matrix<Ninput> &uk, float delt, Matrix<Ns, Ns> &Phi);
 
-    void get_Q(float dT, Matrix<6, 6> &Q);
+    void get_Q(Matrix<Ninput, Ninput> &Q);
 
-    void get_R(float dT, Matrix<9, 9> &R);
+    void get_R(Matrix<Nm, Nm> &R);
 
-    void get_H_jac(Matrix<Ns> &xhat, Matrix<9, Ns> &H_jac);
+    void get_H_jac(Matrix<Ns> &xhat, Matrix<Nm, Ns> &H_jac);
 
-    void get_G_jac(Matrix<Ns> &xhat, Matrix<Ns, 6> &G_jac);
+    void get_G_jac(Matrix<Ns> &xhat, Matrix<Ns, Ninput> &G_jac);
 
     void h_fcn(Matrix<Ns> &xhat, Matrix<Nm> &h);
 
-    void predictState(float delt, Matrix<Ns> &xhat, Matrix<6> &uk);
+    void predictState(float delt, Matrix<Ns> &xhat, Matrix<Ninput> &uk);
 
-    void timeUpdate(float delt, Matrix<6> &Z_input);
+    void timeUpdate(float delt, Matrix<Ninput> &Z_input);
 
-    void measurementUpdate(Matrix<9> &Z);
+    void measurementUpdate(Matrix<Nm> &Z);
 
 public:
     stateEstimator(StateEstimatorStruct &_stateEstimator_struct);

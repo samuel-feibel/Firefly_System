@@ -13,8 +13,18 @@ void array2BLAMatrix(BLA::Matrix<6> &vec, float *arr);
 
 void array2BLAMatrix(BLA::Matrix<9> &vec, float *arr);
 
+void array2BLAMatrix(BLA::Matrix<4> &vec, float *arr);
+
+void array2BLAMatrix(BLA::Matrix<3> &vec, float *arr);
+
 void BLAMatrix2array(float *arr, BLA::Matrix<10> &vec);
 
 void BLAMatrix2arrayDiag(float *arr, BLA::Matrix<10,10> &vec);
+
+void BLAMatrix2array(float *arr, BLA::Matrix<4> &vec);
+
+void BLAMatrix2arrayDiag(float *arr, BLA::Matrix<4,4> &vec);
+
+void BLAMatrix2array(float *arr, BLA::Matrix<3> &vec);
 
 #endif

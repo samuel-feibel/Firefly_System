@@ -64,10 +64,10 @@ bool wrapSD::setup()
 
   if (!SD.begin(BUILTIN_SDCARD))
   {
-    Serial.println("No SD card detected");
+    // Serial.println("No SD card detected");
     return 0;
   }
-  Serial.println("Setting up SD card...Success");
+  // Serial.println("Setting up SD card...Success");
 
   if (!outputProtoBuf)
   {
