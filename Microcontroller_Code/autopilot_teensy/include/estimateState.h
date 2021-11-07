@@ -11,9 +11,9 @@
 #include <autopilot.pb.h>
 
 using namespace BLA;
-const int Ns = 4;
+const int Ns = 13;
 const int Ninput = 3;
-const int Nm = 3;
+const int Nm = 6;
 const Matrix<3, 1> magVec0 = {-10.732501411437989, 13.064998292922974, 35.80500106811523};
 
 class stateEstimator

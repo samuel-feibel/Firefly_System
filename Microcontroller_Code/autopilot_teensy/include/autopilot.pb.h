@@ -52,8 +52,8 @@ typedef struct _ModeStruct {
 
 /* State Estimator */
 typedef struct _StateEstimatorStruct { 
-    float xhat[10]; 
-    float P[10]; 
+    float xhat[16]; 
+    float P[16]; 
 } StateEstimatorStruct;
 
 /* Statuses */
@@ -71,7 +71,7 @@ typedef struct _SensorStruct {
     bool has_baro;
     BarometerStruct baro; 
     float z_input[6]; 
-    float z[9]; 
+    float z[10]; 
 } SensorStruct;
 
 /* Plane Object is highest */
@@ -97,16 +97,16 @@ extern "C" {
 #define GPSStruct_init_default                   {0, 0, 0, 0, 0, 0, {0, 0, 0}, 0, 0, 0, 0, 0, 0, 0, 0}
 #define IMUStruct_init_default                   {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
 #define BarometerStruct_init_default             {0, 0, 0, 0}
-#define SensorStruct_init_default                {false, GPSStruct_init_default, false, IMUStruct_init_default, false, BarometerStruct_init_default, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0}}
-#define StateEstimatorStruct_init_default        {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
+#define SensorStruct_init_default                {false, GPSStruct_init_default, false, IMUStruct_init_default, false, BarometerStruct_init_default, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
+#define StateEstimatorStruct_init_default        {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define StatusStruct_init_default                {0, 0}
 #define ModeStruct_init_default                  {0, 0}
 #define PlaneBuf_init_default                    {0, false, SensorStruct_init_default, false, StateEstimatorStruct_init_default, false, StatusStruct_init_default, false, ModeStruct_init_default, 0}
 #define GPSStruct_init_zero                      {0, 0, 0, 0, 0, 0, {0, 0, 0}, 0, 0, 0, 0, 0, 0, 0, 0}
 #define IMUStruct_init_zero                      {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
 #define BarometerStruct_init_zero                {0, 0, 0, 0}
-#define SensorStruct_init_zero                   {false, GPSStruct_init_zero, false, IMUStruct_init_zero, false, BarometerStruct_init_zero, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0}}
-#define StateEstimatorStruct_init_zero           {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
+#define SensorStruct_init_zero                   {false, GPSStruct_init_zero, false, IMUStruct_init_zero, false, BarometerStruct_init_zero, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
+#define StateEstimatorStruct_init_zero           {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define StatusStruct_init_zero                   {0, 0}
 #define ModeStruct_init_zero                     {0, 0}
 #define PlaneBuf_init_zero                       {0, false, SensorStruct_init_zero, false, StateEstimatorStruct_init_zero, false, StatusStruct_init_zero, false, ModeStruct_init_zero, 0}
@@ -259,9 +259,9 @@ extern const pb_msgdesc_t PlaneBuf_msg;
 #define GPSStruct_size                           124
 #define IMUStruct_size                           75
 #define ModeStruct_size                          22
-#define PlaneBuf_size                            442
-#define SensorStruct_size                        297
-#define StateEstimatorStruct_size                100
+#define PlaneBuf_size                            508
+#define SensorStruct_size                        302
+#define StateEstimatorStruct_size                160
 #define StatusStruct_size                        4
 
 #ifdef __cplusplus

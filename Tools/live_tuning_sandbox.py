@@ -49,6 +49,7 @@ while True:
         except DecodeError:
             ...
 
+        print(pack.sensors.IMU.gyr)
         # Euler = [phi;theta;psi];
         x.append(pack.mcTime)
         y0.append(pack.sensors.IMU.rawMag[0])
@@ -66,7 +67,6 @@ while True:
         bias[0] = (max(y0)+min(y0))/2
         bias[1] = (max(y1)+min(y1))/2
         bias[2] = (max(y2)+min(y2))/2
-
         print(bias)
 
         vec0[0] = np.mean(y0[len(y0)-recentWindow:len(y0)])

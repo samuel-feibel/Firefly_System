@@ -33,13 +33,17 @@ void plane::setup()
 
   // Last
   // wdt_enable(WDTO_60MS); // This needs to be last
-  prevLoopTime = millis();
+  prevLoopTime = millis() + 50000;
   prevSerLoopTime = millis();
+
+   myWrapSD.open();
+
 }
 
 void plane::loop()
 {
-  if ((millis() - prevLoopTime) > 100)
+  
+  if ((millis() - prevLoopTime) > 10)
   {
 
     plane_buf.delt = (millis() - prevLoopTime) / 1000.0;
@@ -58,15 +62,13 @@ void plane::loop()
     // Read Reciever
 
     // Update State Estimate
-    // myStateEstimator.init();                          // THIS IS A DEBUG STEP
+    myStateEstimator.init();                          // THIS IS A DEBUG STEP
     myStateEstimator.step(plane_buf.delt, &plane_buf.sensors.z_input[0], &plane_buf.sensors.z[0]);
 
     // DEBUG
     if (card_detected)
     {
-      myWrapSD.open();
       myWrapSD.writeData();
-      myWrapSD.close();
     }
 
     /*
@@ -105,6 +107,8 @@ void plane::loop()
   }
 
 if (millis()-prevSerLoopTime > 500){
+  myWrapSD.close();
+
   prevSerLoopTime = millis();
   // write data
   uint8_t packet_buffer[512];
@@ -114,8 +118,10 @@ if (millis()-prevSerLoopTime > 500){
   int packet_length = stream.bytes_written;
   // Serial.println(packet_length);
 
-  Serial.println(base64_encode(packet_buffer, packet_length).c_str());
+  // Serial.println(base64_encode(packet_buffer, packet_length).c_str());
 
-  // Serial << millis() << ',' << 5 << endl;
+  // Serial.println(plane_buf.delt,5);
+
+  myWrapSD.open();
 }
 }

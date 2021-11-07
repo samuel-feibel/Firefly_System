@@ -96,7 +96,34 @@ void BLAMatrix2arrayDiag(float *arr, BLA::Matrix<4, 4> &vec)
     }
 }
 
+void BLAMatrix2array(float *arr, BLA::Matrix<13> &vec)
+{
+    for (int i = 0; i < vec.Rows; i++)
+    {
+        *arr = vec(i);
+        ++arr;
+    }
+}
+
+void BLAMatrix2arrayDiag(float *arr, BLA::Matrix<13, 13> &vec)
+{
+    for (int i = 0; i < vec.Rows; i++)
+    {
+        *arr = vec(i, i);
+        ++arr;
+    }
+}
+
 void BLAMatrix2array(float *arr, BLA::Matrix<3> &vec)
+{
+    for (int i = 0; i < vec.Rows; i++)
+    {
+        *arr = vec(i);
+        ++arr;
+    }
+}
+
+void BLAMatrix2array(float *arr, BLA::Matrix<6> &vec)
 {
     for (int i = 0; i < vec.Rows; i++)
     {

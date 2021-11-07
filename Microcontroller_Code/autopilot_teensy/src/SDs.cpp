@@ -73,7 +73,7 @@ bool wrapSD::setup()
   {
     // First Log Entry
     myFile = SD.open("dataLog.txt", FILE_WRITE);
-    myFile.println("================================ Starting Log =================================");
+    myFile.println("================================ Starting Log Protobuf =================================");
     myFile.print("Current Time: ");
     myFile.print(plane_buf.sensors.GPS.year);
     myFile.print("-");
@@ -159,8 +159,8 @@ void wrapSD::writeData()
       myFile.print(millis());
       myFile.print(", ");
       writeVec(&plane_buf.sensors.IMU.acc[0], 3);
-      writeVec(&plane_buf.sensors.IMU.rawGyr[0], 3);
-      writeVec(&plane_buf.sensors.IMU.rawMag[0], 3);
+      writeVec(&plane_buf.sensors.IMU.gyr[0], 3);
+      writeVec(&plane_buf.sensors.IMU.mag[0], 3);
 
       writeFormattedFloat(plane_buf.sensors.baro.temperature, 5, 2);
       myFile.print(", ");

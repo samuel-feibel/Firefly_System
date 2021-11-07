@@ -25,6 +25,12 @@ void BLAMatrix2array(float *arr, BLA::Matrix<4> &vec);
 
 void BLAMatrix2arrayDiag(float *arr, BLA::Matrix<4,4> &vec);
 
+void BLAMatrix2array(float *arr, BLA::Matrix<13> &vec);
+
+void BLAMatrix2arrayDiag(float *arr, BLA::Matrix<13,13> &vec);
+
 void BLAMatrix2array(float *arr, BLA::Matrix<3> &vec);
+
+void BLAMatrix2array(float *arr, BLA::Matrix<6> &vec);
 
 #endif
