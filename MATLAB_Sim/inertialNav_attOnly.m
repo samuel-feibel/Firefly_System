@@ -24,6 +24,7 @@ syms q1 q2 q3 q4 N E D vN vE vD real
 xs = transpose([q1 q2 q3 q4 N E D vN vE vD]);
 ns = length(xs);
 
+syms D_baro_bias
 xp = transpose([]);
 np = length(xp);
 
@@ -159,7 +160,8 @@ matlabFunction(Q,'Vars',dT,'File','Q_Fcn');
 
 R = diag([...
             0.7356117692017315, 0.6273443875505387, 0.7582585400442549,...
-            1,1,1,...
+            3,3,5,...   % GPS NED
+            .5,...      % baro alt
             ].^2);
 
 %% Sensor Measurement
@@ -170,6 +172,7 @@ magVec = I_C_B'*(magVec0Sym);
 
 h = [magVec;...
      N;E;D;...
+     D;...
      ];
  % Full measurement
 matlabFunction(h,'Vars',{x,magVec0Sym},'File','h_Fcn');
@@ -193,7 +196,7 @@ matlabFunction(H,'Vars',{x,magVec0Sym},'File','H_jac_Fcn');
 
 clear xhat1u xhat1p P1u P1p
 
-[q0_est] = Euler2Quat([0;0;0]*d2r);
+[q0_est] = Euler2Quat([0;0;180]*d2r);
 xs0 = [q0_est;...
        [0;0;0];...
        [0;0;0];...
@@ -205,8 +208,8 @@ xp0 = [];
 x0 = [xs0;xp0];
 
 Ps0 = diag([0.5*[1;1;1;1];...
-            [1;1;1];...
-            [.5;.5;.5];...
+            [0;0;0];...
+            [0;0;0];...
             ].^2);
 Pp0 = diag([]);
 P0 = diag([diag(Ps0);diag(Pp0)]);
@@ -217,22 +220,23 @@ nM = size(h,1);
 %% Initial Conditions
 if ~simOn
     if ~exist('flightData','var')
-        flightData = loadFlightData(fullfile('DataFiles','20211103_stationary.txt'));
+        flightData = loadFlightData(fullfile('DataFiles','20211109_outsideStationary2.txt'));
     end
     n_measurements = length(flightData.Time);
     
 %     stationaryTime = 5; %s
 %     [~,indST] = min(abs(flightData.Time-stationaryTime));
     indST = 1000;
-    gravVec0 = mean(flightData.Acc(1:indST,:))';
-    magVec0 = mean(flightData.Mag(1:indST,:))';
-%         gravVec0 = [0.0775028327293694, -0.03650009836070239, -9.845733795166016]';
-%     magVec0 = [-10.732501411437989, 13.064998292922974, 35.80500106811523]';
+%     gravVec0 = mean(flightData.IMU.Acc(1:indST,:))';
+%     magVec0 = mean(flightData.IMU.Mag(1:indST,:))';
+    gravVec0 = [0;0;-9.8067];
+    magVec0 = [19814.6,-5046.4,47408.0]'*1E-3;
 
-    Z(1:3,:) = flightData.Mag';
-    Z(4:6,:) = zeros(3,n_measurements);
-    uInput(1:3,:) = flightData.Gyr';
-    uInput(4:6,:) = flightData.Acc';
+    Z(1:3,:) = flightData.IMU.Mag';
+    Z(4:6,:) = [flightData.GPS.NED(:,2:3)';zeros(1,n_measurements)];
+    Z(7,:) = flightData.baro.Alt';
+    uInput(1:3,:) = flightData.IMU.Gyr';
+    uInput(4:6,:) = flightData.IMU.Acc';
 else
     gravVec0 = [0.0775028327293694, -0.03650009836070239, -9.845733795166016]';
     magVec0 = [-10.732501411437989, 13.064998292922974, 35.80500106811523]';
@@ -383,8 +387,8 @@ for i = 1:size(y1,1)
     end
     % Cov
     if ~isempty(P1)
-    plot(x,2*sqrt(squeeze(P1(i,i,:))),'-','Color',[0.8500 0.3250 0.0980])
-    plot(x,-2*sqrt(squeeze(P1(i,i,:))),'-','Color',[0.8500 0.3250 0.0980])
+    plot(x,y1(i,:)'+2*sqrt(squeeze(P1(i,i,:))),'-','Color',[0.8500 0.3250 0.0980])
+    plot(x,y1(i,:)'-2*sqrt(squeeze(P1(i,i,:))),'-','Color',[0.8500 0.3250 0.0980])
     end
     if (i==1); title(TITLE); end
 end

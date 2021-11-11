@@ -42,6 +42,7 @@ private:
     int prevAuxMode;
     bool card_detected;
 
+
 public:
     plane();
     void setup();

@@ -21,13 +21,15 @@ void plane::setup()
 
   // Less Critical
   Serial.begin(115200);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
   mySensor.setup();
   mySensor.update();
-  // while (plane_buf.sensors.GPS.hasLinearized==0 || plane_buf.sensors.baro.hasLinearized==0)
-  // {
-  //   delay(500);
-  //   mySensor.update();
-  // }
+  while (plane_buf.sensors.GPS.hasLinearized==0 || plane_buf.sensors.baro.hasLinearized==0)
+  {
+    delay(500);
+    mySensor.update();
+  }
   myStateEstimator.init();
   card_detected = myWrapSD.setup();
 
@@ -36,19 +38,23 @@ void plane::setup()
   prevLoopTime = millis() + 50000;
   prevSerLoopTime = millis();
 
-   myWrapSD.open();
-
+  //  myWrapSD.open();
 }
 
 void plane::loop()
 {
-  
-  if ((millis() - prevLoopTime) > 10)
+
+  if ((millis() - prevLoopTime) > 100)
   {
 
     plane_buf.delt = (millis() - prevLoopTime) / 1000.0;
     prevLoopTime = millis();
     plane_buf.mcTime = millis() / 1000.0;
+
+    if (plane_buf.sensors.baro.hasLinearized && plane_buf.sensors.GPS.hasLinearized)
+    {
+      digitalWrite(LED_BUILTIN, HIGH);
+    }
 
     // Update Sensors
     mySensor.update();
@@ -62,13 +68,15 @@ void plane::loop()
     // Read Reciever
 
     // Update State Estimate
-    myStateEstimator.init();                          // THIS IS A DEBUG STEP
+    myStateEstimator.init(); // THIS IS A DEBUG STEP
     myStateEstimator.step(plane_buf.delt, &plane_buf.sensors.z_input[0], &plane_buf.sensors.z[0]);
 
     // DEBUG
     if (card_detected)
     {
+      myWrapSD.open();
       myWrapSD.writeData();
+      myWrapSD.close();
     }
 
     /*
@@ -106,22 +114,21 @@ void plane::loop()
 */
   }
 
-if (millis()-prevSerLoopTime > 500){
-  myWrapSD.close();
+  if (millis() - prevSerLoopTime > 500)
+  {
 
-  prevSerLoopTime = millis();
-  // write data
-  uint8_t packet_buffer[512];
-  pb_ostream_t stream = pb_ostream_from_buffer(packet_buffer, sizeof(packet_buffer));
+    prevSerLoopTime = millis();
+    // write data
+    uint8_t packet_buffer[512];
+    pb_ostream_t stream = pb_ostream_from_buffer(packet_buffer, sizeof(packet_buffer));
 
-  bool status = pb_encode(&stream, PlaneBuf_fields, &plane_buf);
-  int packet_length = stream.bytes_written;
-  // Serial.println(packet_length);
+    bool status = pb_encode(&stream, PlaneBuf_fields, &plane_buf);
+    int packet_length = stream.bytes_written;
+    // Serial.println(packet_length);
 
-  // Serial.println(base64_encode(packet_buffer, packet_length).c_str());
+    Serial.println(base64_encode(packet_buffer, packet_length).c_str());
+    // Serial.println(plane_buf.sensors.IMU.mag[0]);
 
-  // Serial.println(plane_buf.delt,5);
-
-  myWrapSD.open();
-}
+    // Serial.println(plane_buf.delt,5);
+  }
 }

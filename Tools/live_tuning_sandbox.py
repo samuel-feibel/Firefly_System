@@ -39,17 +39,17 @@ t = time.time()
 # do stuff
 recentWindow = 50
 
+
 while True:
     c = ser.readline()
-    
+
     if c:
-        # print(c)
+
         try:
             pack.ParseFromString(base64.decodebytes(c))
         except DecodeError:
             ...
 
-        print(pack.sensors.IMU.gyr)
         # Euler = [phi;theta;psi];
         x.append(pack.mcTime)
         y0.append(pack.sensors.IMU.rawMag[0])

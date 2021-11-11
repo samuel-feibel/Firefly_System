@@ -104,13 +104,13 @@ void wrapGPS::update()
     // Calculate NED
     Matrix <3> r_NED;
     LatLonAlt2NED_Fcn(GPS_struct.lat,GPS_struct.lon, GPS_struct.alt,NED_C_ECEF0, r_NED);
-    for (int i = 1; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
         GPS_struct.position_NED[i] = r_NED(i);
     }
 
     // Set origin for linearization
-    if ( (GPS_struct.SIV > 2) && GPS_struct.hasLinearized==0){
+    if ( (GPS_struct.SIV > 5) && GPS_struct.hasLinearized==0){
         LatLonAlt2ECEF_Fcn(GPS_struct.lat, GPS_struct.lon, GPS_struct.alt, r0_ECEF);
         TECEF2NED_Fcn(r0_ECEF, NED_C_ECEF0);
         GPS_struct.hasLinearized = 1;

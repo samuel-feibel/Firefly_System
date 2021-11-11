@@ -1,6 +1,7 @@
 #include <SDs.h>
 
 #define outputProtoBuf 0
+#define sigFigs 7
 
 wrapSD::wrapSD(PlaneBuf &_plane_buf) : plane_buf(_plane_buf) {}
 
@@ -49,7 +50,7 @@ void wrapSD::writeVec(float *vec, int size)
 {
   for (int i = 0; i < size; i++)
   {
-    writeFormattedFloat(*vec, 5, 2);
+    myFile.print(*vec, sigFigs);
     myFile.print(", ");
     ++vec;
   }
@@ -89,15 +90,21 @@ bool wrapSD::setup()
     myFile.println("");
     // Data Type Header
     myFile.print("Time (ms), ");
-    myFile.print("Scaled. Acc x (mg), ");
-    myFile.print("Scaled. Acc y (mg), ");
-    myFile.print("Scaled. Acc z (mg), ");
-    myFile.print("Gyr (DPS) x, ");
-    myFile.print("Gyr (DPS) y, ");
-    myFile.print("Gyr (DPS) z, ");
+    myFile.print("Acc x (m/s^2), ");
+    myFile.print("Acc y (m/s^2), ");
+    myFile.print("Acc z (m/s^2), ");
+    myFile.print("Gyr (rad/s) x, ");
+    myFile.print("Gyr (rad/s) y, ");
+    myFile.print("Gyr (rad/s) z, ");
     myFile.print("Mag (uT) x, ");
     myFile.print("Mag (uT) y, ");
     myFile.print("Mag (uT) z, ");
+    myFile.print("rawGyr (deg/s) x, ");
+    myFile.print("rawGyr (deg/s) y, ");
+    myFile.print("rawGyr (deg/s) z, ");
+    myFile.print("rawMag (uT) x, ");
+    myFile.print("rawMag (uT) y, ");
+    myFile.print("rawMag (uT) z, ");
     myFile.print("Tmp (C), ");
     myFile.print("Lat, ");
     myFile.print("Lon, ");
@@ -106,23 +113,27 @@ bool wrapSD::setup()
     myFile.print("Heading (degrees * 10^-5), ");
     myFile.print("pDOP, ");
     myFile.print("SIV, ");
+    myFile.print("N_GPS, ");
+    myFile.print("E_GPS, ");
+    myFile.print("D_GPS, ");
     myFile.print("Pressure (hPa), ");
+    myFile.print("Alt_baro, ");
     myFile.print("Reciever Throttle Val (0-180), ");
     myFile.print("Reciever Aileron Servo (deg), ");
     myFile.print("Reciever Elevator Servo (deg), ");
     myFile.print("Reciever Rudder Servo (deg), ");
     myFile.print("Auto Mode (deg), ");
-    myFile.print("Aux Mode,");
-    myFile.print("N, ");
-    myFile.print("E, ");
-    myFile.print("D, ");
-    myFile.print("u, ");
-    myFile.print("v, ");
-    myFile.print("w, ");
-    myFile.print("q1, ");
-    myFile.print("q2, ");
-    myFile.print("q3, ");
-    myFile.print("q4, ");
+    myFile.print("Aux Mode, ");
+    myFile.print("N_est, ");
+    myFile.print("E_est, ");
+    myFile.print("D_est, ");
+    myFile.print("u_est, ");
+    myFile.print("v_est, ");
+    myFile.print("w_est, ");
+    myFile.print("q1_est, ");
+    myFile.print("q2_est, ");
+    myFile.print("q3_est, ");
+    myFile.print("q4_est, ");
     myFile.print("Servo Throttle Val (0-180), ");
     myFile.print("Servo Aileron Servo (deg), ");
     myFile.print("Servo Elevator Servo (deg), ");
@@ -156,31 +167,35 @@ void wrapSD::writeData()
     else
     {
       // --- IMU --- //
-      myFile.print(millis());
+      myFile.print(plane_buf.mcTime, sigFigs);
       myFile.print(", ");
       writeVec(&plane_buf.sensors.IMU.acc[0], 3);
       writeVec(&plane_buf.sensors.IMU.gyr[0], 3);
       writeVec(&plane_buf.sensors.IMU.mag[0], 3);
-
-      writeFormattedFloat(plane_buf.sensors.baro.temperature, 5, 2);
+      writeVec(&plane_buf.sensors.IMU.rawGyr[0], 3);
+      writeVec(&plane_buf.sensors.IMU.rawMag[0], 3);
+      myFile.print(plane_buf.sensors.baro.temperature, sigFigs);
       myFile.print(", ");
       // -- GPS --- //
-      myFile.print(plane_buf.sensors.GPS.lat);
+      myFile.print(plane_buf.sensors.GPS.lat, sigFigs);
       myFile.print(", ");
-      myFile.print(plane_buf.sensors.GPS.lon);
+      myFile.print(plane_buf.sensors.GPS.lon, sigFigs);
       myFile.print(", ");
-      myFile.print(plane_buf.sensors.GPS.alt);
+      myFile.print(plane_buf.sensors.GPS.alt, sigFigs);
       myFile.print(", ");
-      myFile.print(plane_buf.sensors.GPS.groundSpeed);
+      myFile.print(plane_buf.sensors.GPS.groundSpeed, sigFigs);
       myFile.print(", ");
-      myFile.print(plane_buf.sensors.GPS.heading);
+      myFile.print(plane_buf.sensors.GPS.heading, sigFigs);
       myFile.print(", ");
       myFile.print(0.00); // PDOP is null
       myFile.print(", ");
       myFile.print(plane_buf.sensors.GPS.SIV);
       myFile.print(", ");
+      writeVec(&plane_buf.sensors.GPS.position_NED[0], 3);
       // -- Barometer --//
-      myFile.print(plane_buf.sensors.baro.pressure);
+      myFile.print(plane_buf.sensors.baro.pressure, sigFigs);
+      myFile.print(", ");
+      myFile.print(plane_buf.sensors.baro.alt, sigFigs);
       myFile.print(", ");
       // -- Receiver Inputs --- //
       myFile.print(0);
