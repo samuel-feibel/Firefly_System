@@ -24,8 +24,8 @@ syms q1 q2 q3 q4 N E D vN vE vD real
 xs = transpose([q1 q2 q3 q4 N E D vN vE vD]);
 ns = length(xs);
 
-syms D_baro_bias
-xp = transpose([]);
+syms mag_bias_x mag_bias_y mag_bias_z
+xp = transpose([mag_bias_x mag_bias_y mag_bias_z]);
 np = length(xp);
 
 x = [xs;xp];
@@ -51,39 +51,6 @@ matlabFunction(I_C_B,'Vars',{qVec},'File','I_C_B_Fcn');
 
 syms('gravVec0Sym',[3,1]);
 gravVec = I_C_B'*(gravVec0Sym);
-
-%{ 
-%velocity is in body frame (doesn't work)
-% Dynamics
-fs = [
-    % Angles
-    0;0;0;0; ...
-    % NED
-    I_C_B*[u;v;w];...
-    % Velocity
-    (-cross([p;q;r],[u;v;w]));...
-    ];
-
-% Inputs
-fs = fs + [
-            % Angles
-            1/2*qXi([q1,q2,q3,q4]')*[p,q,r]';...
-            % NED
-            0;0;0;...
-            % Velocity
-            ([fx;fy;fz]-gravVec);...
-            ];
-
-% Noise
-fs_true = fs + [
-            % Angles
-            1/2*qXi([q1,q2,q3,q4]')*[pn,qn,rn]';...
-            % NED
-            0;0;0;...
-            % Velocity
-            [axn; ayn; azn ];...
-            ];
-%}
 
 % Dynamics
 fs = [
@@ -137,19 +104,21 @@ matlabFunction(Phi,'Vars',{delt,x,cntrl,gravVec0Sym},'File','Phi_Fcn');
 
 % States
 Qs = diag([...
-            0.0189845388442364, 0.020660226476864607, 0.02769334420437668,...
-            0.06622349896195277, 0.08050395576102345, 0.053307049839142584,...
+            0.0189845388442364, 0.020660226476864607, 0.02769334420437668,...   % gyro
+            50*[0.06622349896195277, 0.08050395576102345, 0.053307049839142584],...  % accel
             ].^2);
-Gs = jacobian(f_true,noise);
+Gs = jacobian(fs_true,noise);
 
 
 % Parameters
-Qp = [];
-Gp = zeros(np,size(Gs,2));
+Qp = diag([...
+           0*[1,1,1]...   % mag bias
+            ]);
+Gp = eye(np);
 
 % Combine
 Q = blkdiag(Qs,Qp);
-G = [Gs;Gp];
+G = blkdiag(Gs,Gp);
 matlabFunction(G,'Vars',{x},'File','G_jac_Fcn');
 
 syms dT
@@ -159,9 +128,9 @@ matlabFunction(Q,'Vars',dT,'File','Q_Fcn');
 % ---- Measurement Noise ---- %
 
 R = diag([...
-            0.7356117692017315, 0.6273443875505387, 0.7582585400442549,...
+            (10*[0.7356117692017315, 0.6273443875505387, 0.7582585400442549]),...   % mag
             3,3,5,...   % GPS NED
-            .5,...      % baro alt
+            .1,...      % baro alt
             ].^2);
 
 %% Sensor Measurement
@@ -170,7 +139,7 @@ syms('magVec0Sym',[3,1]);
 magVec = I_C_B'*(magVec0Sym);
 
 
-h = [magVec;...
+h = [(magVec-[mag_bias_x;mag_bias_y;mag_bias_z]);...
      N;E;D;...
      D;...
      ];
@@ -203,7 +172,7 @@ xs0 = [q0_est;...
        ];
 
   
-xp0 = [];
+xp0 = [0;0;0];
    
 x0 = [xs0;xp0];
 
@@ -211,7 +180,7 @@ Ps0 = diag([0.5*[1;1;1;1];...
             [0;0;0];...
             [0;0;0];...
             ].^2);
-Pp0 = diag([]);
+Pp0 = diag(10*[1,1,1]);
 P0 = diag([diag(Ps0);diag(Pp0)]);
 
 nInput = length(cntrl);
@@ -220,7 +189,7 @@ nM = size(h,1);
 %% Initial Conditions
 if ~simOn
     if ~exist('flightData','var')
-        flightData = loadFlightData(fullfile('DataFiles','20211109_outsideStationary2.txt'));
+        flightData = loadFlightData(fullfile('DataFiles','20211110_walkingAround.txt'));
     end
     n_measurements = length(flightData.Time);
     
@@ -233,7 +202,7 @@ if ~simOn
     magVec0 = [19814.6,-5046.4,47408.0]'*1E-3;
 
     Z(1:3,:) = flightData.IMU.Mag';
-    Z(4:6,:) = [flightData.GPS.NED(:,2:3)';zeros(1,n_measurements)];
+    Z(4:6,:) = flightData.GPS.NED';
     Z(7,:) = flightData.baro.Alt';
     uInput(1:3,:) = flightData.IMU.Gyr';
     uInput(4:6,:) = flightData.IMU.Acc';
@@ -349,7 +318,19 @@ if ~simOn
     plotMult(time,xhat1u(8:10,:),[],P1u(8:10,8:10,:),'Vel')
     xlabel('Time');
 
+    figure
+    plotMult(time,xhat1u(11:13,:),[],P1u(11:13,11:13,:),'Mag Bias')
+    xlabel('Time');
 
+    figure
+    plotMult(time,Z(4:6,:),[],[],'GPS NED')
+    xlabel('Time');
+
+    figure
+    plot(time,Z(7,:)); title('Baro')
+    xlabel('Time');
+
+    autoArrangeFigures(3,3,1);
 
 
 else
@@ -370,6 +351,8 @@ else
     figure
     plotMult(time,xhat1u(8:10,:),xhat_true(8:10,:),P1u(8:10,8:10,:),'Vel')
     xlabel('Time');
+
+
 end
 
 function plotMult(x,y1,y2,P1,TITLE)
@@ -391,9 +374,10 @@ for i = 1:size(y1,1)
     plot(x,y1(i,:)'-2*sqrt(squeeze(P1(i,i,:))),'-','Color',[0.8500 0.3250 0.0980])
     end
     if (i==1); title(TITLE); end
+    grid on;
 end
 if ~isempty(y2)
     legend('Est','True')
 end
-
+set(gcf,'color','w');
 end
