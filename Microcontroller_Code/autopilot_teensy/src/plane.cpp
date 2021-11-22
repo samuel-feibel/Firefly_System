@@ -2,9 +2,10 @@
 // Includes
 #include <plane.h>
 
-plane::plane() : plane_buf(), mySensor(plane_buf.sensors), myStateEstimator(plane_buf.stateEstimator), myWrapSD(plane_buf) //, myRcComm(plane_buf.mode,plane_buf.reciever,plane_buf.servos)
+plane::plane() : plane_buf(), mySensor(plane_buf.sensors), myStateEstimator(plane_buf.stateEstimator), myWrapSD(plane_buf), myRcComm(plane_buf.mode,plane_buf.reciever,plane_buf.servos)
 {
   // --- Protobufs --- //
+  
 
   // Sensors
   plane_buf.has_sensors = true;
@@ -17,17 +18,20 @@ void plane::setup()
 {
   // Critical
   Serial.begin(115200);
-  // myRcComm.setup();
+  
+
+  myRcComm.setup();
 
   // Less Critical
 
   mySensor.setup();
   mySensor.update();
-  while (plane_buf.sensors.GPS.hasLinearized==0 || plane_buf.sensors.baro.hasLinearized==0)
-  {
-    delay(500);
-    mySensor.update();
-  }
+  // while (plane_buf.sensors.GPS.hasLinearized==0 || plane_buf.sensors.baro.hasLinearized==0)
+  // {
+  //   delay(500);
+  //   mySensor.update();
+  // }
+
   myStateEstimator.init();
   card_detected = myWrapSD.setup();
 
@@ -54,8 +58,7 @@ void plane::loop()
     mySensor.update();
 
     // Read Reciever
-    
-    // myRcComm.getRecieverSignals();
+    myRcComm.getRecieverSignals();
 
 
     // Update State Estimate
@@ -100,6 +103,10 @@ void plane::loop()
 
 
 */
+
+    // Send Servo Controls
+    myRcComm.sendServoSignals();
+  
   }
 
   if (millis() - prevSerLoopTime > 500)
@@ -114,7 +121,5 @@ void plane::loop()
     int packet_length = stream.bytes_written;
 
     // Serial.println(base64_encode(packet_buffer, packet_length).c_str());
-    // Serial.println(plane_buf.reciever.rcVals[0]);
-    Serial.println("here");
   }
 }

@@ -19,6 +19,14 @@ void copy(int32_t *a, byte *b, int b_size)
     copy(++a, ++b, b_size - 1);
 }
 
+void copy(byte *a, int32_t *b, int b_size)
+{
+    if (b_size == 0)
+        return;
+    *a = int(*b);
+    copy(++a, ++b, b_size - 1);
+}
+
 void printArray(float *arr, int m)
 {
     for (int k = 0; k < m; k++)

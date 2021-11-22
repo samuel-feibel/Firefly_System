@@ -17,19 +17,52 @@ void rcComm::getRecieverSignals()
     // put your main code here, to run repeatedly:
     while (HWSERIAL.available() > 6)
     {
-
         HWSERIAL.readBytesUntil(200, buf, 8);
     }
 
-    for (int i=0; i<6; i++){
-        Serial.print(buf[i]);
-        Serial.print(",");
+    // Correct for some errors in transmitted signals
+    for (int i = 0; i < 6; i++)
+    {
+        if (buf[i] > 180)
+        {
+            buf[i] = prevRCsignal[i];
+        }
+        prevRCsignal[i] = buf[i];
     }
-    Serial.println("");
 
-    copy(&servo_struct.servoVals[0], &buf[0], 6);
+    // Copy receiver vals
+    copy(&reciever_struct.rcVals[0], &buf[0], 6);
 
-    // Some logic HERE
-    mode_struct.autoMode = int(buf[4]);
-    mode_struct.auxMode = int(buf[5]);
+    // Set Modes
+    mode_struct.autoMode = (buf[4] > 90);
+
+    if (buf[4] > 138)
+    {
+        mode_struct.auxMode = 1;
+    }
+    else if (buf[4] > 48)
+    {
+        mode_struct.auxMode = 2;
+    }
+    else
+    {
+        mode_struct.auxMode = 3;
+    }
+}
+
+void rcComm::sendServoSignals()
+{
+    servo_struct.servoVals[0] = 20;
+    servo_struct.servoVals[1] = 20;
+    servo_struct.servoVals[2] = 20;
+    servo_struct.servoVals[3] = 20;
+    servo_struct.servoVals[4] = 20;
+    servo_struct.servoVals[5] = 20;
+    
+    byte servoSignals[7];
+    copy(&servoSignals[0], &servo_struct.servoVals[0], 6);
+
+    // Transfer Data
+    servoSignals[6] = 200;
+    HWSERIAL.write(servoSignals, 7);
 }

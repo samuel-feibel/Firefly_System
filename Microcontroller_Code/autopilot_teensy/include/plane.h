@@ -23,7 +23,7 @@ private:
     Sensors mySensor;
     stateEstimator myStateEstimator;
     wrapSD myWrapSD; 
-    // rcComm myRcComm;
+    rcComm myRcComm;
 
     // --- Settings --- //
 

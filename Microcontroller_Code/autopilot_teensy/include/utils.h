@@ -7,6 +7,8 @@ void copy(float *a, float *b, int b_size);
 
 void copy(int32_t *a, byte *b, int b_size);
 
+void copy(byte *a, int32_t *b, int b_size);
+
 void printArray(float *arr,int m);
 
 float norm3(BLA::Matrix<3> x);

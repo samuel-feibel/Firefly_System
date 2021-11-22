@@ -16,6 +16,8 @@ private:
     ReceiverStruct &reciever_struct;
     ServosStruct &servo_struct;
 
+    byte prevRCsignal[6];
+
 
 public:
     rcComm(ModeStruct &_mode_struct, ReceiverStruct &_reciever_struct, ServosStruct &_servo_struct);
