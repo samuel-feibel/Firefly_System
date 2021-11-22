@@ -6,7 +6,7 @@ close all; clearvars -except flightData
 rng(2);
 d2r = pi/180;
 
-simOn = 0;
+simOn = 1;
 
 %% Constants
 
@@ -104,8 +104,8 @@ matlabFunction(Phi,'Vars',{delt,x,cntrl,gravVec0Sym},'File','Phi_Fcn');
 
 % States
 Qs = diag([...
-            0.0189845388442364, 0.020660226476864607, 0.02769334420437668,...   % gyro
-            50*[0.06622349896195277, 0.08050395576102345, 0.053307049839142584],...  % accel
+            1*[0.0189845388442364, 0.020660226476864607, 0.02769334420437668],...   % gyro
+            1*[0.06622349896195277, 0.08050395576102345, 0.053307049839142584],...  % accel
             ].^2);
 Gs = jacobian(fs_true,noise);
 
@@ -128,9 +128,10 @@ matlabFunction(Q,'Vars',dT,'File','Q_Fcn');
 % ---- Measurement Noise ---- %
 
 R = diag([...
-            (10*[0.7356117692017315, 0.6273443875505387, 0.7582585400442549]),...   % mag
-            3,3,5,...   % GPS NED
+            (1*[0.7356117692017315, 0.6273443875505387, 0.7582585400442549]),...   % mag
+            1,1,5,...   % GPS NED
             .1,...      % baro alt
+            .05,.05,.5,...
             ].^2);
 
 %% Sensor Measurement
@@ -142,6 +143,7 @@ magVec = I_C_B'*(magVec0Sym);
 h = [(magVec-[mag_bias_x;mag_bias_y;mag_bias_z]);...
      N;E;D;...
      D;...
+     [vN;vE;vD];...
      ];
  % Full measurement
 matlabFunction(h,'Vars',{x,magVec0Sym},'File','h_Fcn');
@@ -152,27 +154,25 @@ matlabFunction(H,'Vars',{x,magVec0Sym},'File','H_jac_Fcn');
 
 
 %% Convert to C
-% ccode(R,'File','ccodeFiles/modelBasedAtt/R.c');
-% ccode(Q,'File','ccodeFiles/modelBasedAtt/Q.c');
-% ccode(H,'File','ccodeFiles/modelBasedAtt/H.c');
-% ccode(G,'File','ccodeFiles/modelBasedAtt/G.c');
-% ccode(Phi,'File','ccodeFiles/modelBasedAtt/Phi.c');
-% ccode(f,'File','ccodeFiles/modelBasedAtt/ff.c');
-% ccode(h,'File','ccodeFiles/modelBasedAtt/hh.c');
+ccode(H,'File','ccodeFiles/INS/H.c');
+ccode(G,'File','ccodeFiles/INS/G.c');
+ccode(Phi,'File','ccodeFiles/INS/Phi.c');
+ccode(f,'File','ccodeFiles/INS/ff.c');
+ccode(h,'File','ccodeFiles/INS/hh.c');
 
 
 %% Initial Conditions
 
 clear xhat1u xhat1p P1u P1p
 
-[q0_est] = Euler2Quat([0;0;180]*d2r);
+[q0_est] = Euler2Quat([0;0;0]*d2r);
 xs0 = [q0_est;...
        [0;0;0];...
        [0;0;0];...
        ];
 
   
-xp0 = [0;0;0];
+xp0 =  [-18.37500286102295; -15.15000057220459; 2.9250011444091797];
    
 x0 = [xs0;xp0];
 
@@ -180,16 +180,20 @@ Ps0 = diag([0.5*[1;1;1;1];...
             [0;0;0];...
             [0;0;0];...
             ].^2);
-Pp0 = diag(10*[1,1,1]);
+Pp0 = diag([10*[1,1,1]].^2);
 P0 = diag([diag(Ps0);diag(Pp0)]);
 
 nInput = length(cntrl);
 nNoise = length(noise);
 nM = size(h,1);
 %% Initial Conditions
+
+gravVec0 = [0;0;-9.8067];
+magVec0 = [19814.6,-5046.4,47408.0]'*1E-3;
+
 if ~simOn
     if ~exist('flightData','var')
-        flightData = loadFlightData(fullfile('DataFiles','20211110_walkingAround.txt'));
+        flightData = loadFlightData(fullfile('DataFiles','20211115_runningWest.txt'),100);
     end
     n_measurements = length(flightData.Time);
     
@@ -198,17 +202,15 @@ if ~simOn
     indST = 1000;
 %     gravVec0 = mean(flightData.IMU.Acc(1:indST,:))';
 %     magVec0 = mean(flightData.IMU.Mag(1:indST,:))';
-    gravVec0 = [0;0;-9.8067];
-    magVec0 = [19814.6,-5046.4,47408.0]'*1E-3;
+
 
     Z(1:3,:) = flightData.IMU.Mag';
-    Z(4:6,:) = flightData.GPS.NED';
+    Z(4:6,:) = flightData.GPS.NED'-flightData.GPS.NED(1,:)';
     Z(7,:) = flightData.baro.Alt';
+    Z(8:10,:) = flightData.GPS.vNED';
     uInput(1:3,:) = flightData.IMU.Gyr';
     uInput(4:6,:) = flightData.IMU.Acc';
 else
-    gravVec0 = [0.0775028327293694, -0.03650009836070239, -9.845733795166016]';
-    magVec0 = [-10.732501411437989, 13.064998292922974, 35.80500106811523]';
     n_measurements = 100;
     delt = 1;
     xhat_true = nan(n,n_measurements);
@@ -219,6 +221,7 @@ else
     xhat_true(:,1) = [q0_true;...
        [0;0;0];...
        [0;0;0];...
+       [-18.37500286102295; -15.15000057220459; 2.9250011444091797];...
        ];
 end
 
@@ -241,8 +244,8 @@ for k=1:(n_measurements-1)
     % Calculate Truth
     if simOn
         I_C_B_true = I_C_B_Fcn(xhat_true(1:4,k));
-        uInput_true(:,k) = [[0;0;0]*d2r;(I_C_B_true'*[0;0;0]+I_C_B_true'*gravVec0)];
-        uInput(:,k) = uInput_true(:,k) + sqrt(Q)*randn(nNoise,1);
+        uInput_true(:,k) = [[0;0;5]*d2r;(I_C_B_true'*[0;1;0]+I_C_B_true'*gravVec0)];
+        uInput(:,k) = uInput_true(:,k) + sqrt(Q(1:nNoise,1:nNoise))*randn(nNoise,1);
         xhat_true(:,k+1) = xhat_true(:,k) + delt*f_Fcn(xhat_true(:,k),uInput_true(:,k),gravVec0);
         xhat_true(1:4,k+1)=xhat_true(1:4,k+1)/norm(xhat_true(1:4,k+1));
         Z_true(:,k+1) =  h_Fcn(xhat_true(:,k+1),magVec0);
@@ -329,6 +332,18 @@ if ~simOn
     figure
     plot(time,Z(7,:)); title('Baro')
     xlabel('Time');
+
+    for i=1:size(xhat1u,2)
+        I_C_B_curr = I_C_B_Fcn(xhat1u(1:4,i));
+        acc(:,i) = I_C_B_curr*flightData.IMU.Acc(i,:)';
+    end
+
+    figure
+    plotMult(time,acc,[],[],'Acc')
+    xlabel('Time');
+
+    figure
+    plotMult(time,Z(8:10,:),[],[],'VM')
 
     autoArrangeFigures(3,3,1);
 

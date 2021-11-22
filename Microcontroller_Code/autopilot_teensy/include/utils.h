@@ -5,6 +5,8 @@
 
 void copy(float *a, float *b, int b_size);
 
+void copy(int32_t *a, byte *b, int b_size);
+
 void printArray(float *arr,int m);
 
 float norm3(BLA::Matrix<3> x);
@@ -12,6 +14,8 @@ float norm3(BLA::Matrix<3> x);
 void array2BLAMatrix(BLA::Matrix<6> &vec, float *arr);
 
 void array2BLAMatrix(BLA::Matrix<9> &vec, float *arr);
+
+void array2BLAMatrix(BLA::Matrix<10> &vec, float *arr);
 
 void array2BLAMatrix(BLA::Matrix<4> &vec, float *arr);
 

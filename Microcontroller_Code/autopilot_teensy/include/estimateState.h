@@ -12,9 +12,11 @@
 
 using namespace BLA;
 const int Ns = 13;
-const int Ninput = 3;
-const int Nm = 6;
-const Matrix<3, 1> magVec0 = {-10.732501411437989, 13.064998292922974, 35.80500106811523};
+const int Ninput = 6;
+const int nNoise = 9;
+const int Nm = 10;
+const Matrix<3, 1> magVec0 = {19.8146,-5.0464,47.4080};
+const Matrix<3, 1> gravVec0 = {0.0, 0.0,-9.8067};
 
 class stateEstimator
 {
@@ -37,13 +39,13 @@ private:
 
     void get_Phi(Matrix<Ns> &xhatk_u, Matrix<Ninput> &uk, float delt, Matrix<Ns, Ns> &Phi);
 
-    void get_Q(Matrix<Ninput, Ninput> &Q);
+    void get_Q(Matrix<nNoise, nNoise> &Q);
 
     void get_R(Matrix<Nm, Nm> &R);
 
     void get_H_jac(Matrix<Ns> &xhat, Matrix<Nm, Ns> &H_jac);
 
-    void get_G_jac(Matrix<Ns> &xhat, Matrix<Ns, Ninput> &G_jac);
+    void get_G_jac(Matrix<Ns> &xhat, Matrix<Ns, nNoise> &G_jac);
 
     void h_fcn(Matrix<Ns> &xhat, Matrix<Nm> &h);
 

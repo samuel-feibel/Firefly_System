@@ -27,6 +27,12 @@ PB_BIND(StatusStruct, StatusStruct, AUTO)
 PB_BIND(ModeStruct, ModeStruct, AUTO)
 
 
+PB_BIND(ReceiverStruct, ReceiverStruct, AUTO)
+
+
+PB_BIND(ServosStruct, ServosStruct, AUTO)
+
+
 PB_BIND(PlaneBuf, PlaneBuf, 2)
 
 

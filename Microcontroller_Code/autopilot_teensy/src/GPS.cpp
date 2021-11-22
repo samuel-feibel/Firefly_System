@@ -75,7 +75,13 @@ void wrapGPS::setup()
     myGPS.saveConfiguration(); //Save the current settings to flash and BBR
     GPS_struct.hasLinearized = 0;
 
+    while (myGPS.setDynamicModel(DYN_MODEL_AIRBORNE2g) == false) // Set the dynamic model to PORTABLE
+    {
 
+        // Serial.println(F("*** Warning: setDynamicModel failed ***"));
+        delay(500);
+    }
+    // Serial.println(F("Dynamic platform model changed successfully!"));
 }
 
 void wrapGPS::update()
@@ -100,25 +106,28 @@ void wrapGPS::update()
     GPS_struct.groundSpeed = myGPS.getGroundSpeed() * 1E-3;
     GPS_struct.heading = myGPS.getHeading() * 1E-5 * M_PI / 180;
     GPS_struct.SIV = myGPS.getSIV();
+    GPS_struct.velocity_NED[0] = myGPS.getNedNorthVel() * 1E-3;
+    GPS_struct.velocity_NED[1] = myGPS.getNedEastVel() * 1E-3;
+    GPS_struct.velocity_NED[2] = myGPS.getNedDownVel() * 1E-3;
 
     // Calculate NED
-    Matrix <3> r_NED;
-    LatLonAlt2NED_Fcn(GPS_struct.lat,GPS_struct.lon, GPS_struct.alt,NED_C_ECEF0, r_NED);
+    Matrix<3> r_NED;
+    LatLonAlt2NED_Fcn(GPS_struct.lat, GPS_struct.lon, GPS_struct.alt, NED_C_ECEF0, r_NED);
     for (int i = 0; i < 3; i++)
     {
         GPS_struct.position_NED[i] = r_NED(i);
     }
 
     // Set origin for linearization
-    if ( (GPS_struct.SIV > 5) && GPS_struct.hasLinearized==0){
+    if ((GPS_struct.SIV > 5) && GPS_struct.hasLinearized == 0)
+    {
         LatLonAlt2ECEF_Fcn(GPS_struct.lat, GPS_struct.lon, GPS_struct.alt, r0_ECEF);
         TECEF2NED_Fcn(r0_ECEF, NED_C_ECEF0);
         GPS_struct.hasLinearized = 1;
     }
-        
 }
 
-void wrapGPS::LatLonAlt2NED_Fcn(float lat, float lon, float alt, Matrix<3,3> &NED_C_ECEF, Matrix<3> &r_NED)
+void wrapGPS::LatLonAlt2NED_Fcn(float lat, float lon, float alt, Matrix<3, 3> &NED_C_ECEF, Matrix<3> &r_NED)
 {
     Matrix<3> r_ECEF;
     LatLonAlt2ECEF_Fcn(lat, lon, alt, r_ECEF);
@@ -145,7 +154,7 @@ void wrapGPS::LatLonAlt2ECEF_Fcn(float Lat, float Lon, float Alt, Matrix<3> &r_E
               ((b * b) * N / (a * a) + Alt) * sinLat};
 }
 
-void wrapGPS::TECEF2NED_Fcn(Matrix<3> &r_ECEF, Matrix<3,3> &NED_C_ECEF)
+void wrapGPS::TECEF2NED_Fcn(Matrix<3> &r_ECEF, Matrix<3, 3> &NED_C_ECEF)
 {
     float phi = asin(r_ECEF(2) / norm3(r_ECEF));
     float lambda = atan2(r_ECEF(1), r_ECEF(0));

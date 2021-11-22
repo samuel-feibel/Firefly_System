@@ -21,23 +21,26 @@ if ser.is_open==True:
 	print("\nAll right, serial port now open. Configuration:\n")
 	print(ser, "\n") #print serial parameters
     
-x = []
-y0 = []
-y1 = []
-y2 = []
-h0 = []
-h1 = []
-h2 = []
-bias = [0,0,0]
-magVec0 = [0,0,0]
+t = []
+roll = []
+pitch = []
+yaw = []
+pos_N = []
+pos_E = []
+pos_D = []
+vel_N = []
+vel_E = []
+vel_D = []
+mag_bias_X = []
+mag_bias_Y = []
+mag_bias_Z = []
 
 r2d = 180/np.pi
 
 plt.ion()
 
-figure, axs = plt.subplots(figsize=(8,6))
+figure, axs = plt.subplots(2,3,figsize=(12,8))
 
-t = time.time()
 # do stuff
 recentWindow = 20
 
@@ -51,42 +54,85 @@ while True:
         except DecodeError:
             ...
 
-        # Euler = [phi;theta;psi];
-        vec = np.array(pack.sensors.IMU.mag)
-        print(np.linalg.norm(vec))
-        x.append(pack.mcTime)
-        y0.append(pack.sensors.GPS.position_NED[0])
-        y1.append(pack.sensors.GPS.position_NED[1])
-        y2.append(pack.sensors.GPS.position_NED[2])
-        # h0.append(pack.stateEstimator.xhat[4])
-        # h1.append(pack.stateEstimator.xhat[5])
-        # h2.append(pack.stateEstimator.xhat[6])
+        t.append(pack.mcTime)
+        q1 = pack.stateEstimator.xhat[0]
+        q2 = pack.stateEstimator.xhat[1]
+        q3 = pack.stateEstimator.xhat[2]
+        q4 = pack.stateEstimator.xhat[3]
+        pos_N.append(pack.stateEstimator.xhat[4])
+        pos_E.append(pack.stateEstimator.xhat[5])
+        pos_D.append(pack.stateEstimator.xhat[6])
+        vel_N.append(pack.stateEstimator.xhat[7])
+        vel_E.append(pack.stateEstimator.xhat[8])
+        vel_D.append(pack.stateEstimator.xhat[9])
+        mag_bias_X.append(pack.stateEstimator.xhat[10])
+        mag_bias_Y.append(pack.stateEstimator.xhat[11])
+        mag_bias_Z.append(pack.stateEstimator.xhat[12])
+
+
+
+        # Append Angles
+        roll.append(np.arctan2(2*(q2*q3+q1*q4),1-2*(q1**2+q2**2))*r2d)
+        temp = 2*(q1*q3+q4*q2)
+        yaw.append(np.arctan2(2*(q1*q2+q3*q4),1-2*(q2**2+q3**2))*r2d)
+
+        if temp > 1:
+            temp = 1
+        if temp < -1:
+            temp = -1
+        pitch.append(np.arcsin(temp)*r2d)
          
-        axs.clear()
-        axs.plot(x, y0, 'r', label = "x")
-        axs.plot(x, y1, 'g', label = "y")
-        axs.plot(x, y2, 'b', label = "z")
-        # axs.plot(x, h0, 'r--')
-        # axs.plot(x, h1, 'g--')
-        # axs.plot(x, h2, 'b--')
-        # axs.legend()
+        if len(t) > recentWindow:
+            t.pop(0)
+            pos_D.pop(0)
+            roll.pop(0)
+            pitch.pop(0)
+            yaw.pop(0)
+            vel_N.pop(0)
+            vel_E.pop(0)
+            vel_D.pop(0)
+            mag_bias_X.pop(0)
+            mag_bias_Y.pop(0)
+            mag_bias_Z.pop(0)
 
-        # ## Save Stuff
-        # bias[0] = (max(y0)+min(y0))/2
-        # bias[1] = (max(y1)+min(y1))/2
-        # bias[2] = (max(y2)+min(y2))/2
+        ## Plot ##
 
-        # # print(bias)
+        # Angles
+        axs[0,0].clear()
+        axs[0,0].plot(t, roll, 'r', label = "Roll")
+        axs[0,0].plot(t, pitch, 'g', label = "Pitch")
+        axs[0,0].plot(t, yaw, 'b', label = "Yaw")
+        axs[0,0].legend()
+        axs[0,0].set_title('Attitude')
 
-        # magVec0[0] = np.mean(y0[len(y0)-recentWindow:len(y0)])
-        # magVec0[1] = np.mean(y1[len(y1)-recentWindow:len(y1)])
-        # magVec0[2] = np.mean(y2[len(y2)-recentWindow:len(y2)])
-        # print(magVec0)
+        # Position
+        axs[0,1].clear()
+        axs[0,1].plot(pos_E, pos_N)
+        axs[0,1].axis('equal')
+        axs[0,1].set_title('Position')
+
+        # Height
+        axs[0,2].clear()
+        axs[0,2].plot(t,pos_D)
+        axs[0,2].set_title('Altitude')
+
+        # Velocity
+        axs[1,0].clear()
+        axs[1,0].plot(t, vel_N, 'r', label = "N")
+        axs[1,0].plot(t, vel_E, 'g', label = "E")
+        axs[1,0].plot(t, vel_D, 'b', label = "D")
+        axs[1,0].legend()
+        axs[1,0].set_title('Velocity')
+
+        # Bias
+        axs[1,1].clear()
+        axs[1,1].plot(t, mag_bias_X, 'r', label = "X")
+        axs[1,1].plot(t, mag_bias_Y, 'g', label = "Y")
+        axs[1,1].plot(t, mag_bias_Z, 'b', label = "Z")
+        axs[1,1].legend()
+        axs[1,1].set_title('Mag Bias')
         
         figure.canvas.draw()
         
         figure.canvas.flush_events()
 
-        # print(time.time() - t)
-        t = time.time()
-        # time.sleep(0.1)

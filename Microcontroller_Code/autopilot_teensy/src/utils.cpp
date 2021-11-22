@@ -11,6 +11,14 @@ void copy(float *a, float *b, int b_size)
     copy(++a, ++b, b_size - 1);
 }
 
+void copy(int32_t *a, byte *b, int b_size)
+{
+    if (b_size == 0)
+        return;
+    *a = int(*b);
+    copy(++a, ++b, b_size - 1);
+}
+
 void printArray(float *arr, int m)
 {
     for (int k = 0; k < m; k++)
@@ -34,6 +42,15 @@ void array2BLAMatrix(BLA::Matrix<6> &vec, float *arr)
 }
 
 void array2BLAMatrix(BLA::Matrix<9> &vec, float *arr)
+{
+    for (int i = 0; i < vec.Rows; i++)
+    {
+        vec(i) = *arr;
+        ++arr;
+    }
+}
+
+void array2BLAMatrix(BLA::Matrix<10> &vec, float *arr)
 {
     for (int i = 0; i < vec.Rows; i++)
     {

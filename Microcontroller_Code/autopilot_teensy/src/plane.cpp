@@ -1,10 +1,8 @@
 
 // Includes
 #include <plane.h>
-#include <example.pb.h>
 
-// Stabilizer
-plane::plane() : plane_buf(), mySensor(plane_buf.sensors), myStateEstimator(plane_buf.stateEstimator), myWrapSD(plane_buf)
+plane::plane() : plane_buf(), mySensor(plane_buf.sensors), myStateEstimator(plane_buf.stateEstimator), myWrapSD(plane_buf) //, myRcComm(plane_buf.mode,plane_buf.reciever,plane_buf.servos)
 {
   // --- Protobufs --- //
 
@@ -18,11 +16,11 @@ plane::plane() : plane_buf(), mySensor(plane_buf.sensors), myStateEstimator(plan
 void plane::setup()
 {
   // Critical
+  Serial.begin(115200);
+  // myRcComm.setup();
 
   // Less Critical
-  Serial.begin(115200);
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
+
   mySensor.setup();
   mySensor.update();
   while (plane_buf.sensors.GPS.hasLinearized==0 || plane_buf.sensors.baro.hasLinearized==0)
@@ -33,13 +31,14 @@ void plane::setup()
   myStateEstimator.init();
   card_detected = myWrapSD.setup();
 
+  prevLoopTime = millis();
+  prevSerLoopTime = millis();  
+
   // Last
   // wdt_enable(WDTO_60MS); // This needs to be last
-  prevLoopTime = millis() + 50000;
-  prevSerLoopTime = millis();
 
-  //  myWrapSD.open();
 }
+
 
 void plane::loop()
 {
@@ -51,32 +50,21 @@ void plane::loop()
     prevLoopTime = millis();
     plane_buf.mcTime = millis() / 1000.0;
 
-    if (plane_buf.sensors.baro.hasLinearized && plane_buf.sensors.GPS.hasLinearized)
-    {
-      digitalWrite(LED_BUILTIN, HIGH);
-    }
-
     // Update Sensors
     mySensor.update();
 
-    //DEBUG
-    // delt = .2;
-    // Serial.print("Time: ");
-    // Serial.println(delt);
-    // wdt_reset();
-
     // Read Reciever
+    
+    // myRcComm.getRecieverSignals();
+
 
     // Update State Estimate
-    myStateEstimator.init(); // THIS IS A DEBUG STEP
     myStateEstimator.step(plane_buf.delt, &plane_buf.sensors.z_input[0], &plane_buf.sensors.z[0]);
 
     // DEBUG
     if (card_detected)
     {
-      myWrapSD.open();
       myWrapSD.writeData();
-      myWrapSD.close();
     }
 
     /*
@@ -124,11 +112,9 @@ void plane::loop()
 
     bool status = pb_encode(&stream, PlaneBuf_fields, &plane_buf);
     int packet_length = stream.bytes_written;
-    // Serial.println(packet_length);
 
-    Serial.println(base64_encode(packet_buffer, packet_length).c_str());
-    // Serial.println(plane_buf.sensors.IMU.mag[0]);
-
-    // Serial.println(plane_buf.delt,5);
+    // Serial.println(base64_encode(packet_buffer, packet_length).c_str());
+    // Serial.println(plane_buf.reciever.rcVals[0]);
+    Serial.println("here");
   }
 }

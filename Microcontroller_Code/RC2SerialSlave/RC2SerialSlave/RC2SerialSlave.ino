@@ -86,6 +86,17 @@ void setup() {
   Serial.begin(115200);
   setup_rcTiming();
 
+  digitalWrite(SS, HIGH);  // ensure SS stays high for now
+
+  // Put SCK, MOSI, SS pins into output mode
+  // also put SCK, MOSI into LOW state, and SS into HIGH state.
+  // Then put SPI hardware into Master mode and turn SPI on
+  SPI.begin ();
+
+  // Slow down the master a bit
+  SPI.setClockDivider(SPI_CLOCK_DIV8);
+  
+
 }
 
 void loop() {
@@ -108,5 +119,6 @@ void loop() {
     Serial << "t=" << millis() << " " << rcT[0] << " " << rcT[1] << " "
             << rcT[2] << " " << rcT[3] << " " << rcT[4] << " " << rcT[5] << " " << rcN << endl;
   }
-  sei();            // reenable interrupts
+  
+  
 }

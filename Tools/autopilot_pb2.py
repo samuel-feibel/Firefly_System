@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0f\x61utopilot.proto\"\xf8\x01\n\tGPSStruct\x12\x0b\n\x03lat\x18\x01 \x01(\x02\x12\x0b\n\x03lon\x18\x02 \x01(\x02\x12\x0b\n\x03\x61lt\x18\x03 \x01(\x02\x12\x13\n\x0bgroundSpeed\x18\x04 \x01(\x02\x12\x0b\n\x03SIV\x18\x05 \x01(\x02\x12\x0f\n\x07heading\x18\x06 \x01(\x02\x12\x14\n\x0cposition_NED\x18\x07 \x03(\x02\x12\x0c\n\x04year\x18\x08 \x01(\x05\x12\r\n\x05month\x18\t \x01(\x05\x12\x0b\n\x03\x64\x61y\x18\n \x01(\x05\x12\x0c\n\x04hour\x18\x0b \x01(\x05\x12\x0e\n\x06minute\x18\x0c \x01(\x05\x12\x0e\n\x06second\x18\r \x01(\x05\x12\x0c\n\x04msec\x18\x0e \x01(\x05\x12\x15\n\rhasLinearized\x18\x0f \x01(\x08\"R\n\tIMUStruct\x12\x0b\n\x03\x61\x63\x63\x18\x01 \x03(\x02\x12\x0b\n\x03gyr\x18\x02 \x03(\x02\x12\x0b\n\x03mag\x18\x03 \x03(\x02\x12\x0e\n\x06rawMag\x18\x04 \x03(\x02\x12\x0e\n\x06rawGyr\x18\x05 \x03(\x02\"\\\n\x0f\x42\x61rometerStruct\x12\x10\n\x08pressure\x18\x01 \x01(\x02\x12\x13\n\x0btemperature\x18\x02 \x01(\x02\x12\x0b\n\x03\x61lt\x18\x03 \x01(\x02\x12\x15\n\rhasLinearized\x18\x04 \x01(\x08\"|\n\x0cSensorStruct\x12\x17\n\x03GPS\x18\x01 \x01(\x0b\x32\n.GPSStruct\x12\x17\n\x03IMU\x18\x02 \x01(\x0b\x32\n.IMUStruct\x12\x1e\n\x04\x62\x61ro\x18\x03 \x01(\x0b\x32\x10.BarometerStruct\x12\x0f\n\x07z_input\x18\x04 \x03(\x02\x12\t\n\x01z\x18\x05 \x03(\x02\"/\n\x14StateEstimatorStruct\x12\x0c\n\x04xhat\x18\x01 \x03(\x02\x12\t\n\x01P\x18\x02 \x03(\x02\"/\n\x0cStatusStruct\x12\n\n\x02SD\x18\x01 \x01(\x08\x12\x13\n\x0bTransmitter\x18\x02 \x01(\x08\"/\n\nModeStruct\x12\x0f\n\x07\x61uxMode\x18\x01 \x01(\x05\x12\x10\n\x08\x61utoMode\x18\x02 \x01(\x05\"\xb1\x01\n\x08PlaneBuf\x12\x0c\n\x04\x64\x65lt\x18\x01 \x01(\x02\x12\x1e\n\x07sensors\x18\x02 \x01(\x0b\x32\r.SensorStruct\x12-\n\x0estateEstimator\x18\x03 \x01(\x0b\x32\x15.StateEstimatorStruct\x12\x1d\n\x06status\x18\x04 \x01(\x0b\x32\r.StatusStruct\x12\x19\n\x04mode\x18\x05 \x01(\x0b\x32\x0b.ModeStruct\x12\x0e\n\x06mcTime\x18\x06 \x01(\x02\x62\x06proto3'
+  serialized_pb=b'\n\x0f\x61utopilot.proto\"\x8e\x02\n\tGPSStruct\x12\x0b\n\x03lat\x18\x01 \x01(\x02\x12\x0b\n\x03lon\x18\x02 \x01(\x02\x12\x0b\n\x03\x61lt\x18\x03 \x01(\x02\x12\x13\n\x0bgroundSpeed\x18\x04 \x01(\x02\x12\x0b\n\x03SIV\x18\x05 \x01(\x02\x12\x0f\n\x07heading\x18\x06 \x01(\x02\x12\x14\n\x0cposition_NED\x18\x07 \x03(\x02\x12\x0c\n\x04year\x18\x08 \x01(\x05\x12\r\n\x05month\x18\t \x01(\x05\x12\x0b\n\x03\x64\x61y\x18\n \x01(\x05\x12\x0c\n\x04hour\x18\x0b \x01(\x05\x12\x0e\n\x06minute\x18\x0c \x01(\x05\x12\x0e\n\x06second\x18\r \x01(\x05\x12\x0c\n\x04msec\x18\x0e \x01(\x05\x12\x15\n\rhasLinearized\x18\x0f \x01(\x08\x12\x14\n\x0cvelocity_NED\x18\x10 \x03(\x02\"E\n\tIMUStruct\x12\x0b\n\x03\x61\x63\x63\x18\x01 \x03(\x02\x12\x0b\n\x03gyr\x18\x02 \x03(\x02\x12\x0e\n\x06rawMag\x18\x04 \x03(\x02\x12\x0e\n\x06rawGyr\x18\x05 \x03(\x02\"\\\n\x0f\x42\x61rometerStruct\x12\x10\n\x08pressure\x18\x01 \x01(\x02\x12\x13\n\x0btemperature\x18\x02 \x01(\x02\x12\x0b\n\x03\x61lt\x18\x03 \x01(\x02\x12\x15\n\rhasLinearized\x18\x04 \x01(\x08\"|\n\x0cSensorStruct\x12\x17\n\x03GPS\x18\x01 \x01(\x0b\x32\n.GPSStruct\x12\x17\n\x03IMU\x18\x02 \x01(\x0b\x32\n.IMUStruct\x12\x1e\n\x04\x62\x61ro\x18\x03 \x01(\x0b\x32\x10.BarometerStruct\x12\x0f\n\x07z_input\x18\x04 \x03(\x02\x12\t\n\x01z\x18\x05 \x03(\x02\"/\n\x14StateEstimatorStruct\x12\x0c\n\x04xhat\x18\x01 \x03(\x02\x12\t\n\x01P\x18\x02 \x03(\x02\"/\n\x0cStatusStruct\x12\n\n\x02SD\x18\x01 \x01(\x08\x12\x13\n\x0bTransmitter\x18\x02 \x01(\x08\"/\n\nModeStruct\x12\x0f\n\x07\x61uxMode\x18\x01 \x01(\x05\x12\x10\n\x08\x61utoMode\x18\x02 \x01(\x05\"\xb1\x01\n\x08PlaneBuf\x12\x0c\n\x04\x64\x65lt\x18\x01 \x01(\x02\x12\x1e\n\x07sensors\x18\x02 \x01(\x0b\x32\r.SensorStruct\x12-\n\x0estateEstimator\x18\x03 \x01(\x0b\x32\x15.StateEstimatorStruct\x12\x1d\n\x06status\x18\x04 \x01(\x0b\x32\r.StatusStruct\x12\x19\n\x04mode\x18\x05 \x01(\x0b\x32\x0b.ModeStruct\x12\x0e\n\x06mcTime\x18\x06 \x01(\x02\x62\x06proto3'
 )
 
 
@@ -138,6 +138,13 @@ _GPSSTRUCT = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='velocity_NED', full_name='GPSStruct.velocity_NED', index=15,
+      number=16, type=2, cpp_type=6, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -151,7 +158,7 @@ _GPSSTRUCT = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=20,
-  serialized_end=268,
+  serialized_end=290,
 )
 
 
@@ -178,21 +185,14 @@ _IMUSTRUCT = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='mag', full_name='IMUStruct.mag', index=2,
-      number=3, type=2, cpp_type=6, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='rawMag', full_name='IMUStruct.rawMag', index=3,
+      name='rawMag', full_name='IMUStruct.rawMag', index=2,
       number=4, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='rawGyr', full_name='IMUStruct.rawGyr', index=4,
+      name='rawGyr', full_name='IMUStruct.rawGyr', index=3,
       number=5, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -210,8 +210,8 @@ _IMUSTRUCT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=270,
-  serialized_end=352,
+  serialized_start=292,
+  serialized_end=361,
 )
 
 
@@ -263,8 +263,8 @@ _BAROMETERSTRUCT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=354,
-  serialized_end=446,
+  serialized_start=363,
+  serialized_end=455,
 )
 
 
@@ -323,8 +323,8 @@ _SENSORSTRUCT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=448,
-  serialized_end=572,
+  serialized_start=457,
+  serialized_end=581,
 )
 
 
@@ -362,8 +362,8 @@ _STATEESTIMATORSTRUCT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=574,
-  serialized_end=621,
+  serialized_start=583,
+  serialized_end=630,
 )
 
 
@@ -401,8 +401,8 @@ _STATUSSTRUCT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=623,
-  serialized_end=670,
+  serialized_start=632,
+  serialized_end=679,
 )
 
 
@@ -440,8 +440,8 @@ _MODESTRUCT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=672,
-  serialized_end=719,
+  serialized_start=681,
+  serialized_end=728,
 )
 
 
@@ -507,8 +507,8 @@ _PLANEBUF = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=722,
-  serialized_end=899,
+  serialized_start=731,
+  serialized_end=908,
 )
 
 _SENSORSTRUCT.fields_by_name['GPS'].message_type = _GPSSTRUCT

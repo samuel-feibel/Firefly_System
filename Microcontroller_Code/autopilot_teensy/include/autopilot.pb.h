@@ -34,26 +34,33 @@ typedef struct _GPSStruct {
     int32_t second; 
     int32_t msec; 
     bool hasLinearized; 
+    float velocity_NED[3]; 
 } GPSStruct;
 
 typedef struct _IMUStruct { 
     float acc[3]; 
     float gyr[3]; 
-    float mag[3]; 
     float rawMag[3]; 
     float rawGyr[3]; 
 } IMUStruct;
 
-/* Modes */
 typedef struct _ModeStruct { 
-    int32_t auxMode; 
     int32_t autoMode; 
+    int32_t auxMode; 
 } ModeStruct;
+
+typedef struct _ReceiverStruct { 
+    int32_t rcVals[6]; 
+} ReceiverStruct;
+
+typedef struct _ServosStruct { 
+    int32_t servoVals[6]; 
+} ServosStruct;
 
 /* State Estimator */
 typedef struct _StateEstimatorStruct { 
-    float xhat[16]; 
-    float P[16]; 
+    float xhat[13]; 
+    float P[13]; 
 } StateEstimatorStruct;
 
 /* Statuses */
@@ -86,6 +93,10 @@ typedef struct _PlaneBuf {
     bool has_mode;
     ModeStruct mode; 
     float mcTime; 
+    bool has_reciever;
+    ReceiverStruct reciever; 
+    bool has_servos;
+    ServosStruct servos; 
 } PlaneBuf;
 
 
@@ -94,22 +105,26 @@ extern "C" {
 #endif
 
 /* Initializer values for message structs */
-#define GPSStruct_init_default                   {0, 0, 0, 0, 0, 0, {0, 0, 0}, 0, 0, 0, 0, 0, 0, 0, 0}
-#define IMUStruct_init_default                   {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
+#define GPSStruct_init_default                   {0, 0, 0, 0, 0, 0, {0, 0, 0}, 0, 0, 0, 0, 0, 0, 0, 0, {0, 0, 0}}
+#define IMUStruct_init_default                   {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
 #define BarometerStruct_init_default             {0, 0, 0, 0}
 #define SensorStruct_init_default                {false, GPSStruct_init_default, false, IMUStruct_init_default, false, BarometerStruct_init_default, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
-#define StateEstimatorStruct_init_default        {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
+#define StateEstimatorStruct_init_default        {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define StatusStruct_init_default                {0, 0}
 #define ModeStruct_init_default                  {0, 0}
-#define PlaneBuf_init_default                    {0, false, SensorStruct_init_default, false, StateEstimatorStruct_init_default, false, StatusStruct_init_default, false, ModeStruct_init_default, 0}
-#define GPSStruct_init_zero                      {0, 0, 0, 0, 0, 0, {0, 0, 0}, 0, 0, 0, 0, 0, 0, 0, 0}
-#define IMUStruct_init_zero                      {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
+#define ReceiverStruct_init_default              {{0, 0, 0, 0, 0, 0}}
+#define ServosStruct_init_default                {{0, 0, 0, 0, 0, 0}}
+#define PlaneBuf_init_default                    {0, false, SensorStruct_init_default, false, StateEstimatorStruct_init_default, false, StatusStruct_init_default, false, ModeStruct_init_default, 0, false, ReceiverStruct_init_default, false, ServosStruct_init_default}
+#define GPSStruct_init_zero                      {0, 0, 0, 0, 0, 0, {0, 0, 0}, 0, 0, 0, 0, 0, 0, 0, 0, {0, 0, 0}}
+#define IMUStruct_init_zero                      {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
 #define BarometerStruct_init_zero                {0, 0, 0, 0}
 #define SensorStruct_init_zero                   {false, GPSStruct_init_zero, false, IMUStruct_init_zero, false, BarometerStruct_init_zero, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
-#define StateEstimatorStruct_init_zero           {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
+#define StateEstimatorStruct_init_zero           {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define StatusStruct_init_zero                   {0, 0}
 #define ModeStruct_init_zero                     {0, 0}
-#define PlaneBuf_init_zero                       {0, false, SensorStruct_init_zero, false, StateEstimatorStruct_init_zero, false, StatusStruct_init_zero, false, ModeStruct_init_zero, 0}
+#define ReceiverStruct_init_zero                 {{0, 0, 0, 0, 0, 0}}
+#define ServosStruct_init_zero                   {{0, 0, 0, 0, 0, 0}}
+#define PlaneBuf_init_zero                       {0, false, SensorStruct_init_zero, false, StateEstimatorStruct_init_zero, false, StatusStruct_init_zero, false, ModeStruct_init_zero, 0, false, ReceiverStruct_init_zero, false, ServosStruct_init_zero}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define BarometerStruct_pressure_tag             1
@@ -131,13 +146,15 @@ extern "C" {
 #define GPSStruct_second_tag                     13
 #define GPSStruct_msec_tag                       14
 #define GPSStruct_hasLinearized_tag              15
+#define GPSStruct_velocity_NED_tag               16
 #define IMUStruct_acc_tag                        1
 #define IMUStruct_gyr_tag                        2
-#define IMUStruct_mag_tag                        3
 #define IMUStruct_rawMag_tag                     4
 #define IMUStruct_rawGyr_tag                     5
-#define ModeStruct_auxMode_tag                   1
-#define ModeStruct_autoMode_tag                  2
+#define ModeStruct_autoMode_tag                  1
+#define ModeStruct_auxMode_tag                   2
+#define ReceiverStruct_rcVals_tag                1
+#define ServosStruct_servoVals_tag               1
 #define StateEstimatorStruct_xhat_tag            1
 #define StateEstimatorStruct_P_tag               2
 #define StatusStruct_SD_tag                      1
@@ -153,6 +170,8 @@ extern "C" {
 #define PlaneBuf_status_tag                      4
 #define PlaneBuf_mode_tag                        5
 #define PlaneBuf_mcTime_tag                      6
+#define PlaneBuf_reciever_tag                    7
+#define PlaneBuf_servos_tag                      8
 
 /* Struct field encoding specification for nanopb */
 #define GPSStruct_FIELDLIST(X, a) \
@@ -170,14 +189,14 @@ X(a, STATIC,   SINGULAR, INT32,    hour,             11) \
 X(a, STATIC,   SINGULAR, INT32,    minute,           12) \
 X(a, STATIC,   SINGULAR, INT32,    second,           13) \
 X(a, STATIC,   SINGULAR, INT32,    msec,             14) \
-X(a, STATIC,   SINGULAR, BOOL,     hasLinearized,    15)
+X(a, STATIC,   SINGULAR, BOOL,     hasLinearized,    15) \
+X(a, STATIC,   FIXARRAY, FLOAT,    velocity_NED,     16)
 #define GPSStruct_CALLBACK NULL
 #define GPSStruct_DEFAULT NULL
 
 #define IMUStruct_FIELDLIST(X, a) \
 X(a, STATIC,   FIXARRAY, FLOAT,    acc,               1) \
 X(a, STATIC,   FIXARRAY, FLOAT,    gyr,               2) \
-X(a, STATIC,   FIXARRAY, FLOAT,    mag,               3) \
 X(a, STATIC,   FIXARRAY, FLOAT,    rawMag,            4) \
 X(a, STATIC,   FIXARRAY, FLOAT,    rawGyr,            5)
 #define IMUStruct_CALLBACK NULL
@@ -216,10 +235,20 @@ X(a, STATIC,   SINGULAR, BOOL,     Transmitter,       2)
 #define StatusStruct_DEFAULT NULL
 
 #define ModeStruct_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, INT32,    auxMode,           1) \
-X(a, STATIC,   SINGULAR, INT32,    autoMode,          2)
+X(a, STATIC,   SINGULAR, INT32,    autoMode,          1) \
+X(a, STATIC,   SINGULAR, INT32,    auxMode,           2)
 #define ModeStruct_CALLBACK NULL
 #define ModeStruct_DEFAULT NULL
+
+#define ReceiverStruct_FIELDLIST(X, a) \
+X(a, STATIC,   FIXARRAY, INT32,    rcVals,            1)
+#define ReceiverStruct_CALLBACK NULL
+#define ReceiverStruct_DEFAULT NULL
+
+#define ServosStruct_FIELDLIST(X, a) \
+X(a, STATIC,   FIXARRAY, INT32,    servoVals,         1)
+#define ServosStruct_CALLBACK NULL
+#define ServosStruct_DEFAULT NULL
 
 #define PlaneBuf_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, FLOAT,    delt,              1) \
@@ -227,13 +256,17 @@ X(a, STATIC,   OPTIONAL, MESSAGE,  sensors,           2) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  stateEstimator,    3) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  status,            4) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  mode,              5) \
-X(a, STATIC,   SINGULAR, FLOAT,    mcTime,            6)
+X(a, STATIC,   SINGULAR, FLOAT,    mcTime,            6) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  reciever,          7) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  servos,            8)
 #define PlaneBuf_CALLBACK NULL
 #define PlaneBuf_DEFAULT NULL
 #define PlaneBuf_sensors_MSGTYPE SensorStruct
 #define PlaneBuf_stateEstimator_MSGTYPE StateEstimatorStruct
 #define PlaneBuf_status_MSGTYPE StatusStruct
 #define PlaneBuf_mode_MSGTYPE ModeStruct
+#define PlaneBuf_reciever_MSGTYPE ReceiverStruct
+#define PlaneBuf_servos_MSGTYPE ServosStruct
 
 extern const pb_msgdesc_t GPSStruct_msg;
 extern const pb_msgdesc_t IMUStruct_msg;
@@ -242,6 +275,8 @@ extern const pb_msgdesc_t SensorStruct_msg;
 extern const pb_msgdesc_t StateEstimatorStruct_msg;
 extern const pb_msgdesc_t StatusStruct_msg;
 extern const pb_msgdesc_t ModeStruct_msg;
+extern const pb_msgdesc_t ReceiverStruct_msg;
+extern const pb_msgdesc_t ServosStruct_msg;
 extern const pb_msgdesc_t PlaneBuf_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
@@ -252,16 +287,20 @@ extern const pb_msgdesc_t PlaneBuf_msg;
 #define StateEstimatorStruct_fields &StateEstimatorStruct_msg
 #define StatusStruct_fields &StatusStruct_msg
 #define ModeStruct_fields &ModeStruct_msg
+#define ReceiverStruct_fields &ReceiverStruct_msg
+#define ServosStruct_fields &ServosStruct_msg
 #define PlaneBuf_fields &PlaneBuf_msg
 
 /* Maximum encoded size of messages (where known) */
 #define BarometerStruct_size                     17
-#define GPSStruct_size                           124
-#define IMUStruct_size                           75
+#define GPSStruct_size                           142
+#define IMUStruct_size                           60
 #define ModeStruct_size                          22
-#define PlaneBuf_size                            508
-#define SensorStruct_size                        302
-#define StateEstimatorStruct_size                160
+#define PlaneBuf_size                            618
+#define ReceiverStruct_size                      66
+#define SensorStruct_size                        306
+#define ServosStruct_size                        66
+#define StateEstimatorStruct_size                130
 #define StatusStruct_size                        4
 
 #ifdef __cplusplus

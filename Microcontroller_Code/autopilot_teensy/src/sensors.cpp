@@ -26,7 +26,11 @@ void Sensors::update(){
 
     // Update Measurement Vector
     copy(&sensor_struct.z_input[0], &sensor_struct.IMU.gyr[0], 3);
-    copy(&sensor_struct.z[0], &sensor_struct.IMU.mag[0], 3);
-    copy(&sensor_struct.z[3], &sensor_struct.IMU.acc[0], 3);
+    copy(&sensor_struct.z_input[3], &sensor_struct.IMU.acc[0], 3);
+
+    copy(&sensor_struct.z[0], &sensor_struct.IMU.rawMag[0], 3);
+    copy(&sensor_struct.z[3], &sensor_struct.GPS.position_NED[0], 3);
+    sensor_struct.z[6] = sensor_struct.baro.alt;
+    copy(&sensor_struct.z[7], &sensor_struct.GPS.velocity_NED[0], 3);
 
     }

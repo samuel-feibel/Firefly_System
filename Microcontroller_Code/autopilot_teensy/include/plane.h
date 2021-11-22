@@ -3,27 +3,16 @@
 
 // Includes
 #include <Arduino.h>
-// #include <Wire.h>
-// #include <SPI.h>
-// #include <SD.h>
-// #include <avr/wdt.h>
-// #include <math.h>
-// #include <BasicLinearAlgebra.h>
-// #include <Streaming.h>
-// #include <base64.h>
-// #include <GPS.h>
-// #include <IMU.h>
-// #include <barometer.h>
 #include <SDs.h>
 #include <sensors.h>
-// #include <utils.h>
 // #include <stabilize.h>
-// #include <test.h>
 #include <estimateState.h>
 #include <pb_encode.h>
 #include <pb.h>
 #include <autopilot.pb.h>
 #include <base64.h>
+#include <rcComm.h>
+
 
 // Protobufs
 
@@ -34,6 +23,7 @@ private:
     Sensors mySensor;
     stateEstimator myStateEstimator;
     wrapSD myWrapSD; 
+    // rcComm myRcComm;
 
     // --- Settings --- //
 

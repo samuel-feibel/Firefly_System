@@ -225,10 +225,6 @@ void wrapIMU::update()
     IMU_struct.gyr[1] = (myICM.gyrY() - BIAS_GYR[1]) * GYR_MULTIPLIER * -1;
     IMU_struct.gyr[2] = (myICM.gyrZ() - BIAS_GYR[2]) * GYR_MULTIPLIER * -1;
 
-    IMU_struct.mag[0] = (myICM.magX() - BIAS_MAG[0]);
-    IMU_struct.mag[1] = (myICM.magY() - BIAS_MAG[1]);
-    IMU_struct.mag[2] = (myICM.magZ() - BIAS_MAG[2]);
-
     IMU_struct.rawGyr[0] = myICM.gyrX();
     IMU_struct.rawGyr[1] = myICM.gyrY();
     IMU_struct.rawGyr[2] = myICM.gyrZ();

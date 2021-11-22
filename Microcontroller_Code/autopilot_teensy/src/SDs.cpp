@@ -74,7 +74,7 @@ bool wrapSD::setup()
   {
     // First Log Entry
     myFile = SD.open("dataLog.txt", FILE_WRITE);
-    myFile.println("================================ Starting Log Protobuf =================================");
+    myFile.println("================================ Starting Log Version 2 =================================");
     myFile.print("Current Time: ");
     myFile.print(plane_buf.sensors.GPS.year);
     myFile.print("-");
@@ -96,9 +96,6 @@ bool wrapSD::setup()
     myFile.print("Gyr (rad/s) x, ");
     myFile.print("Gyr (rad/s) y, ");
     myFile.print("Gyr (rad/s) z, ");
-    myFile.print("Mag (uT) x, ");
-    myFile.print("Mag (uT) y, ");
-    myFile.print("Mag (uT) z, ");
     myFile.print("rawGyr (deg/s) x, ");
     myFile.print("rawGyr (deg/s) y, ");
     myFile.print("rawGyr (deg/s) z, ");
@@ -116,6 +113,9 @@ bool wrapSD::setup()
     myFile.print("N_GPS, ");
     myFile.print("E_GPS, ");
     myFile.print("D_GPS, ");
+    myFile.print("VN_GPS, ");
+    myFile.print("VE_GPS, ");
+    myFile.print("VD_GPS, ");
     myFile.print("Pressure (hPa), ");
     myFile.print("Alt_baro, ");
     myFile.print("Reciever Throttle Val (0-180), ");
@@ -124,16 +124,19 @@ bool wrapSD::setup()
     myFile.print("Reciever Rudder Servo (deg), ");
     myFile.print("Auto Mode (deg), ");
     myFile.print("Aux Mode, ");
-    myFile.print("N_est, ");
-    myFile.print("E_est, ");
-    myFile.print("D_est, ");
-    myFile.print("u_est, ");
-    myFile.print("v_est, ");
-    myFile.print("w_est, ");
     myFile.print("q1_est, ");
     myFile.print("q2_est, ");
     myFile.print("q3_est, ");
     myFile.print("q4_est, ");
+    myFile.print("N_est, ");
+    myFile.print("E_est, ");
+    myFile.print("D_est, ");
+    myFile.print("vN_est, ");
+    myFile.print("vE_est, ");
+    myFile.print("vD_est, ");
+    myFile.print("mag_bias_X, ");
+    myFile.print("mag_bias_Y, ");
+    myFile.print("mag_bias_Z, ");
     myFile.print("Servo Throttle Val (0-180), ");
     myFile.print("Servo Aileron Servo (deg), ");
     myFile.print("Servo Elevator Servo (deg), ");
@@ -141,7 +144,6 @@ bool wrapSD::setup()
 
     // close file
     myFile.println("");
-    myFile.close();
   }
 
   return 1;
@@ -160,9 +162,9 @@ void wrapSD::writeData()
 
       bool status = pb_encode(&stream, PlaneBuf_fields, &plane_buf);
       int packet_length = stream.bytes_written;
-      // Serial.println(packet_length);
 
       myFile.println(base64_encode(packet_buffer, packet_length).c_str());
+
     }
     else
     {
@@ -171,7 +173,6 @@ void wrapSD::writeData()
       myFile.print(", ");
       writeVec(&plane_buf.sensors.IMU.acc[0], 3);
       writeVec(&plane_buf.sensors.IMU.gyr[0], 3);
-      writeVec(&plane_buf.sensors.IMU.mag[0], 3);
       writeVec(&plane_buf.sensors.IMU.rawGyr[0], 3);
       writeVec(&plane_buf.sensors.IMU.rawMag[0], 3);
       myFile.print(plane_buf.sensors.baro.temperature, sigFigs);
@@ -192,6 +193,7 @@ void wrapSD::writeData()
       myFile.print(plane_buf.sensors.GPS.SIV);
       myFile.print(", ");
       writeVec(&plane_buf.sensors.GPS.position_NED[0], 3);
+      writeVec(&plane_buf.sensors.GPS.velocity_NED[0], 3);
       // -- Barometer --//
       myFile.print(plane_buf.sensors.baro.pressure, sigFigs);
       myFile.print(", ");
@@ -211,7 +213,8 @@ void wrapSD::writeData()
       myFile.print(0);
       myFile.print(", ");
       // -- States --- //
-      writeVec(&plane_buf.stateEstimator.xhat[0], 10);
+      writeVec(&plane_buf.stateEstimator.xhat[0], 13);
+      writeVec(&plane_buf.stateEstimator.P[0], 13);
       // -- Servo Inputs --- //
       myFile.print(0);
       myFile.print(", ");
@@ -222,9 +225,13 @@ void wrapSD::writeData()
       myFile.print(0);
       myFile.println("");
     }
+
+    myFile.flush();
+
   }
   else
   {
+    
     // if the file didn't open, print an error:
     Serial.println("error opening test.txt");
   }
